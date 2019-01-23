@@ -10,6 +10,7 @@
 namespace GalileoSDK {
 	class DLL_PUBLIC ServerInfo {
 	public:
+		ServerInfo();
 		ServerInfo(Json::Value);
 		std::string getMac();
 		void setMac(std::string);

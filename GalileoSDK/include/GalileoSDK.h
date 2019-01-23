@@ -22,14 +22,16 @@
 namespace GalileoSDK {
 
 	enum GALILEO_RETURN_CODE {
-		OK,
-		NOT_CONNECTED,
-		INVALIDE_STATE
+		OK, // 执行成功
+		NOT_CONNECTED, // 没有连接到机器人
+		INVALIDE_STATE, // 当前状态无法执行此操作
+		NO_SERVER_FOUND, // 没有发现机器人
+		MULTI_SERVER_FOUND, // 发现多个机器人
 	};
 
-	class GalileoSDK {
+	class DLL_PUBLIC GalileoSDK {
 	public:
-		DLL_PUBLIC GalileoSDK();
+		GalileoSDK();
 		GALILEO_RETURN_CODE Connect(std::string targetID, bool auto_connect, bool reconnect, int timeout,
 			GALILEO_RETURN_CODE(*OnConnect)(std::string), GALILEO_RETURN_CODE (*OnDisconnect)(std::string));
 		GALILEO_RETURN_CODE WaitForConnect(std::string targetID, bool auto_connect, bool reconnect, int timeout,
@@ -37,7 +39,8 @@ namespace GalileoSDK {
 		GALILEO_RETURN_CODE StartNavigation(GALILEO_RETURN_CODE(*OnConnect)(std::string));
 		GALILEO_RETURN_CODE WaitForStartNavigation(GALILEO_RETURN_CODE(*OnConnect)(std::string));
 		//DLL_PUBLIC std::vector<ServerInfo>  GetServersOnline();
-		DLL_PUBLIC std::vector<ServerInfo> GetServersOnline();
+		std::vector<ServerInfo> GetServersOnline();
+		ServerInfo currentServer;
 	private:
 		BroadcastReceiver broadcastReceiver;
 	};
