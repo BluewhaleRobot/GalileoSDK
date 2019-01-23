@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2000
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GalileoSDK", "GalileoSDK\GalileoSDK.vcxproj", "{C6CFFB7A-8C9D-426C-998E-2617C916599E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GalileoSDKTest", "GalileoSDKTest\GalileoSDKTest.vcxproj", "{2A01332C-3C00-4D40-B1DF-A9809E8D0FD2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GalileoSDK", "GalileoSDK\GalileoSDK.vcxproj", "{651A6ADC-CEA7-48BB-A89C-A1B6500D79E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +15,22 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C6CFFB7A-8C9D-426C-998E-2617C916599E}.Debug|x64.ActiveCfg = Debug|x64
-		{C6CFFB7A-8C9D-426C-998E-2617C916599E}.Debug|x64.Build.0 = Debug|x64
-		{C6CFFB7A-8C9D-426C-998E-2617C916599E}.Debug|x86.ActiveCfg = Debug|Win32
-		{C6CFFB7A-8C9D-426C-998E-2617C916599E}.Debug|x86.Build.0 = Debug|Win32
-		{C6CFFB7A-8C9D-426C-998E-2617C916599E}.Release|x64.ActiveCfg = Release|x64
-		{C6CFFB7A-8C9D-426C-998E-2617C916599E}.Release|x64.Build.0 = Release|x64
-		{C6CFFB7A-8C9D-426C-998E-2617C916599E}.Release|x86.ActiveCfg = Release|Win32
-		{C6CFFB7A-8C9D-426C-998E-2617C916599E}.Release|x86.Build.0 = Release|Win32
+		{2A01332C-3C00-4D40-B1DF-A9809E8D0FD2}.Debug|x64.ActiveCfg = Debug|x64
+		{2A01332C-3C00-4D40-B1DF-A9809E8D0FD2}.Debug|x64.Build.0 = Debug|x64
+		{2A01332C-3C00-4D40-B1DF-A9809E8D0FD2}.Debug|x86.ActiveCfg = Debug|Win32
+		{2A01332C-3C00-4D40-B1DF-A9809E8D0FD2}.Debug|x86.Build.0 = Debug|Win32
+		{2A01332C-3C00-4D40-B1DF-A9809E8D0FD2}.Release|x64.ActiveCfg = Release|x64
+		{2A01332C-3C00-4D40-B1DF-A9809E8D0FD2}.Release|x64.Build.0 = Release|x64
+		{2A01332C-3C00-4D40-B1DF-A9809E8D0FD2}.Release|x86.ActiveCfg = Release|Win32
+		{2A01332C-3C00-4D40-B1DF-A9809E8D0FD2}.Release|x86.Build.0 = Release|Win32
+		{651A6ADC-CEA7-48BB-A89C-A1B6500D79E4}.Debug|x64.ActiveCfg = Debug|x64
+		{651A6ADC-CEA7-48BB-A89C-A1B6500D79E4}.Debug|x64.Build.0 = Debug|x64
+		{651A6ADC-CEA7-48BB-A89C-A1B6500D79E4}.Debug|x86.ActiveCfg = Debug|Win32
+		{651A6ADC-CEA7-48BB-A89C-A1B6500D79E4}.Debug|x86.Build.0 = Debug|Win32
+		{651A6ADC-CEA7-48BB-A89C-A1B6500D79E4}.Release|x64.ActiveCfg = Release|x64
+		{651A6ADC-CEA7-48BB-A89C-A1B6500D79E4}.Release|x64.Build.0 = Release|x64
+		{651A6ADC-CEA7-48BB-A89C-A1B6500D79E4}.Release|x86.ActiveCfg = Release|Win32
+		{651A6ADC-CEA7-48BB-A89C-A1B6500D79E4}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
