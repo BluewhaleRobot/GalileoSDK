@@ -18,6 +18,7 @@
 #include "Utils.h"
 
 namespace GalileoSDK {
+	class GalileoSDK;
 	class BroadcastReceiver {
 	public:
 		BroadcastReceiver();
@@ -25,12 +26,14 @@ namespace GalileoSDK {
 		void StopTask();
 		static std::vector<ServerInfo> GetServers();
 		void Run();
+		void SetSDK(GalileoSDK*);
 	private:
 		SOCKET serverSocket;
 		struct sockaddr_in server, si_other;
 		bool runningFlag;
 		std::vector<ServerInfo> serverList;
 		static BroadcastReceiver* instance;
+		GalileoSDK* sdk;
 	};
 }
 

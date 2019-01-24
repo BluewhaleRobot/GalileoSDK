@@ -29,13 +29,15 @@ namespace GalileoSDK {
 		MULTI_SERVER_FOUND, // 发现多个机器人
 		NETWORK_ERROR, //网络环境错误
 		ALREADY_CONNECTED, // 已经连接过了
+		TIMEOUT, // 操作超时
 	};
 
 	class DLL_PUBLIC GalileoSDK {
 	public:
 		GalileoSDK();
 		GALILEO_RETURN_CODE Connect(std::string targetID, bool auto_connect, bool reconnect, int timeout,
-			GALILEO_RETURN_CODE(*OnConnect)(std::string), GALILEO_RETURN_CODE (*OnDisconnect)(std::string));
+			void(*OnConnect)(GALILEO_RETURN_CODE, std::string), void(*OnDisconnect)(GALILEO_RETURN_CODE, std::string));
+		GALILEO_RETURN_CODE Connect(ServerInfo server);
 		GALILEO_RETURN_CODE WaitForConnect(std::string targetID, bool auto_connect, bool reconnect, int timeout,
 			GALILEO_RETURN_CODE(*OnConnect)(std::string), GALILEO_RETURN_CODE(*OnDisconnect)(std::string));
 		GALILEO_RETURN_CODE StartNavigation(GALILEO_RETURN_CODE(*OnConnect)(std::string));
@@ -44,7 +46,9 @@ namespace GalileoSDK {
 		std::vector<ServerInfo> GetServersOnline();
 		ServerInfo* currentServer;
 		GALILEO_RETURN_CODE PublishTest();
-		GALILEO_RETURN_CODE GetCurrentStatus(galileo_serial_server::GalileoStatusPtr status);
+		GALILEO_RETURN_CODE GetCurrentStatus(galileo_serial_server::GalileoStatus* status);
+		static GalileoSDK* GetInstance();
+		void broadcastOfflineCallback(std::string id);
 		~GalileoSDK();
 
 	private:
@@ -53,11 +57,15 @@ namespace GalileoSDK {
 		ros::Publisher testPub;
 		ros::Subscriber galileoStatusSub;
 		void UpdateGalileoStatus(const galileo_serial_server::GalileoStatusConstPtr &status);
-		galileo_serial_server::GalileoStatusPtr currentStatus;
+		galileo_serial_server::GalileoStatusConstPtr currentStatus;
 		std::mutex statusLock;
+		void SpinThread();
+		void(*OnDisconnect)(GALILEO_RETURN_CODE, std::string);
+		void(*OnConnect)(GALILEO_RETURN_CODE, std::string);
+		bool connectingTaskFlag;
+		bool reconnectFlag;
+		static GalileoSDK* instance;
 	};
-
-	extern "C" DLL_PUBLIC GalileoSDK* GetSDK();
 };
 
 #endif // !__GALILEO_SDK_H__
