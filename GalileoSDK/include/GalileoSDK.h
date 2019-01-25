@@ -14,6 +14,7 @@
 #include "std_msgs/String.h"
 #include "galileo_serial_server/GalileoNativeCmds.h"
 #include "galileo_serial_server/GalileoStatus.h"
+#include "geometry_msgs/Twist.h"
 #include "models/ServerInfo.h"
 #include "tasks/BroadcastReceiver.h"
 #include <thread>
@@ -35,7 +36,7 @@ namespace GalileoSDK {
 	class DLL_PUBLIC GalileoSDK {
 	public:
 		GalileoSDK();
-		GALILEO_RETURN_CODE Connect(std::string targetID, bool auto_connect, bool reconnect, int timeout,
+		GALILEO_RETURN_CODE Connect(std::string targetID, bool auto_connect, int timeout,
 			void(*OnConnect)(GALILEO_RETURN_CODE, std::string), void(*OnDisconnect)(GALILEO_RETURN_CODE, std::string));
 		GALILEO_RETURN_CODE Connect(ServerInfo server);
 		GALILEO_RETURN_CODE WaitForConnect(std::string targetID, bool auto_connect, bool reconnect, int timeout,
@@ -49,12 +50,40 @@ namespace GalileoSDK {
 		GALILEO_RETURN_CODE GetCurrentStatus(galileo_serial_server::GalileoStatus* status);
 		static GalileoSDK* GetInstance();
 		void broadcastOfflineCallback(std::string id);
+		// 伽利略指令相关
+		GALILEO_RETURN_CODE SendCMD(uint8_t[], int);
+		GALILEO_RETURN_CODE StartNav();
+		GALILEO_RETURN_CODE StopNav();
+		GALILEO_RETURN_CODE SetGoal(int);
+		GALILEO_RETURN_CODE PauseGoal();
+		GALILEO_RETURN_CODE ResumeGoal();
+		GALILEO_RETURN_CODE CancelGoal();
+		GALILEO_RETURN_CODE InsertGoal(float x, float y);
+		GALILEO_RETURN_CODE ResetGoal();
+		GALILEO_RETURN_CODE SetSpeed(float vLinear, float vAngle);
+		GALILEO_RETURN_CODE Shutdown();
+		GALILEO_RETURN_CODE SetAngle(uint8_t sign, uint8_t angle);
+		GALILEO_RETURN_CODE StartLoop();
+		GALILEO_RETURN_CODE StopLoop();
+		GALILEO_RETURN_CODE SetLoopWaitTime(uint8_t time);
+		GALILEO_RETURN_CODE StartMapping();
+		GALILEO_RETURN_CODE StopMapping();
+		GALILEO_RETURN_CODE SaveMap();
+		GALILEO_RETURN_CODE UpdateMap();
+		GALILEO_RETURN_CODE StartChargeLocal();
+		GALILEO_RETURN_CODE stopChargeLocal();
+		GALILEO_RETURN_CODE SaveChargeBasePosition();
+		GALILEO_RETURN_CODE StartCharge(float x, float y);
+		GALILEO_RETURN_CODE StopCharge();
 		~GalileoSDK();
 
 	private:
 		BroadcastReceiver broadcastReceiver;
 		ros::NodeHandle* nh;
 		ros::Publisher testPub;
+		ros::Publisher cmdPub;
+		ros::Publisher audioPub;
+		ros::Publisher speedPub;
 		ros::Subscriber galileoStatusSub;
 		void UpdateGalileoStatus(const galileo_serial_server::GalileoStatusConstPtr &status);
 		galileo_serial_server::GalileoStatusConstPtr currentStatus;
@@ -63,8 +92,12 @@ namespace GalileoSDK {
 		void(*OnDisconnect)(GALILEO_RETURN_CODE, std::string);
 		void(*OnConnect)(GALILEO_RETURN_CODE, std::string);
 		bool connectingTaskFlag;
-		bool reconnectFlag;
 		static GalileoSDK* instance;
+		// Connect 相关参数
+		std::string targetID;
+		bool auto_connect;
+		int timeout;
+		
 	};
 };
 

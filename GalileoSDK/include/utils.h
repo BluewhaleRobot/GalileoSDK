@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include <Iphlpapi.h>
+#include <mutex>
 #pragma comment(lib, "IPHLPAPI.lib")
 
 namespace GalileoSDK{
@@ -43,6 +44,7 @@ namespace GalileoSDK{
 			return myIPs;
 		}
 	};
+
 }
 
 #endif // !__UTILS_H__

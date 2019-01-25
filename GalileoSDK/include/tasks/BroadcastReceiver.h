@@ -16,6 +16,7 @@
 #include <iostream>
 #include <Ws2tcpip.h>
 #include "Utils.h"
+#include <mutex>
 
 namespace GalileoSDK {
 	class GalileoSDK;
@@ -34,6 +35,7 @@ namespace GalileoSDK {
 		std::vector<ServerInfo> serverList;
 		static BroadcastReceiver* instance;
 		GalileoSDK* sdk;
+		std::mutex serversLock;
 	};
 }
 
