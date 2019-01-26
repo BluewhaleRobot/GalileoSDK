@@ -31,6 +31,9 @@ namespace GalileoSDK {
 		NETWORK_ERROR, //网络环境错误
 		ALREADY_CONNECTED, // 已经连接过了
 		TIMEOUT, // 操作超时
+		SERVER_ERROR, // 服务端错误
+		GOAL_CANCELLED, // 任务取消
+		INVALIDE_GOAL, // 无效目标
 	};
 
 	class DLL_PUBLIC GalileoSDK {
@@ -39,11 +42,10 @@ namespace GalileoSDK {
 		GALILEO_RETURN_CODE Connect(std::string targetID, bool auto_connect, int timeout,
 			void(*OnConnect)(GALILEO_RETURN_CODE, std::string), void(*OnDisconnect)(GALILEO_RETURN_CODE, std::string));
 		GALILEO_RETURN_CODE Connect(ServerInfo server);
-		GALILEO_RETURN_CODE WaitForConnect(std::string targetID, bool auto_connect, bool reconnect, int timeout,
+		/*GALILEO_RETURN_CODE WaitForConnect(std::string targetID, bool auto_connect, bool reconnect, int timeout,
 			GALILEO_RETURN_CODE(*OnConnect)(std::string), GALILEO_RETURN_CODE(*OnDisconnect)(std::string));
 		GALILEO_RETURN_CODE StartNavigation(GALILEO_RETURN_CODE(*OnConnect)(std::string));
-		GALILEO_RETURN_CODE WaitForStartNavigation(GALILEO_RETURN_CODE(*OnConnect)(std::string));
-		//DLL_PUBLIC std::vector<ServerInfo>  GetServersOnline();
+		GALILEO_RETURN_CODE WaitForStartNavigation(GALILEO_RETURN_CODE(*OnConnect)(std::string));*/
 		std::vector<ServerInfo> GetServersOnline();
 		ServerInfo* currentServer;
 		GALILEO_RETURN_CODE PublishTest();
@@ -75,6 +77,11 @@ namespace GalileoSDK {
 		GALILEO_RETURN_CODE SaveChargeBasePosition();
 		GALILEO_RETURN_CODE StartCharge(float x, float y);
 		GALILEO_RETURN_CODE StopCharge();
+		GALILEO_RETURN_CODE MoveTo(float x, float y, uint8_t* goalNum);
+		GALILEO_RETURN_CODE GetCurrentStatus(galileo_serial_server::GalileoStatus*);
+		GALILEO_RETURN_CODE SetCurrentStatusCallback(void(*callback)(GALILEO_RETURN_CODE, galileo_serial_server::GalileoStatus));
+		GALILEO_RETURN_CODE SetGoalReachedCallback(void(*callback)(int goalID, galileo_serial_server::GalileoStatus));
+		GALILEO_RETURN_CODE WaitForGoal(int goalID);
 		~GalileoSDK();
 
 	private:
@@ -91,6 +98,8 @@ namespace GalileoSDK {
 		void SpinThread();
 		void(*OnDisconnect)(GALILEO_RETURN_CODE, std::string);
 		void(*OnConnect)(GALILEO_RETURN_CODE, std::string);
+		void(*CurrentStatusCallback)(GALILEO_RETURN_CODE, galileo_serial_server::GalileoStatus);
+		void(*GoalReachedCallback)(int, galileo_serial_server::GalileoStatus);
 		bool connectingTaskFlag;
 		static GalileoSDK* instance;
 		// Connect 相关参数
