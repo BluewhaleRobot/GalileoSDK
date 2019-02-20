@@ -95,6 +95,7 @@ namespace GalileoSDK {
         GALILEO_RETURN_CODE StartCharge(float x, float y);
         GALILEO_RETURN_CODE StopCharge();
         GALILEO_RETURN_CODE MoveTo(float x, float y, uint8_t *goalNum);
+        GALILEO_RETURN_CODE GetGoalNum(uint8_t *goalNum);
         GALILEO_RETURN_CODE GetCurrentStatus(galileo_serial_server::GalileoStatus *);
         void SetCurrentStatusCallback(void(*callback)(
             GALILEO_RETURN_CODE, galileo_serial_server::GalileoStatus));
