@@ -10,29 +10,41 @@ void Sleep(uint64_t miliseconds)
 }
 #endif
 
-
 /// 测试发布消息
-void testPub() {
+void testPub()
+{
     GalileoSDK::GalileoSDK sdk;
-    auto servers = sdk.GetServersOnline();
-    for (auto it = servers.begin(); it < servers.end(); it++) {
-        std::cout << it->getID() << std::endl;
-        sdk.Connect("", true, 10000, NULL, NULL);
+    while (true)
+    {
+        auto servers = sdk.GetServersOnline();
+        if(servers.size() == 0){
+            std::cout << "No server found" << std::endl;
+        }
+        for (auto it = servers.begin(); it < servers.end(); it++)
+        {
+            std::cout << it->getID() << std::endl;
+            sdk.Connect("", true, 10000, NULL, NULL);
+        }
+        sdk.PublishTest();
+        Sleep(1000);
     }
-    sdk.PublishTest();
 }
 
 /// 测试订阅消息
-void testSub() {
+void testSub()
+{
     GalileoSDK::GalileoSDK sdk;
     sdk.Connect("", true, 10000, NULL, NULL);
-    while (true) {
+    while (true)
+    {
         galileo_serial_server::GalileoStatus *status =
             new galileo_serial_server::GalileoStatus();
-        if (sdk.GetCurrentStatus(status) == GalileoSDK::OK) {
+        if (sdk.GetCurrentStatus(status) == GalileoSDK::OK)
+        {
             std::cout << status->power << std::endl;
         }
-        else {
+        else
+        {
             std::cout << "Get status failed" << std::endl;
         }
         Sleep(1000);
@@ -40,45 +52,52 @@ void testSub() {
 }
 
 bool connected = false;
-void testConnectWithCallback() {
+void testConnectWithCallback()
+{
     connected = false;
     GalileoSDK::GalileoSDK sdk;
     sdk.Connect("", true, 10000,
-        [](GalileoSDK::GALILEO_RETURN_CODE res, std::string id) -> void {
-        std::cout << "OnConnect Callback: result " << res << std::endl;
-        std::cout << "OnConnect Callback: connected to " << id
-            << std::endl;
-        connected = true;
-    },
-        NULL);
-    while (!connected) {
+                [](GalileoSDK::GALILEO_RETURN_CODE res, std::string id) -> void {
+                    std::cout << "OnConnect Callback: result " << res << std::endl;
+                    std::cout << "OnConnect Callback: connected to " << id
+                              << std::endl;
+                    connected = true;
+                },
+                NULL);
+    while (!connected)
+    {
         Sleep(1);
     }
 }
 
 bool connectCallbackFlag = false;
-void testReconnect() {
+void testReconnect()
+{
     connected = false;
     connectCallbackFlag = false;
     GalileoSDK::GalileoSDK sdk;
-    while (true) {
-        if (!connected) {
+    while (true)
+    {
+        if (!connected)
+        {
             sdk.Connect(
                 "", true, 10000,
                 [](GalileoSDK::GALILEO_RETURN_CODE res, std::string id) -> void {
-                std::cout << "OnConnect Callback: result " << res << std::endl;
-                std::cout << "OnConnect Callback: connected to " << id << std::endl;
-                connectCallbackFlag = true;
-                if (res == GalileoSDK::GALILEO_RETURN_CODE::OK) {
-                    connected = true;
-                }
-            },
+                    std::cout << "OnConnect Callback: result " << res << std::endl;
+                    std::cout << "OnConnect Callback: connected to " << id << std::endl;
+                    connectCallbackFlag = true;
+                    if (res == GalileoSDK::GALILEO_RETURN_CODE::OK)
+                    {
+                        connected = true;
+                    }
+                },
                 [](GalileoSDK::GALILEO_RETURN_CODE res, std::string id) -> void {
-                std::cout << "OnDisconnect Callback: result " << res << std::endl;
-                std::cout << "OnDisconnect Callback: server " << id << std::endl;
-                connected = false;
-            });
-            while (!connectCallbackFlag) {
+                    std::cout << "OnDisconnect Callback: result " << res << std::endl;
+                    std::cout << "OnDisconnect Callback: server " << id << std::endl;
+                    connected = false;
+                });
+            while (!connectCallbackFlag)
+            {
                 Sleep(1000);
             }
             connectCallbackFlag = false;
@@ -88,29 +107,34 @@ void testReconnect() {
     }
 }
 
-void testSendGalileoCmd() {
+void testSendGalileoCmd()
+{
     connected = false;
     GalileoSDK::GalileoSDK sdk;
     if (sdk.Connect("71329A5B0F2D68364BB7B44F3F125531E4C7F5BC3BCE2694DFE39B505FF9"
-        "C730A614FF2790C1",
-        true, 10000, NULL,
-        NULL) != GalileoSDK::GALILEO_RETURN_CODE::OK) {
+                    "C730A614FF2790C1",
+                    true, 10000, NULL,
+                    NULL) != GalileoSDK::GALILEO_RETURN_CODE::OK)
+    {
         std::cout << "Connect to server failed" << std::endl;
     }
-    while (true) {
-        uint8_t cmd[] = { 0x01, 0x01, 0x01, 0x01, 0x01, 0x01 };
+    while (true)
+    {
+        uint8_t cmd[] = {0x01, 0x01, 0x01, 0x01, 0x01, 0x01};
         sdk.SendCMD(cmd, 6);
         Sleep(1000);
     }
 }
 
-void testStartNav() {
+void testStartNav()
+{
     connected = false;
     GalileoSDK::GalileoSDK sdk;
     if (sdk.Connect("71329A5B0F2D68364BB7B44F3F125531E4C7F5BC3BCE2694DFE39B505FF9"
-        "C730A614FF2790C1",
-        true, 10000, NULL,
-        NULL) != GalileoSDK::GALILEO_RETURN_CODE::OK) {
+                    "C730A614FF2790C1",
+                    true, 10000, NULL,
+                    NULL) != GalileoSDK::GALILEO_RETURN_CODE::OK)
+    {
         std::cout << "Connect to server failed" << std::endl;
     }
     while (true)
@@ -131,13 +155,15 @@ void testStartNav() {
     }
 }
 
-void testSetSpeed() {
+void testSetSpeed()
+{
     connected = false;
     GalileoSDK::GalileoSDK sdk;
     if (sdk.Connect("71329A5B0F2D68364BB7B44F3F125531E4C7F5BC3BCE2694DFE39B505FF9"
-        "C730A614FF2790C1",
-        true, 10000, NULL,
-        NULL) != GalileoSDK::GALILEO_RETURN_CODE::OK) {
+                    "C730A614FF2790C1",
+                    true, 10000, NULL,
+                    NULL) != GalileoSDK::GALILEO_RETURN_CODE::OK)
+    {
         std::cout << "Connect to server failed" << std::endl;
     }
     while (true)
@@ -174,17 +200,19 @@ void testSetSpeed() {
     }
 }
 
-void testSetAngle() {
-
+void testSetAngle()
+{
 }
 
-void testGoals() {
+void testGoals()
+{
     connected = false;
     GalileoSDK::GalileoSDK sdk;
     if (sdk.Connect("71329A5B0F2D68364BB7B44F3F125531E4C7F5BC3BCE2694DFE39B505FF9"
-        "C730A614FF2790C1",
-        true, 10000, NULL,
-        NULL) != GalileoSDK::GALILEO_RETURN_CODE::OK) {
+                    "C730A614FF2790C1",
+                    true, 10000, NULL,
+                    NULL) != GalileoSDK::GALILEO_RETURN_CODE::OK)
+    {
         std::cout << "Connect to server failed" << std::endl;
     }
     while (true)
@@ -311,31 +339,33 @@ void testGoals() {
             sdk.GetCurrentStatus(&status);
             Sleep(1000);
         }
-        std::cout << "Move to " << (pos0_x + pos1_x) / 2 << " " << (pos0_y + pos1_y) / 2 <<" complete" << std::endl;
+        std::cout << "Move to " << (pos0_x + pos1_x) / 2 << " " << (pos0_y + pos1_y) / 2 << " complete" << std::endl;
         Sleep(10 * 1000);
         std::cout << "All complete" << std::endl;
     }
 }
 
-void testLoop() {
-
+void testLoop()
+{
 }
 
-void testMapping() {
-
+void testMapping()
+{
 }
 
-void testAutoCharge() {
-
+void testAutoCharge()
+{
 }
 
-void testShutdown() {
+void testShutdown()
+{
     connected = false;
     GalileoSDK::GalileoSDK sdk;
     if (sdk.Connect("71329A5B0F2D68364BB7B44F3F125531E4C7F5BC3BCE2694DFE39B505FF9"
-        "C730A614FF2790C1",
-        true, 10000, NULL,
-        NULL) != GalileoSDK::GALILEO_RETURN_CODE::OK) {
+                    "C730A614FF2790C1",
+                    true, 10000, NULL,
+                    NULL) != GalileoSDK::GALILEO_RETURN_CODE::OK)
+    {
         std::cout << "Connect to server failed" << std::endl;
     }
     while (true)
@@ -346,13 +376,15 @@ void testShutdown() {
     }
 }
 
-void testGetParams() {
+void testGetParams()
+{
     connected = false;
     GalileoSDK::GalileoSDK sdk;
     if (sdk.Connect("71329A5B0F2D68364BB7B44F3F125531E4C7F5BC3BCE2694DFE39B505FF9"
-        "C730A614FF2790C1",
-        true, 10000, NULL,
-        NULL) != GalileoSDK::GALILEO_RETURN_CODE::OK) {
+                    "C730A614FF2790C1",
+                    true, 10000, NULL,
+                    NULL) != GalileoSDK::GALILEO_RETURN_CODE::OK)
+    {
         std::cout << "Connect to server failed" << std::endl;
     }
     while (true)
@@ -364,13 +396,15 @@ void testGetParams() {
     }
 }
 
-void testNavigationLoop() {
+void testNavigationLoop()
+{
     connected = false;
     GalileoSDK::GalileoSDK sdk;
     if (sdk.Connect("71329A5B0F2D68364BB7B44F3F125531E4C7F5BC3BCE2694DFE39B505FF9"
-        "C730A614FF2790C1",
-        true, 10000, NULL,
-        NULL) != GalileoSDK::GALILEO_RETURN_CODE::OK) {
+                    "C730A614FF2790C1",
+                    true, 10000, NULL,
+                    NULL) != GalileoSDK::GALILEO_RETURN_CODE::OK)
+    {
         std::cout << "Connect to server failed" << std::endl;
     }
     while (true)
@@ -402,16 +436,19 @@ void testNavigationLoop() {
     }
 }
 
-void testCreateMap() {
+void testCreateMap()
+{
     connected = false;
     GalileoSDK::GalileoSDK sdk;
     if (sdk.Connect("71329A5B0F2D68364BB7B44F3F125531E4C7F5BC3BCE2694DFE39B505FF9"
-        "C730A614FF2790C1",
-        true, 10000, NULL,
-        NULL) != GalileoSDK::GALILEO_RETURN_CODE::OK) {
+                    "C730A614FF2790C1",
+                    true, 10000, NULL,
+                    NULL) != GalileoSDK::GALILEO_RETURN_CODE::OK)
+    {
         std::cout << "Connect to server failed" << std::endl;
     }
-    while (true) {
+    while (true)
+    {
         // 开启建图
         sdk.StartMapping();
         galileo_serial_server::GalileoStatus status;
@@ -438,8 +475,8 @@ void testCreateMap() {
     }
 }
 
-
-int main() {
-    testPub();
+int main()
+{
+    testGoals();
     return 0;
 }

@@ -94,6 +94,9 @@ class Utils
                 tmpAddrPtr = &((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
                 char addressBuffer[INET_ADDRSTRLEN];
                 inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
+                std::string ifname(ifa->ifa_name);
+                if(ifname.find("lo") == 0 || ifname.find("docker") == 0 || ifname.find("virtual") == 0)
+                    continue;
                 ips.push_back(addressBuffer);
             }
         }

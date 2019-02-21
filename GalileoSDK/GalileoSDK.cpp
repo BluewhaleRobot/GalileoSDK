@@ -814,6 +814,11 @@ BroadcastReceiver::BroadcastReceiver() : sdk(NULL)
         std::exception e("Failed create socket");
         throw e;
     }
+    if (setsockopt(serverSocket, SOL_SOCKET, SO_RCVTIMEO,
+                    (const char *)&timeout, sizeof(timeout)) < 0)
+    {
+        std::cout << "Set socket timeout failed" << std::endl;
+    }
 #else
     //create a UDP socket
     if ((serverSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
@@ -836,6 +841,15 @@ BroadcastReceiver::BroadcastReceiver() : sdk(NULL)
         std::cout << "Failed create socket" << std::endl;
         std::runtime_error e("Failed create socket");
         throw e;
+    }
+    struct timeval tv;
+    tv.tv_sec = 1;
+    if (setsockopt(serverSocket, SOL_SOCKET, SO_RCVTIMEO,
+                    (const char *)&tv, sizeof(struct timeval)) < 0)
+    {
+        std::cout << "Set socket timeout failed" << std::endl;
+        int perrno = errno;
+        printf("Error setsockopt: ERRNO = %s\n",strerror(perrno));
     }
 #endif
     instance = this;
@@ -898,12 +912,6 @@ void BroadcastReceiver::Run()
         ServerInfo *serverInfo = NULL;
         try
         {
-            int timeout = 1000;
-            if (setsockopt(serverSocket, SOL_SOCKET, SO_RCVTIMEO,
-                           (const char *)&timeout, sizeof(timeout)) < 0)
-            {
-                std::cout << "Set socket timeout failed" << std::endl;
-            }
             char buf[BUFLEN];
             uint32_t slen, recv_len;
             slen = sizeof(si_other);
