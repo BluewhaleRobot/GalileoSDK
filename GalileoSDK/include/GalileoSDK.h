@@ -1,4 +1,3 @@
-#pragma once
 #ifndef __GALILEO_SDK_H__
 #define __GALILEO_SDK_H__
 
@@ -19,22 +18,9 @@
 #include "tasks/BroadcastReceiver.h"
 #include <mutex>
 #include <thread>
+#include <stdexcept>
 
 namespace GalileoSDK {
-
-    //enum GALILEO_RETURN_CODE {
-    //    OK,                 // 执行成功
-    //    NOT_CONNECTED,      // 没有连接到机器人
-    //    INVALIDE_STATE,     // 当前状态无法执行此操作
-    //    NO_SERVER_FOUND,    // 没有发现机器人
-    //    MULTI_SERVER_FOUND, // 发现多个机器人
-    //    NETWORK_ERROR,      // 网络环境错误
-    //    ALREADY_CONNECTED,  // 已经连接过了
-    //    TIMEOUT,            // 操作超时
-    //    SERVER_ERROR,       // 服务端错误
-    //    GOAL_CANCELLED,     // 任务取消
-    //    INVALIDE_GOAL,      // 无效目标
-    //};
 
     enum GALILEO_RETURN_CODE {
         OK,

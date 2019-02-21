@@ -9,10 +9,12 @@
 #endif
 #define BUFLEN 512 * 1024
 #define BROADCAST_PORT 22002
-#include "Utils.h"
+#include "mutils.h"
+#ifdef _WIN32
+#include <Ws2tcpip.h>
+#endif
 #include "models/ServerInfo.h"
 #include "ros/ros.h"
-#include <Ws2tcpip.h>
 #include <iostream>
 #include <json/json.h>
 #include <mutex>
@@ -30,7 +32,11 @@ public:
   void SetSDK(GalileoSDK *);
 
 private:
+#ifdef _WIN32
   SOCKET serverSocket;
+#else
+  int serverSocket;
+#endif
   struct sockaddr_in server, si_other;
   bool runningFlag;
   std::vector<ServerInfo> serverList;

@@ -1,0 +1,9 @@
+libdir=@CMAKE_INSTALL_FULL_LIBDIR@
+includedir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
+
+Name: galileosdk
+Description: A C++ library for galileo navigation system
+Version: @GALILEOSDK_VERSION@
+URL: https://github.com/bluewhalerobot/galileosdk
+Libs: -L${libdir} -lgalileosdk
+Cflags: -I${includedir}
