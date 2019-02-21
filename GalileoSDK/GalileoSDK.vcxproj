@@ -161,7 +161,7 @@
     <ClInclude Include="include\models\ServerInfo.h" />
     <ClInclude Include="include\tasks\BroadcastReceiver.h" />
     <ClInclude Include="include\GalileoSDK.h" />
-    <ClInclude Include="include\utils.h" />
+    <ClInclude Include="include\mutils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GalileoSDK.cpp" />

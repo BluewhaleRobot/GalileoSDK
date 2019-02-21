@@ -814,6 +814,7 @@ BroadcastReceiver::BroadcastReceiver() : sdk(NULL)
         std::exception e("Failed create socket");
         throw e;
     }
+    int timeout = 1000;
     if (setsockopt(serverSocket, SOL_SOCKET, SO_RCVTIMEO,
                     (const char *)&timeout, sizeof(timeout)) < 0)
     {
@@ -913,7 +914,13 @@ void BroadcastReceiver::Run()
         try
         {
             char buf[BUFLEN];
+#ifdef _WIN32
+            int slen, recv_len;
+#else
             uint32_t slen, recv_len;
+#endif // _WIN32
+
+            
             slen = sizeof(si_other);
             fflush(stdout);
             memset(buf, '\0', BUFLEN);
