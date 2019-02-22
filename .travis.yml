@@ -1,0 +1,14 @@
+language: cpp
+matrix:
+  include:
+    - name: Windows dll compile test
+      os: windows
+      script:
+        - msbuild GalileoSDK.sln /p:configuration=release /p:platform=x64
+      deploy:
+        - provider: script
+          script: echo "deployed"
+          on:
+            branch: master
+notifications:
+  email: false
