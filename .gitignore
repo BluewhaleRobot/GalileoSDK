@@ -15,8 +15,12 @@
 [Dd]ebugPublic/
 # Release/
 [Rr]eleases/
-x64/
-x86/
+GalileoSDK/x64/
+GalileoSDK/x86/
+GalileoSDKTest/x64/
+GalileoSDKTest/x86/
+/x64/
+/x86/
 bld/
 [Bb]in/
 [Oo]bj/
@@ -263,3 +267,5 @@ GalileoSDK/build/
 GalileoSDK/install/
 GalileoSDKTest/build/
 GalileoSDKTest/install/
+/deploy/
+GalileoSDK.zip

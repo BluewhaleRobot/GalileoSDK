@@ -1,14 +1,36 @@
 language: cpp
+git:
+  depth: 1
 matrix:
   include:
-    - name: Windows dll compile test
+    - name: Windows Release
       os: windows
+      env:
+        - MSBUILD_PATH="c:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin"
       script:
-        - msbuild GalileoSDK.sln /p:configuration=release /p:platform=x64
+        - export PATH=$MSBUILD_PATH:$PATH
+        - travis_wait MSBuild.exe GalileoSDK.sln //p:configuration=release //p:platform=x64
+        - travis_wait MSBuild.exe GalileoSDK.sln //p:configuration=debug //p:platform=x64
+      before_deploy:
+        # copy include dirs
+        - mkdir -p deploy/GalileoSDK/include/GalileoSDK
+        - cp -r GalileoSDK/include/* deploy/GalileoSDK/include/GalileoSDK/
+        - cp -r include/* deploy/GalileoSDK/include/
+        # copy dll
+        - mkdir -p deploy/GalileoSDK/lib/Release
+        - cp x64/Release/GalileoSDK.* deploy/GalileoSDK/lib/Release/ 
+        - mkdir -p deploy/GalileoSDK/lib/Debug
+        - cp x64/Debug/GalileoSDK.* deploy/GalileoSDK/lib/Debug/
+        - cd deploy
+        - tar -czf GalileoSDK-${TRAVIS_TAG}.tar.gz GalileoSDK
+        - cd ..
+        - mv deploy/GalileoSDK-${TRAVIS_TAG}.tar.gz ./
+
       deploy:
-        - provider: script
-          script: echo "deployed"
-          on:
-            branch: master
-notifications:
-  email: false
+        provider: releases
+        api_key: "$token"
+        file: "GalileoSDK-${TRAVIS_TAG}.tar.gz"
+        skip_cleanup: true
+        on:
+          branch: master
+          tags: true
