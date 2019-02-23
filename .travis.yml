@@ -22,14 +22,14 @@ matrix:
         - mkdir -p deploy/GalileoSDK/lib/Debug
         - cp x64/Debug/GalileoSDK.* deploy/GalileoSDK/lib/Debug/
         - cd deploy
-        - tar -czf GalileoSDK-${TRAVIS_TAG}.tar.gz GalileoSDK
+        - tar -czf GalileoSDK-win-${TRAVIS_TAG}.tar.gz GalileoSDK
         - cd ..
-        - mv deploy/GalileoSDK-${TRAVIS_TAG}.tar.gz ./
+        - mv deploy/GalileoSDK-win-${TRAVIS_TAG}.tar.gz ./
 
       deploy:
         provider: releases
         api_key: "$token"
-        file: "GalileoSDK-${TRAVIS_TAG}.tar.gz"
+        file: "GalileoSDK-win-${TRAVIS_TAG}.tar.gz"
         skip_cleanup: true
         on:
           branch: master
