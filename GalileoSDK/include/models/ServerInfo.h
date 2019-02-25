@@ -2,7 +2,7 @@
 #ifndef __SERVER_INFO_H__
 #define __SERVER_INFO_H__
 
-#include "Dll.h"
+#include "../Dll.h"
 #include <iostream>
 #include <json/json.h>
 #include <string>

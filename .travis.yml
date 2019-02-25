@@ -34,3 +34,30 @@ matrix:
         on:
           branch: master
           tags: true
+    - name: Linux Build Test
+      sudo: required
+      dist: xenial
+      before_install:
+        - export DEBIAN_FRONTEND="noninteractive"
+        - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+        - sudo apt-get update -y
+        - sudo apt-get install -y aria2 wget
+        - sudo wget https://raw.githubusercontent.com/ilikenwf/apt-fast/master/apt-fast -O /usr/local/sbin/apt-fast
+        - sudo chmod +x /usr/local/sbin/apt-fast
+        - sudo wget https://raw.githubusercontent.com/ilikenwf/apt-fast/master/apt-fast.conf -O /etc/apt-fast.conf
+        - sudo apt-fast update -qq
+        - sudo apt-get install -y --allow-unauthenticated libjsoncpp-dev ros-kinetic-roscpp
+      script:
+        - source /opt/ros/kinetic/setup.bash
+        - export LIBRARY_PATH=/opt/ros/kinetic/lib/
+        - cd GalileoSDK
+        - mkdir build
+        - cd build
+        - cmake ..
+        - make -j
+        - sudo make install
+        - cd ../../GalileoSDKTest
+        - mkdir build
+        - cd build
+        - cmake ..
+        - make -j

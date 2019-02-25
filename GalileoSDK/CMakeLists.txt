@@ -5,6 +5,10 @@ project(
    LANGUAGES CXX
 )
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall  -O3 -march=native ")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall  -O3 -march=native")
 
@@ -26,7 +30,7 @@ endif()
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
-set( GalileoSDK_SOVERSION 1 )
+include(GNUInstallDirs)
 
 find_package(PkgConfig REQUIRED)
 pkg_search_module(JSONCPP REQUIRED jsoncpp)
@@ -42,6 +46,9 @@ set(BUILD_SHARED_LIBS ON)
 add_library(GalileoSDK
    ${PROJECT_SOURCE_DIR}/GalileoSDK.cpp
 )
+
+set_target_properties(GalileoSDK PROPERTIES VERSION ${PROJECT_VERSION})
+set_target_properties(GalileoSDK PROPERTIES SOVERSION 0)
 
 target_link_libraries(GalileoSDK
    ${ROSCPP_LIBRARIES}
@@ -68,16 +75,36 @@ install(
    FILES_MATCHING PATTERN "*.h"
 )
 
-
-# configure_file(
-#    "pkg-config/galileosdk.pc.in"
-#    "pkg-config/galileosdk.pc"
-#    @ONLY)
-# install(FILES "${CMAKE_CURRENT_BINARY_DIR}/pkg-config/jsoncpp.pc"
-#    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+# install pkg-config file
+configure_file(
+   "pkg-config/galileo-sdk.pc.in"
+   "pkg-config/galileo-sdk.pc"
+   @ONLY
+)
 
 install(
-   EXPORT GalileoSDK
-   DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake/GalileoSDK
-   FILE GalileoSDKConfig.cmake
+   FILES "${CMAKE_CURRENT_BINARY_DIR}/pkg-config/galileo-sdk.pc"
+   DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
+)
+
+# install cmake files
+set(INCLUDE_INSTALL_DIR "include")
+
+include(CMakePackageConfigHelpers)
+configure_package_config_file(GalileoSDKConfig.cmake.in
+   ${CMAKE_CURRENT_BINARY_DIR}/GalileoSDKConfig.cmake
+   INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GalileoSDK
+   PATH_VARS INCLUDE_INSTALL_DIR
+)
+
+write_basic_package_version_file(
+   ${CMAKE_CURRENT_BINARY_DIR}/GalileoSDKConfigVersion.cmake
+   VERSION ${PROJECT_VERSION}
+   COMPATIBILITY SameMajorVersion 
+)
+
+install(
+   FILES ${CMAKE_CURRENT_BINARY_DIR}/GalileoSDKConfig.cmake
+   ${CMAKE_CURRENT_BINARY_DIR}/GalileoSDKConfigVersion.cmake
+   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/GalileoSDK
 )

@@ -52,7 +52,7 @@ target_link_libraries( xxx
 
 # 添加头文件路径
 include_directories( xxx
-    GalileoSDK_INCLUDE_DIRS
+    GalileoSDK_INCLUDE_DIR
 )
 ```
 
@@ -63,8 +63,7 @@ include_directories( xxx
 ```cpp
 
 #include <GalileoSDK/GalileoSDK.h>
-#include <galileo_serial_server/GalileoStatus.h>
-
+#include <GalileoSDK/galileo_serial_server/GalileoStatus.h>
 
 int main()
 {
@@ -81,7 +80,8 @@ int main()
             sdk.Connect("", true, 10000, NULL, NULL); // 连接机器人
         }
         sdk.PublishTest(); // 发布测试消息
-        Sleep(1000);
+        sleep(1);
     }
 }
+
 ```

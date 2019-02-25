@@ -9,11 +9,11 @@
 #endif
 #define BUFLEN 512 * 1024
 #define BROADCAST_PORT 22002
-#include "mutils.h"
+#include "../mutils.h"
 #ifdef _WIN32
 #include <Ws2tcpip.h>
 #endif
-#include "models/ServerInfo.h"
+#include "../models/ServerInfo.h"
 #include "ros/ros.h"
 #include <iostream>
 #include <json/json.h>
