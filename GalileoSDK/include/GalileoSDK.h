@@ -120,51 +120,51 @@ namespace GalileoSDK {
     // export c functions
     extern "C"
     {
-        __declspec(dllexport) void* __stdcall CreateInstance();
-        __declspec(dllexport) void __stdcall ReleaseInstance(void *instance);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall Connect(
+        DLL_PUBLIC void* __stdcall CreateInstance();
+        DLL_PUBLIC void __stdcall ReleaseInstance(void *instance);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall Connect(
             void* instance, uint8_t* targetID, size_t length, bool auto_connect, int timeout,
             void(*OnConnect)(GALILEO_RETURN_CODE, uint8_t*, size_t),
             void(*OnDisconnect)(GALILEO_RETURN_CODE, uint8_t*, size_t));
         static void(*OnConnectCB)(GALILEO_RETURN_CODE, uint8_t* id, size_t length);
         static void(*OnDisconnectCB)(GALILEO_RETURN_CODE, uint8_t* id, size_t length);
-        __declspec(dllexport) void __stdcall GetServersOnline(void * instance, uint8_t* servers_json, size_t &length);
-        __declspec(dllexport) void __stdcall GetCurrentServer(void * instance, uint8_t* servers_json, size_t &length);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall PublishTest(void * instance);
-        __declspec(dllexport) void* __stdcall GetInstance();
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall SendCMD(void * instance, uint8_t*, int);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall StartNav(void * instance);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall StopNav(void * instance);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall SetGoal(void * instance, int);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall PauseGoal(void * instance);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall ResumeGoal(void * instance);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall CancelGoal(void * instance);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall InsertGoal(void * instance, float x, float y);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall ResetGoal(void * instance);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall SetSpeed(void * instance, float vLinear, float vAngle);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall Shutdown(void * instance);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall SetAngle(void * instance, uint8_t sign, uint8_t angle);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall StartLoop(void * instance);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall StopLoop(void * instance);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall SetLoopWaitTime(void * instance, uint8_t time);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall StartMapping(void * instance);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall StopMapping(void * instance);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall SaveMap(void * instance);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall UpdateMap(void * instance);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall StartChargeLocal(void * instance);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall stopChargeLocal(void * instance);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall SaveChargeBasePosition(void * instance);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall StartCharge(void * instance, float x, float y);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall StopCharge(void * instance);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall MoveTo(void * instance, float x, float y, uint8_t &goalNum);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall GetGoalNum(void * instance, uint8_t &goalNum);
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall GetCurrentStatus(void * instance, uint8_t* status_json, size_t &length);
-        __declspec(dllexport) void __stdcall SetCurrentStatusCallback(void * instance, void(*callback)(
+        DLL_PUBLIC void __stdcall GetServersOnline(void * instance, uint8_t* servers_json, size_t &length);
+        DLL_PUBLIC void __stdcall GetCurrentServer(void * instance, uint8_t* servers_json, size_t &length);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall PublishTest(void * instance);
+        DLL_PUBLIC void* __stdcall GetInstance();
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall SendCMD(void * instance, uint8_t*, int);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall StartNav(void * instance);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall StopNav(void * instance);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall SetGoal(void * instance, int);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall PauseGoal(void * instance);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall ResumeGoal(void * instance);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall CancelGoal(void * instance);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall InsertGoal(void * instance, float x, float y);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall ResetGoal(void * instance);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall SetSpeed(void * instance, float vLinear, float vAngle);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall Shutdown(void * instance);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall SetAngle(void * instance, uint8_t sign, uint8_t angle);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall StartLoop(void * instance);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall StopLoop(void * instance);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall SetLoopWaitTime(void * instance, uint8_t time);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall StartMapping(void * instance);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall StopMapping(void * instance);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall SaveMap(void * instance);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall UpdateMap(void * instance);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall StartChargeLocal(void * instance);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall stopChargeLocal(void * instance);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall SaveChargeBasePosition(void * instance);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall StartCharge(void * instance, float x, float y);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall StopCharge(void * instance);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall MoveTo(void * instance, float x, float y, uint8_t &goalNum);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall GetGoalNum(void * instance, uint8_t &goalNum);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall GetCurrentStatus(void * instance, uint8_t* status_json, size_t &length);
+        DLL_PUBLIC void __stdcall SetCurrentStatusCallback(void * instance, void(*callback)(
             GALILEO_RETURN_CODE, uint8_t* status_json, size_t length));
-        __declspec(dllexport) void __stdcall SetGoalReachedCallback(
+        DLL_PUBLIC void __stdcall SetGoalReachedCallback(
             void * instance,
             void(*callback)(int goalID, uint8_t* status_json, size_t length));
-        __declspec(dllexport) GALILEO_RETURN_CODE __stdcall WaitForGoal(void * instance, int goalID);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall WaitForGoal(void * instance, int goalID);
         static void(*StatusCB)(GALILEO_RETURN_CODE, uint8_t* status_json, size_t length);
         static void(*ReachedCB)(int goalID, uint8_t* status_json, size_t length);
         static Json::Value statusToJson(galileo_serial_server::GalileoStatus);
