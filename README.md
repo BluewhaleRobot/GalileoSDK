@@ -1,6 +1,7 @@
 # GalileoSDK
 
 Galileo C++ SDK
+[![Build Status](https://travis-ci.org/uos/rospy_message_converter.svg)](https://travis-ci.org/BluewhaleRobot/GalileoSDK)
 
 伽利略导航系统C++ SDK，实现了[伽利略导航系统协议](https://doc.bwbot.org/en/books-online/galileo-proto/)
 

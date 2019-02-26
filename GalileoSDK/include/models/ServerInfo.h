@@ -24,6 +24,8 @@ namespace GalileoSDK {
         void setTimestamp(size_t);
         uint32_t getPort();
         void setPort(uint32_t);
+        Json::Value toJson();
+        std::string toJsonString();
 
     private:
         std::string ID;

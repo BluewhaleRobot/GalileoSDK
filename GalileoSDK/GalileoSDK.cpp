@@ -1,6 +1,3 @@
-// GalileoSDK.cpp: 定义 DLL 应用程序的导出函数。
-//
-
 #define BUILDING_DLL
 #include "GalileoSDK.h"
 
@@ -779,6 +776,24 @@ void ServerInfo::setPort(uint32_t port)
     this->port = port;
 }
 
+Json::Value ServerInfo::toJson() {
+    Json::Value rootJsonValue;
+    rootJsonValue["ID"] = ID;
+    rootJsonValue["port"] = port;
+    rootJsonValue["timestamp"] = timestamp;
+    rootJsonValue["ip"] = ip;
+    rootJsonValue["password"] = password;
+    rootJsonValue["mac"] = mac;
+    return rootJsonValue;
+}
+
+std::string ServerInfo::toJsonString() {
+    Json::StreamWriterBuilder wbuilder;
+    return Json::writeString(wbuilder, toJson());
+}
+
+
+
 // Implementation of class BroadcastReceiver
 // ////////////////////////////////
 
@@ -1007,4 +1022,268 @@ void BroadcastReceiver::Run()
     close(serverSocket);
 #endif
 }
+
+// Impletation of export c functions
+// ////////////////////////////////
+
+void* __stdcall CreateInstance() {
+    GalileoSDK* instance = new GalileoSDK();
+    return instance;
+}
+
+void __stdcall ReleaseInstance(void *instance) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    free(sdk);
+}
+
+GALILEO_RETURN_CODE Connect(void * instance, uint8_t * targetID, size_t length, 
+    bool auto_connect, int timeout, 
+    void(*OnConnect)(GALILEO_RETURN_CODE, uint8_t *, size_t),
+    void(*OnDisconnect)(GALILEO_RETURN_CODE, uint8_t *, size_t))
+{
+    OnConnectCB = OnConnect;
+    OnDisconnectCB = OnDisconnect;
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    std::string targetIDStr(targetID, targetID + length);
+
+    return sdk->Connect(targetIDStr, auto_connect, timeout, [](GALILEO_RETURN_CODE status, std::string id) -> void {
+        if (OnConnectCB != NULL)
+            OnConnectCB(status, (uint8_t*)id.data(), id.length());
+    }, [](GALILEO_RETURN_CODE status, std::string id) -> void {
+        if (OnDisconnectCB != NULL)
+            OnDisconnectCB(status, (uint8_t*)id.data(), id.length());
+    });
+}
+
+void __stdcall GetServersOnline(void * instance, uint8_t* servers_json, size_t &length){
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    Json::Value servers(Json::arrayValue);
+    auto serversOnline = sdk->GetServersOnline();
+    for (auto it = serversOnline.begin(); it < serversOnline.end(); it++) {
+        servers.append(it->toJson());
+    }
+    Json::StreamWriterBuilder wbuilder;
+    auto serversStr = Json::writeString(wbuilder, servers);
+    memcpy(servers_json, serversStr.data(), serversStr.size());
+    length = serversStr.size();
+}
+
+void __stdcall GetCurrentServer(void * instance, uint8_t* servers_json, size_t &length) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    Json::Value currentServer;
+    if (sdk->currentServer != NULL) {
+        currentServer = sdk->currentServer->toJson();
+    }
+    Json::StreamWriterBuilder wbuilder;
+    auto serversStr = Json::writeString(wbuilder, currentServer);
+    memcpy(servers_json, serversStr.data(), serversStr.size());
+    length = serversStr.size();
+}
+
+GALILEO_RETURN_CODE __stdcall PublishTest(void * instance) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->PublishTest();
+}
+
+GALILEO_RETURN_CODE __stdcall SendCMD(void * instance, uint8_t* data, int length) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->SendCMD(data, length);
+}
+
+GALILEO_RETURN_CODE __stdcall StartNav(void * instance) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->StartNav();
+}
+
+GALILEO_RETURN_CODE __stdcall StopNav(void * instance) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->StopNav();
+}
+
+GALILEO_RETURN_CODE __stdcall SetGoal(void * instance, int goalIndex) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->SetGoal(goalIndex);
+}
+
+GALILEO_RETURN_CODE __stdcall PauseGoal(void * instance) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->PauseGoal();
+}
+
+GALILEO_RETURN_CODE __stdcall ResumeGoal(void * instance) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->ResumeGoal();
+}
+
+GALILEO_RETURN_CODE __stdcall CancelGoal(void * instance) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->CancelGoal();
+}
+
+GALILEO_RETURN_CODE __stdcall InsertGoal(void * instance, float x, float y) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->InsertGoal(x, y);
+}
+
+GALILEO_RETURN_CODE __stdcall ResetGoal(void * instance) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->ResetGoal();
+}
+
+GALILEO_RETURN_CODE __stdcall SetSpeed(void * instance, float vLinear, float vAngle) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->SetSpeed(vLinear, vAngle);
+}
+
+GALILEO_RETURN_CODE __stdcall Shutdown(void * instance) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->Shutdown();
+}
+
+GALILEO_RETURN_CODE __stdcall SetAngle(void * instance, uint8_t sign, uint8_t angle) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->SetAngle(sign, angle);
+}
+
+GALILEO_RETURN_CODE __stdcall StartLoop(void * instance) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->StartLoop();
+}
+
+GALILEO_RETURN_CODE __stdcall StopLoop(void * instance) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->StopLoop();
+}
+
+GALILEO_RETURN_CODE __stdcall SetLoopWaitTime(void * instance, uint8_t time) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->SetLoopWaitTime(time);
+}
+
+GALILEO_RETURN_CODE __stdcall StartMapping(void * instance) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->StartMapping();
+}
+
+GALILEO_RETURN_CODE __stdcall StopMapping(void * instance) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->StopMapping();
+}
+
+GALILEO_RETURN_CODE __stdcall SaveMap(void * instance) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->SaveMap();
+}
+
+GALILEO_RETURN_CODE __stdcall UpdateMap(void * instance) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->UpdateMap();
+}
+
+GALILEO_RETURN_CODE __stdcall StartChargeLocal(void * instance) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->StartChargeLocal();
+}
+
+GALILEO_RETURN_CODE __stdcall stopChargeLocal(void * instance) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->stopChargeLocal();
+}
+
+GALILEO_RETURN_CODE __stdcall SaveChargeBasePosition(void * instance) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->SaveChargeBasePosition();
+}
+
+GALILEO_RETURN_CODE __stdcall StartCharge(void * instance, float x, float y) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->StartCharge(x, y);
+}
+
+GALILEO_RETURN_CODE __stdcall StopCharge(void * instance) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->StopCharge();
+}
+
+GALILEO_RETURN_CODE __stdcall MoveTo(void * instance, float x, float y, uint8_t &goalNum) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->MoveTo(x, y, &goalNum);
+}
+
+GALILEO_RETURN_CODE __stdcall GetGoalNum(void * instance, uint8_t &goalNum) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->GetGoalNum(&goalNum);
+}
+
+GALILEO_RETURN_CODE __stdcall GetCurrentStatus(void * instance, uint8_t* status_json, size_t &length) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    Json::Value rootValue;
+    galileo_serial_server::GalileoStatus status;
+    GALILEO_RETURN_CODE res = sdk->GetCurrentStatus(&status);
+    if (res == GALILEO_RETURN_CODE::OK) {
+        rootValue = statusToJson(status);
+    }
+    Json::StreamWriterBuilder wbuilder;
+    auto serversStr = Json::writeString(wbuilder, rootValue);
+    memcpy(status_json, serversStr.data(), serversStr.size());
+    length = serversStr.size();
+    return res;
+}
+
+void __stdcall SetCurrentStatusCallback(void * instance, void(*callback)(
+    GALILEO_RETURN_CODE, uint8_t* status_json, size_t length)) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    StatusCB = callback;
+    sdk->SetCurrentStatusCallback([](GALILEO_RETURN_CODE res, galileo_serial_server::GalileoStatus status)->void {
+        Json::Value rootValue = statusToJson(status);
+        Json::StreamWriterBuilder wbuilder;
+        std::string serversStr = Json::writeString(wbuilder, rootValue);
+        StatusCB(res, (uint8_t*)serversStr.data(), serversStr.size());
+    });
+}
+
+void __stdcall SetGoalReachedCallback(
+    void * instance,
+    void(*callback)(int goalID, uint8_t* status_json, size_t length)) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    ReachedCB = callback;
+    sdk->SetGoalReachedCallback([](int goalID, galileo_serial_server::GalileoStatus status)->void {
+        Json::Value rootValue = statusToJson(status);
+        Json::StreamWriterBuilder wbuilder;
+        std::string serversStr = Json::writeString(wbuilder, rootValue);
+        ReachedCB(goalID, (uint8_t*)serversStr.data(), serversStr.size());
+    });
+}
+
+GALILEO_RETURN_CODE __stdcall WaitForGoal(void * instance, int goalID) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    return sdk->WaitForGoal(goalID);
+}
+
+static Json::Value statusToJson(galileo_serial_server::GalileoStatus status) {
+    Json::Value rootValue;
+    rootValue["timestamp"] = status.header.stamp.toNSec() / 1000 / 1000;
+    rootValue["angleGoalStatus"] = status.angleGoalStatus;
+    rootValue["busyStatus"] = status.busyStatus;
+    rootValue["chargeStatus"] = status.chargeStatus;
+    rootValue["controlSpeedTheta"] = status.controlSpeedTheta;
+    rootValue["controlSpeedX"] = status.controlSpeedX;
+    rootValue["currentAngle"] = status.currentAngle;
+    rootValue["currentPosX"] = status.currentPosX;
+    rootValue["currentPosY"] = status.currentPosY;
+    rootValue["currentSpeedTheta"] = status.currentSpeedTheta;
+    rootValue["currentSpeedX"] = status.currentSpeedX;
+    rootValue["gbaStatus"] = status.gbaStatus;
+    rootValue["gcStatus"] = status.gcStatus;
+    rootValue["loopStatus"] = status.loopStatus;
+    rootValue["mapStatus"] = status.mapStatus;
+    rootValue["navStatus"] = status.navStatus;
+    rootValue["power"] = status.power;
+    rootValue["targetDistance"] = status.targetDistance;
+    rootValue["targetNumID"] = status.targetNumID;
+    rootValue["targetStatus"] = status.targetStatus;
+    rootValue["visualStatus"] = status.visualStatus;
+    return rootValue;
+}
+
 } // namespace GalileoSDK

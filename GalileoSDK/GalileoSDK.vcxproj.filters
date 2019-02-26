@@ -27,10 +27,10 @@
     <ClInclude Include="include\models\ServerInfo.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="include\utils.h">
+    <ClInclude Include="include\dll.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="include\dll.h">
+    <ClInclude Include="include\mutils.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
