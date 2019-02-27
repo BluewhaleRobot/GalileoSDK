@@ -233,7 +233,6 @@ void GalileoSDK::UpdateGalileoStatus(
     const galileo_serial_server::GalileoStatusConstPtr &status)
 {
     std::unique_lock<std::mutex> lock(statusLock);
-    //std::cout << "GalileoSDK::UpdateGalileoStatus" << std::endl;
     if (currentStatus != NULL && currentStatus->targetStatus != 0 &&
         status->targetStatus == 0)
     {
@@ -279,7 +278,7 @@ void GalileoSDK::broadcastOfflineCallback(std::string id)
 GALILEO_RETURN_CODE GalileoSDK::GetCurrentStatus(galileo_serial_server::GalileoStatus *status)
 {
     std::unique_lock<std::mutex> lock(statusLock);
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     *status = *currentStatus;
     return GALILEO_RETURN_CODE::OK;
@@ -287,7 +286,7 @@ GALILEO_RETURN_CODE GalileoSDK::GetCurrentStatus(galileo_serial_server::GalileoS
 
 GALILEO_RETURN_CODE GalileoSDK::PublishTest()
 {
-    if (currentServer == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     std_msgs::String msg;
     std::stringstream ss;
@@ -306,7 +305,6 @@ GalileoSDK::~GalileoSDK()
     currentServer = NULL;
     nh = NULL;
     instance = NULL;
-    std::cout << "~GalileoSDK Called" << std::endl;
 }
 
 GALILEO_RETURN_CODE GalileoSDK::SendCMD(uint8_t data[], int length)
@@ -322,7 +320,7 @@ GALILEO_RETURN_CODE GalileoSDK::SendCMD(uint8_t data[], int length)
 
 GALILEO_RETURN_CODE GalileoSDK::StartNav()
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     if (currentStatus->mapStatus == 1 || currentStatus->navStatus == 1)
     {
@@ -334,7 +332,7 @@ GALILEO_RETURN_CODE GalileoSDK::StartNav()
 
 GALILEO_RETURN_CODE GalileoSDK::StopNav()
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     if (currentStatus->navStatus != 1)
     {
@@ -346,7 +344,7 @@ GALILEO_RETURN_CODE GalileoSDK::StopNav()
 
 GALILEO_RETURN_CODE GalileoSDK::SetGoal(int goalID)
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     if (currentStatus->navStatus != 1)
     {
@@ -358,7 +356,7 @@ GALILEO_RETURN_CODE GalileoSDK::SetGoal(int goalID)
 
 GALILEO_RETURN_CODE GalileoSDK::PauseGoal()
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     if (currentStatus->navStatus != 1)
     {
@@ -369,7 +367,7 @@ GALILEO_RETURN_CODE GalileoSDK::PauseGoal()
 }
 GALILEO_RETURN_CODE GalileoSDK::ResumeGoal()
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     if (currentStatus->navStatus != 1)
     {
@@ -380,7 +378,7 @@ GALILEO_RETURN_CODE GalileoSDK::ResumeGoal()
 }
 GALILEO_RETURN_CODE GalileoSDK::CancelGoal()
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     if (currentStatus->navStatus != 1)
     {
@@ -392,7 +390,7 @@ GALILEO_RETURN_CODE GalileoSDK::CancelGoal()
 
 GALILEO_RETURN_CODE GalileoSDK::InsertGoal(float x, float y)
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     if (currentStatus->navStatus != 1)
     {
@@ -408,7 +406,7 @@ GALILEO_RETURN_CODE GalileoSDK::InsertGoal(float x, float y)
 
 GALILEO_RETURN_CODE GalileoSDK::ResetGoal()
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     if (currentStatus->navStatus != 1)
     {
@@ -420,7 +418,7 @@ GALILEO_RETURN_CODE GalileoSDK::ResetGoal()
 
 GALILEO_RETURN_CODE GalileoSDK::SetSpeed(float vLinear, float vAngle)
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     geometry_msgs::Twist speed;
     speed.linear.x = vLinear;
@@ -431,7 +429,7 @@ GALILEO_RETURN_CODE GalileoSDK::SetSpeed(float vLinear, float vAngle)
 
 GALILEO_RETURN_CODE GalileoSDK::Shutdown()
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     uint8_t cmd[] = {0xaa, 0x44};
     return SendCMD(cmd, 2);
@@ -439,7 +437,7 @@ GALILEO_RETURN_CODE GalileoSDK::Shutdown()
 
 GALILEO_RETURN_CODE GalileoSDK::SetAngle(uint8_t sign, uint8_t angle)
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     uint8_t cmd[] = {'a', sign, angle};
     return SendCMD(cmd, 3);
@@ -447,7 +445,7 @@ GALILEO_RETURN_CODE GalileoSDK::SetAngle(uint8_t sign, uint8_t angle)
 
 GALILEO_RETURN_CODE GalileoSDK::StartLoop()
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     if (currentStatus->navStatus != 1)
     {
@@ -465,7 +463,7 @@ GALILEO_RETURN_CODE GalileoSDK::StartLoop()
 
 GALILEO_RETURN_CODE GalileoSDK::StopLoop()
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     if (currentStatus->navStatus != 1)
     {
@@ -477,7 +475,7 @@ GALILEO_RETURN_CODE GalileoSDK::StopLoop()
 
 GALILEO_RETURN_CODE GalileoSDK::SetLoopWaitTime(uint8_t time)
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     if (currentStatus->navStatus != 1)
     {
@@ -489,7 +487,7 @@ GALILEO_RETURN_CODE GalileoSDK::SetLoopWaitTime(uint8_t time)
 
 GALILEO_RETURN_CODE GalileoSDK::StartMapping()
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     if (currentStatus->mapStatus != 0)
     {
@@ -501,7 +499,7 @@ GALILEO_RETURN_CODE GalileoSDK::StartMapping()
 
 GALILEO_RETURN_CODE GalileoSDK::StopMapping()
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     if (currentStatus->mapStatus != 1)
     {
@@ -513,7 +511,7 @@ GALILEO_RETURN_CODE GalileoSDK::StopMapping()
 
 GALILEO_RETURN_CODE GalileoSDK::SaveMap()
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     if (currentStatus->mapStatus != 1)
     {
@@ -525,7 +523,7 @@ GALILEO_RETURN_CODE GalileoSDK::SaveMap()
 
 GALILEO_RETURN_CODE GalileoSDK::UpdateMap()
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     if (currentStatus->mapStatus != 1)
     {
@@ -537,7 +535,7 @@ GALILEO_RETURN_CODE GalileoSDK::UpdateMap()
 
 GALILEO_RETURN_CODE GalileoSDK::StartChargeLocal()
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     uint8_t cmd[] = {'j', 0};
     return SendCMD(cmd, 2);
@@ -545,7 +543,7 @@ GALILEO_RETURN_CODE GalileoSDK::StartChargeLocal()
 
 GALILEO_RETURN_CODE GalileoSDK::stopChargeLocal()
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     uint8_t cmd[] = {'j', 1};
     return SendCMD(cmd, 2);
@@ -553,7 +551,7 @@ GALILEO_RETURN_CODE GalileoSDK::stopChargeLocal()
 
 GALILEO_RETURN_CODE GalileoSDK::SaveChargeBasePosition()
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     uint8_t cmd[] = {'j', 2};
     return SendCMD(cmd, 2);
@@ -561,7 +559,7 @@ GALILEO_RETURN_CODE GalileoSDK::SaveChargeBasePosition()
 
 GALILEO_RETURN_CODE GalileoSDK::StartCharge(float x, float y)
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     if (currentStatus->navStatus != 1)
     {
@@ -584,7 +582,7 @@ GALILEO_RETURN_CODE GalileoSDK::StartCharge(float x, float y)
 
 GALILEO_RETURN_CODE GalileoSDK::MoveTo(float x, float y, uint8_t *goalIndex)
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     if (currentStatus->navStatus != 1)
     {
@@ -614,7 +612,7 @@ GALILEO_RETURN_CODE GalileoSDK::MoveTo(float x, float y, uint8_t *goalIndex)
 
 GALILEO_RETURN_CODE GalileoSDK::GetGoalNum(uint8_t *goalNum)
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     if (currentStatus->navStatus != 1)
     {
@@ -642,7 +640,7 @@ GALILEO_RETURN_CODE GalileoSDK::GetGoalNum(uint8_t *goalNum)
 
 GALILEO_RETURN_CODE GalileoSDK::StopCharge()
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
     if (currentStatus->navStatus != 1)
     {
@@ -677,7 +675,7 @@ void GalileoSDK::SetGoalReachedCallback(
 
 GALILEO_RETURN_CODE GalileoSDK::WaitForGoal(int goalID)
 {
-    if (currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NETWORK_ERROR;
     if (currentStatus->navStatus != 1)
     {
@@ -1046,13 +1044,24 @@ GALILEO_RETURN_CODE Connect(void * instance, uint8_t * targetID, size_t length,
     GalileoSDK* sdk = (GalileoSDK*)instance;
     std::string targetIDStr(targetID, targetID + length);
 
-    return sdk->Connect(targetIDStr, auto_connect, timeout, [](GALILEO_RETURN_CODE status, std::string id) -> void {
-        if (OnConnectCB != NULL)
-            OnConnectCB(status, (uint8_t*)id.data(), id.length());
-    }, [](GALILEO_RETURN_CODE status, std::string id) -> void {
-        if (OnDisconnectCB != NULL)
-            OnDisconnectCB(status, (uint8_t*)id.data(), id.length());
-    });
+    void(*OnConnectTmp)(GALILEO_RETURN_CODE, std::string id);
+    void(*OnDisconnectTmp)(GALILEO_RETURN_CODE, std::string id);
+    OnConnectTmp = NULL;
+    OnDisconnectTmp = NULL;
+    if (OnConnectCB != NULL) {
+        OnConnectTmp = [](GALILEO_RETURN_CODE status, std::string id) -> void {
+            if (OnConnectCB != NULL)
+                OnConnectCB(status, (uint8_t*)id.data(), id.length());
+        };
+    }
+    if (OnDisconnectCB != NULL) {
+        OnDisconnectTmp = [](GALILEO_RETURN_CODE status, std::string id) -> void {
+            if (OnDisconnectCB != NULL)
+                OnDisconnectCB(status, (uint8_t*)id.data(), id.length());
+        };
+    }
+
+    return sdk->Connect(targetIDStr, auto_connect, timeout, OnConnectTmp, OnDisconnectTmp);
 }
 
 void __stdcall GetServersOnline(void * instance, uint8_t* servers_json, size_t &length){
@@ -1185,7 +1194,7 @@ GALILEO_RETURN_CODE __stdcall StartChargeLocal(void * instance) {
     return sdk->StartChargeLocal();
 }
 
-GALILEO_RETURN_CODE __stdcall stopChargeLocal(void * instance) {
+GALILEO_RETURN_CODE __stdcall StopChargeLocal(void * instance) {
     GalileoSDK* sdk = (GalileoSDK*)instance;
     return sdk->stopChargeLocal();
 }

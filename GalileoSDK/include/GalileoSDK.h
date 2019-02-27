@@ -152,7 +152,7 @@ namespace GalileoSDK {
         DLL_PUBLIC GALILEO_RETURN_CODE __stdcall SaveMap(void * instance);
         DLL_PUBLIC GALILEO_RETURN_CODE __stdcall UpdateMap(void * instance);
         DLL_PUBLIC GALILEO_RETURN_CODE __stdcall StartChargeLocal(void * instance);
-        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall stopChargeLocal(void * instance);
+        DLL_PUBLIC GALILEO_RETURN_CODE __stdcall StopChargeLocal(void * instance);
         DLL_PUBLIC GALILEO_RETURN_CODE __stdcall SaveChargeBasePosition(void * instance);
         DLL_PUBLIC GALILEO_RETURN_CODE __stdcall StartCharge(void * instance, float x, float y);
         DLL_PUBLIC GALILEO_RETURN_CODE __stdcall StopCharge(void * instance);
