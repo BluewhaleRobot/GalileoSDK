@@ -780,7 +780,7 @@ Json::Value ServerInfo::toJson() {
     Json::Value rootJsonValue;
     rootJsonValue["ID"] = ID;
     rootJsonValue["port"] = port;
-    rootJsonValue["timestamp"] = timestamp;
+    rootJsonValue["timestamp"] = Json::UInt(timestamp);
     rootJsonValue["ip"] = ip;
     rootJsonValue["password"] = password;
     rootJsonValue["mac"] = mac;
@@ -1262,7 +1262,7 @@ GALILEO_RETURN_CODE __stdcall WaitForGoal(void * instance, int goalID) {
 
 static Json::Value statusToJson(galileo_serial_server::GalileoStatus status) {
     Json::Value rootValue;
-    rootValue["timestamp"] = status.header.stamp.toNSec() / 1000 / 1000;
+    rootValue["timestamp"] = Json::UInt(status.header.stamp.toNSec() / 1000 / 1000);
     rootValue["angleGoalStatus"] = status.angleGoalStatus;
     rootValue["busyStatus"] = status.busyStatus;
     rootValue["chargeStatus"] = status.chargeStatus;

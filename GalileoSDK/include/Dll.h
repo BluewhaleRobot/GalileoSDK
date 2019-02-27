@@ -30,4 +30,8 @@
 #endif
 #endif
 
+#ifndef _WIN32 // or something like that...
+#define __stdcall
+#endif
+
 #endif // !__DLL_H__
