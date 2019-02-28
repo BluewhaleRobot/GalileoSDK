@@ -1,4 +1,4 @@
-# GalileoSDK [![Build Status](https://travis-ci.org/uos/rospy_message_converter.svg)](https://travis-ci.org/BluewhaleRobot/GalileoSDK)
+# GalileoSDK [![Build Status](https://travis-ci.org/BluewhaleRobot/GalileoSDK.svg)](https://travis-ci.org/BluewhaleRobot/GalileoSDK)
 
 Galileo C++ SDK
 
