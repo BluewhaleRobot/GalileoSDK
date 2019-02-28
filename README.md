@@ -1,7 +1,6 @@
-# GalileoSDK
+# GalileoSDK [![Build Status](https://travis-ci.org/uos/rospy_message_converter.svg)](https://travis-ci.org/BluewhaleRobot/GalileoSDK)
 
 Galileo C++ SDK
-[![Build Status](https://travis-ci.org/uos/rospy_message_converter.svg)](https://travis-ci.org/BluewhaleRobot/GalileoSDK)
 
 伽利略导航系统C++ SDK，实现了[伽利略导航系统协议](https://doc.bwbot.org/en/books-online/galileo-proto/)
 
@@ -23,6 +22,12 @@ dll生成在x64文件夹
 ### 在Linux编译
 
 ```bash
+# 安装ROS，请参考ROS wiki自行安装
+# 安装依赖
+sudo apt-get install -y --allow-unauthenticated libjsoncpp-dev ros-kinetic-roscpp
+source /opt/ros/kinetic/setup.bash
+export LIBRARY_PATH=/opt/ros/kinetic/lib/
+# 安装SDK
 git clone https://github.com/bluewhalerobot/GalileoSDK
 cd GalileoSDK/GalileoSDK
 mkdir build
