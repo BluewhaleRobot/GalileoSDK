@@ -26,6 +26,7 @@ namespace GalileoSDK {
         void setPort(uint32_t);
         Json::Value toJson();
         std::string toJsonString();
+        bool operator==(const ServerInfo& p2);
 
     private:
         std::string ID;

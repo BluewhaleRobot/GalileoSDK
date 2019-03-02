@@ -23,6 +23,11 @@ GalileoSDK::GalileoSDK()
     instance = this;
 }
 
+ServerInfo* GalileoSDK::GetCurrentServer() {
+    std::unique_lock<std::mutex> lock(serverLock);
+    return currentServer;
+}
+
 GalileoSDK *GalileoSDK::GetInstance()
 {
     return instance;
@@ -541,7 +546,7 @@ GALILEO_RETURN_CODE GalileoSDK::StartChargeLocal()
     return SendCMD(cmd, 2);
 }
 
-GALILEO_RETURN_CODE GalileoSDK::stopChargeLocal()
+GALILEO_RETURN_CODE GalileoSDK::StopChargeLocal()
 {
     if (currentServer == NULL || currentStatus == NULL)
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
@@ -658,7 +663,7 @@ GALILEO_RETURN_CODE GalileoSDK::StopCharge()
         return res;
     }
     Sleep(400);
-    return stopChargeLocal();
+    return StopChargeLocal();
 }
 
 void GalileoSDK::SetCurrentStatusCallback(void (
@@ -788,6 +793,11 @@ Json::Value ServerInfo::toJson() {
 std::string ServerInfo::toJsonString() {
     Json::StreamWriterBuilder wbuilder;
     return Json::writeString(wbuilder, toJson());
+}
+
+bool ServerInfo::operator==(const ServerInfo & p2)
+{
+    return p2.ID == ID;
 }
 
 
@@ -1080,8 +1090,8 @@ void __stdcall GetServersOnline(void * instance, uint8_t* servers_json, size_t &
 void __stdcall GetCurrentServer(void * instance, uint8_t* servers_json, size_t &length) {
     GalileoSDK* sdk = (GalileoSDK*)instance;
     Json::Value currentServer;
-    if (sdk->currentServer != NULL) {
-        currentServer = sdk->currentServer->toJson();
+    if (sdk->GetCurrentServer() != NULL) {
+        currentServer = sdk->GetCurrentServer()->toJson();
     }
     Json::StreamWriterBuilder wbuilder;
     auto serversStr = Json::writeString(wbuilder, currentServer);
@@ -1196,7 +1206,7 @@ GALILEO_RETURN_CODE __stdcall StartChargeLocal(void * instance) {
 
 GALILEO_RETURN_CODE __stdcall StopChargeLocal(void * instance) {
     GalileoSDK* sdk = (GalileoSDK*)instance;
-    return sdk->stopChargeLocal();
+    return sdk->StopChargeLocal();
 }
 
 GALILEO_RETURN_CODE __stdcall SaveChargeBasePosition(void * instance) {

@@ -35,6 +35,7 @@ namespace GalileoSDK {
         SERVER_ERROR,
         GOAL_CANCELLED,
         INVALIDE_GOAL,
+        INVALIDE_PARAMS
     };
 
     class DLL_PUBLIC GalileoSDK {
@@ -52,8 +53,8 @@ namespace GalileoSDK {
         GALILEO_RETURN_CODE
         WaitForStartNavigation(GALILEO_RETURN_CODE(*OnConnect)(std::string));*/
         std::vector<ServerInfo> GetServersOnline();
-        ServerInfo *currentServer;
         GALILEO_RETURN_CODE PublishTest();
+        ServerInfo* GetCurrentServer();
         static GalileoSDK *GetInstance();
         void broadcastOfflineCallback(std::string id);
         // Galileo commnads related
@@ -77,7 +78,7 @@ namespace GalileoSDK {
         GALILEO_RETURN_CODE SaveMap();
         GALILEO_RETURN_CODE UpdateMap();
         GALILEO_RETURN_CODE StartChargeLocal();
-        GALILEO_RETURN_CODE stopChargeLocal();
+        GALILEO_RETURN_CODE StopChargeLocal();
         GALILEO_RETURN_CODE SaveChargeBasePosition();
         GALILEO_RETURN_CODE StartCharge(float x, float y);
         GALILEO_RETURN_CODE StopCharge();
@@ -92,6 +93,7 @@ namespace GalileoSDK {
         ~GalileoSDK();
 
     private:
+        ServerInfo * currentServer;
         BroadcastReceiver broadcastReceiver;
         ros::NodeHandle *nh;
         ros::Publisher testPub;
@@ -103,6 +105,7 @@ namespace GalileoSDK {
             const galileo_serial_server::GalileoStatusConstPtr &status);
         galileo_serial_server::GalileoStatusConstPtr currentStatus;
         std::mutex statusLock;
+        std::mutex serverLock;
         void SpinThread();
         void(*OnDisconnect)(GALILEO_RETURN_CODE, std::string);
         void(*OnConnect)(GALILEO_RETURN_CODE, std::string);
@@ -116,6 +119,10 @@ namespace GalileoSDK {
         bool auto_connect;
         int timeout;
     };
+
+    static void(*StatusCB)(GALILEO_RETURN_CODE, uint8_t* status_json, size_t length);
+    static void(*ReachedCB)(int goalID, uint8_t* status_json, size_t length);
+    static Json::Value statusToJson(galileo_serial_server::GalileoStatus);
 
     // export c functions
     extern "C"
@@ -165,9 +172,6 @@ namespace GalileoSDK {
             void * instance,
             void(*callback)(int goalID, uint8_t* status_json, size_t length));
         DLL_PUBLIC GALILEO_RETURN_CODE __stdcall WaitForGoal(void * instance, int goalID);
-        static void(*StatusCB)(GALILEO_RETURN_CODE, uint8_t* status_json, size_t length);
-        static void(*ReachedCB)(int goalID, uint8_t* status_json, size_t length);
-        static Json::Value statusToJson(galileo_serial_server::GalileoStatus);
     }
 }; // namespace GalileoSDK
 
