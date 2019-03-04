@@ -303,6 +303,7 @@ GALILEO_RETURN_CODE GalileoSDK::PublishTest()
 
 GalileoSDK::~GalileoSDK()
 {
+    broadcastReceiver.StopTask();
     if (currentServer != NULL)
         free(currentServer);
     if (nh != NULL)
@@ -847,8 +848,9 @@ BroadcastReceiver::BroadcastReceiver() : sdk(NULL)
     //create a UDP socket
     if ((serverSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     {
-        std::cout << "Failed create socket" << std::endl;
         std::runtime_error e("Failed create socket");
+        int perrno = errno;
+        printf("Failed create socket: ERRNO = %s\n",strerror(perrno));
         throw e;
     }
 
@@ -862,14 +864,16 @@ BroadcastReceiver::BroadcastReceiver() : sdk(NULL)
     //bind socket to port
     if (bind(serverSocket, (struct sockaddr *)&server, sizeof(server)) == -1)
     {
-        std::cout << "Failed create socket" << std::endl;
         std::runtime_error e("Failed create socket");
+        int perrno = errno;
+        printf("Failed create socket: ERRNO = %s\n",strerror(perrno));
         throw e;
     }
     struct timeval tv;
     tv.tv_sec = 1;
+    tv.tv_usec = 0;
     if (setsockopt(serverSocket, SOL_SOCKET, SO_RCVTIMEO,
-                    (const char *)&tv, sizeof(struct timeval)) < 0)
+                    &tv, sizeof(struct timeval)) < 0)
     {
         std::cout << "Set socket timeout failed" << std::endl;
         int perrno = errno;
