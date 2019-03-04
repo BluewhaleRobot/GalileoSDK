@@ -122,7 +122,8 @@ namespace GalileoSDK {
 
     static void(*StatusCB)(GALILEO_RETURN_CODE, uint8_t* status_json, size_t length);
     static void(*ReachedCB)(int goalID, uint8_t* status_json, size_t length);
-    static Json::Value statusToJson(galileo_serial_server::GalileoStatus);
+
+    Json::Value statusToJson(galileo_serial_server::GalileoStatus);
 
     // export c functions
     extern "C"

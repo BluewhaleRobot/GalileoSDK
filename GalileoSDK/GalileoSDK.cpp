@@ -1283,7 +1283,7 @@ GALILEO_RETURN_CODE __stdcall WaitForGoal(void * instance, int goalID) {
     return sdk->WaitForGoal(goalID);
 }
 
-static Json::Value statusToJson(galileo_serial_server::GalileoStatus status) {
+Json::Value statusToJson(galileo_serial_server::GalileoStatus status) {
     Json::Value rootValue;
     rootValue["timestamp"] = Json::UInt(status.header.stamp.toNSec() / 1000 / 1000);
     rootValue["angleGoalStatus"] = status.angleGoalStatus;
