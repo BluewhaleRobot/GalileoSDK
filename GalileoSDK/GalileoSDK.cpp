@@ -12,6 +12,11 @@ void Sleep(uint64_t miliseconds)
 }
 #endif
 
+void(*StatusCB)(GALILEO_RETURN_CODE, uint8_t* status_json, size_t length);
+void(*ReachedCB)(int goalID, uint8_t* status_json, size_t length);
+void(*OnConnectCB)(GALILEO_RETURN_CODE, uint8_t* id, size_t length);
+void(*OnDisconnectCB)(GALILEO_RETURN_CODE, uint8_t* id, size_t length);
+
 // Implementation of class GalileoSDK
 // ////////////////////////////////
 GalileoSDK *GalileoSDK::instance = NULL;
@@ -229,9 +234,29 @@ GALILEO_RETURN_CODE GalileoSDK::Connect(ServerInfo server)
         Sleep(100);
         timecount += 100;
     }
-    if (timecount >= timeout)
+    if (timecount >= timeout){
+        Dispose();
         return GALILEO_RETURN_CODE::TIMEOUT;
+    }
+        
     return GALILEO_RETURN_CODE::OK;
+}
+
+void GalileoSDK::Dispose(){
+    // 释放资源
+    if(nh->ok()){
+        nh->shutdown();
+    }
+    if(nh != NULL){
+        delete nh;
+        nh = NULL;
+    }
+    if(currentServer != NULL){
+        delete currentServer;
+        currentServer = NULL;
+    }
+    currentStatus = NULL;
+    instance = NULL;
 }
 
 void GalileoSDK::UpdateGalileoStatus(
@@ -259,7 +284,6 @@ void GalileoSDK::SpinThread()
         ros::spinOnce();
         Sleep(1);
     }
-    std::cout << "SpinThread exited" << std::endl;
 }
 
 void GalileoSDK::broadcastOfflineCallback(std::string id)
@@ -267,17 +291,11 @@ void GalileoSDK::broadcastOfflineCallback(std::string id)
     if (GalileoSDK::GetInstance() == NULL)
         return;
     auto sdk = GalileoSDK::GetInstance();
-    free(sdk->nh);
-    sdk->nh = NULL;
-    if (sdk->currentServer != NULL)
-    {
-        free(sdk->currentServer);
-        sdk->currentServer = NULL;
-    }
     if (sdk->OnDisconnect != NULL)
     {
         sdk->OnDisconnect(GALILEO_RETURN_CODE::OK, id);
     }
+    sdk->Dispose();
 }
 
 GALILEO_RETURN_CODE GalileoSDK::GetCurrentStatus(galileo_serial_server::GalileoStatus *status)
@@ -304,13 +322,7 @@ GALILEO_RETURN_CODE GalileoSDK::PublishTest()
 GalileoSDK::~GalileoSDK()
 {
     broadcastReceiver.StopTask();
-    if (currentServer != NULL)
-        free(currentServer);
-    if (nh != NULL)
-        free(nh);
-    currentServer = NULL;
-    nh = NULL;
-    instance = NULL;
+    Dispose();
 }
 
 GALILEO_RETURN_CODE GalileoSDK::SendCMD(uint8_t data[], int length)
@@ -808,7 +820,7 @@ bool ServerInfo::operator==(const ServerInfo & p2)
 
 BroadcastReceiver *BroadcastReceiver::instance = NULL;
 
-BroadcastReceiver::BroadcastReceiver() : sdk(NULL)
+BroadcastReceiver::BroadcastReceiver() : sdk(NULL), stoppedFlag(false)
 {
 // 初始化广播udp socket
 #ifdef _WIN32
@@ -898,6 +910,9 @@ void BroadcastReceiver::StopAll()
 void BroadcastReceiver::StopTask()
 {
     runningFlag = false;
+    while(!stoppedFlag){
+        Sleep(10);
+    }
     instance = NULL;
 }
 
@@ -1025,7 +1040,7 @@ void BroadcastReceiver::Run()
             serverInfo->setTimestamp(Utils::GetCurrentTimestamp());
             serverList.push_back(*serverInfo);
         }
-        free(serverInfo);
+        delete serverInfo;
     }
 #ifdef _WIN32
     closesocket(serverSocket);
@@ -1033,6 +1048,7 @@ void BroadcastReceiver::Run()
 #else
     close(serverSocket);
 #endif
+    stoppedFlag = true;
 }
 
 // Impletation of export c functions
@@ -1045,7 +1061,8 @@ void* __stdcall CreateInstance() {
 
 void __stdcall ReleaseInstance(void *instance) {
     GalileoSDK* sdk = (GalileoSDK*)instance;
-    free(sdk);
+    sdk->Dispose();
+    delete sdk;
 }
 
 GALILEO_RETURN_CODE Connect(void * instance, uint8_t * targetID, size_t length, 

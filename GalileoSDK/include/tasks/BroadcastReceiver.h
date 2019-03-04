@@ -43,6 +43,7 @@ private:
   static BroadcastReceiver *instance;
   GalileoSDK *sdk;
   std::mutex serversLock;
+  bool stoppedFlag;
 };
 } // namespace GalileoSDK
 

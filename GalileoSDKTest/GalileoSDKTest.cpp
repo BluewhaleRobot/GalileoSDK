@@ -475,8 +475,19 @@ void testCreateMap()
     }
 }
 
+void testRelease(){
+    while(true){
+        Sleep(5000);
+        std::cout << "Create SDK instance" << std::endl;
+        GalileoSDK::GalileoSDK sdk;
+        Sleep(1000);
+        auto servers = sdk.GetServersOnline();
+        std::cout << "Release SDK instance" << std::endl;
+    }
+}
+
 int main()
 {
-    testGoals();
+    testSub();
     return 0;
 }
