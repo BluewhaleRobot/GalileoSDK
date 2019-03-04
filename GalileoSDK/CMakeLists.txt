@@ -35,11 +35,13 @@ include(GNUInstallDirs)
 find_package(PkgConfig REQUIRED)
 pkg_search_module(JSONCPP REQUIRED jsoncpp)
 pkg_search_module(ROSCPP REQUIRED roscpp)
+pkg_search_module(GEOMETRY_MSGS REQUIRED geometry_msgs)
 
 include_directories(
    ${PROJECT_SOURCE_DIR}/include
    ${JSONCPP_INCLUDE_DIRS}
    ${ROSCPP_INCLUDE_DIRS}
+   ${GEOMETRY_MSGS_INCLUDE_DIRS}
    ${PROJECT_SOURCE_DIR}/../include
 )
 set(BUILD_SHARED_LIBS ON)
@@ -53,6 +55,7 @@ set_target_properties(GalileoSDK PROPERTIES SOVERSION 0)
 target_link_libraries(GalileoSDK
    ${ROSCPP_LIBRARIES}
    ${JSONCPP_LIBRARIES}
+   ${GEOMETRY_MSGS_LIBRARIES}
 )
 
 install(
