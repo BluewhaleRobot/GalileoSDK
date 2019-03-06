@@ -22,7 +22,7 @@ void(*OnDisconnectCB)(GALILEO_RETURN_CODE, uint8_t* id, size_t length);
 GalileoSDK *GalileoSDK::instance = NULL;
 
 GalileoSDK::GalileoSDK()
-    : currentServer(NULL), currentStatus(NULL), OnDisconnect(NULL), OnConnect(NULL), CurrentStatusCallback(NULL), GoalReachedCallback(NULL), connectingTaskFlag(false)
+    : nh(NULL), currentServer(NULL), currentStatus(NULL), OnDisconnect(NULL), OnConnect(NULL), CurrentStatusCallback(NULL), GoalReachedCallback(NULL), connectingTaskFlag(false)
 {
     new std::thread(&BroadcastReceiver::Run, &broadcastReceiver);
     instance = this;

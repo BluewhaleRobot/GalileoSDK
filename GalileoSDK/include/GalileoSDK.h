@@ -38,6 +38,38 @@ namespace GalileoSDK {
         INVALIDE_PARAMS
     };
 
+    std::string GalileoReturnCodeToString(GALILEO_RETURN_CODE status) {
+        switch (status)
+        {
+        case GALILEO_RETURN_CODE::OK:
+            return "OK";
+        case GALILEO_RETURN_CODE::NOT_CONNECTED:
+            return "NOT_CONNECTED";
+        case GALILEO_RETURN_CODE::INVALIDE_STATE:
+            return "INVALIDE_STATE";
+        case GALILEO_RETURN_CODE::NO_SERVER_FOUND:
+            return "NO_SERVER_FOUND";
+        case GALILEO_RETURN_CODE::MULTI_SERVER_FOUND:
+            return "MULTI_SERVER_FOUND";
+        case GALILEO_RETURN_CODE::NETWORK_ERROR:
+            return "NETWORK_ERROR";
+        case GALILEO_RETURN_CODE::ALREADY_CONNECTED:
+            return "ALREADY_CONNECTED";
+        case GALILEO_RETURN_CODE::TIMEOUT:
+            return "TIMEOUT";
+        case GALILEO_RETURN_CODE::SERVER_ERROR:
+            return "SERVER_ERROR";
+        case GALILEO_RETURN_CODE::GOAL_CANCELLED:
+            return "GOAL_CANCELLED";
+        case GALILEO_RETURN_CODE::INVALIDE_GOAL:
+            return "INVALIDE_GOAL";
+        case GALILEO_RETURN_CODE::INVALIDE_PARAMS:
+            return "INVALIDE_PARAMS";
+        default:
+            return "OK";
+        }
+    }
+
     class DLL_PUBLIC GalileoSDK {
     public:
         GalileoSDK();
