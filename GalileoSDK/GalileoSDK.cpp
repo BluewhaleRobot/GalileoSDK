@@ -105,7 +105,8 @@ GALILEO_RETURN_CODE GalileoSDK::Connect(
             {
                 int timecount = 0;
                 std::vector<ServerInfo> servers;
-                while (timecount < sdk->timeout)
+                bool foundServerFlag = false;
+                while (timecount < sdk->timeout && !foundServerFlag)
                 {
                     servers = BroadcastReceiver::GetServers();
                     for (auto it = servers.begin(); it < servers.end(); it++)
@@ -114,6 +115,7 @@ GALILEO_RETURN_CODE GalileoSDK::Connect(
                         {
                             sdk->currentServer = new ServerInfo();
                             *(sdk->currentServer) = *it;
+                            foundServerFlag = true;
                             break;
                         }
                     }
