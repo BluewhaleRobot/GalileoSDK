@@ -42,7 +42,7 @@ private:
   std::vector<ServerInfo> serverList;
   static BroadcastReceiver *instance;
   GalileoSDK *sdk;
-  std::mutex serversLock;
+  std::recursive_mutex serversLock;
   bool stoppedFlag;
 };
 } // namespace GalileoSDK

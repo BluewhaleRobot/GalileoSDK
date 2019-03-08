@@ -122,6 +122,7 @@ namespace GalileoSDK {
         void SetGoalReachedCallback(
             void(*callback)(int goalID, galileo_serial_server::GalileoStatus));
         GALILEO_RETURN_CODE WaitForGoal(int goalID);
+        bool CheckServerOnline(std::string targetid);
         void Dispose();
         ~GalileoSDK();
 

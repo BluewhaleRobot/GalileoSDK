@@ -24,6 +24,12 @@ GalileoSDK *GalileoSDK::instance = NULL;
 GalileoSDK::GalileoSDK()
     : nh(NULL), currentServer(NULL), currentStatus(NULL), OnDisconnect(NULL), OnConnect(NULL), CurrentStatusCallback(NULL), GoalReachedCallback(NULL), connectingTaskFlag(false)
 {
+    if (instance != NULL) {
+        instance->broadcastReceiver.StopTask();
+        instance->Dispose();
+        instance = NULL;
+    }
+        
     new std::thread(&BroadcastReceiver::Run, &broadcastReceiver);
     instance = this;
 }
@@ -58,6 +64,7 @@ GALILEO_RETURN_CODE GalileoSDK::Connect(
     {
         this->OnDisconnect = OnDisconnect;
     }
+
     this->auto_connect = auto_connect;
     this->timeout = timeout;
     this->targetID = targetID;
@@ -129,11 +136,13 @@ GALILEO_RETURN_CODE GalileoSDK::Connect(
                     return;
                 }
             }
-            sdk->Connect(*(sdk->currentServer));
+            std::string targetid = sdk->currentServer->getID();
+            GALILEO_RETURN_CODE res = sdk->Connect(*(sdk->currentServer));
             if (sdk->OnConnect != NULL)
             {
-                sdk->OnConnect(GALILEO_RETURN_CODE::OK, sdk->currentServer->getID());
+                sdk->OnConnect(res, targetid);
             }
+
             sdk->connectingTaskFlag = false;
             return;
         });
@@ -246,7 +255,7 @@ GALILEO_RETURN_CODE GalileoSDK::Connect(ServerInfo server)
 
 void GalileoSDK::Dispose(){
     // 释放资源
-    if(nh->ok()){
+    if(currentServer != NULL && CheckServerOnline(currentServer->getID()) && nh->ok()){
         nh->shutdown();
     }
     if(nh != NULL){
@@ -258,7 +267,6 @@ void GalileoSDK::Dispose(){
         currentServer = NULL;
     }
     currentStatus = NULL;
-    instance = NULL;
 }
 
 void GalileoSDK::UpdateGalileoStatus(
@@ -293,11 +301,20 @@ void GalileoSDK::broadcastOfflineCallback(std::string id)
     if (GalileoSDK::GetInstance() == NULL)
         return;
     auto sdk = GalileoSDK::GetInstance();
+    sdk->Dispose();
     if (sdk->OnDisconnect != NULL)
     {
-        sdk->OnDisconnect(GALILEO_RETURN_CODE::OK, id);
+        sdk->OnDisconnect(GALILEO_RETURN_CODE::NOT_CONNECTED, id);
     }
-    sdk->Dispose();
+}
+
+bool GalileoSDK::CheckServerOnline(std::string targetid) {
+    auto servers = BroadcastReceiver::GetServers();
+    for (auto it = servers.begin(); it < servers.end(); it++) {
+        if (it->getID() == targetid)
+            return true;
+    }
+    return false;
 }
 
 GALILEO_RETURN_CODE GalileoSDK::GetCurrentStatus(galileo_serial_server::GalileoStatus *status)
@@ -325,6 +342,7 @@ GalileoSDK::~GalileoSDK()
 {
     broadcastReceiver.StopTask();
     Dispose();
+    instance = NULL;
 }
 
 GALILEO_RETURN_CODE GalileoSDK::SendCMD(uint8_t data[], int length)
@@ -826,7 +844,6 @@ BroadcastReceiver::BroadcastReceiver() : sdk(NULL), stoppedFlag(false)
 {
 // 初始化广播udp socket
 #ifdef _WIN32
-
     WSADATA wsa;
     if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
     {
@@ -926,7 +943,7 @@ std::vector<ServerInfo> BroadcastReceiver::GetServers()
     }
     else
     {
-        std::unique_lock<std::mutex> lock(instance->serversLock);
+        std::unique_lock<std::recursive_mutex> lock(instance->serversLock);
         return instance->serverList;
     }
 }
@@ -997,10 +1014,10 @@ void BroadcastReceiver::Run()
             std::cout << e.what() << std::endl;
         }
 
-        std::vector<ServerInfo> result;
+        std::vector<ServerInfo> originServers = serverList;
 
-        std::unique_lock<std::mutex> lock(instance->serversLock);
-        for (auto it = serverList.begin(); it < serverList.end(); it++)
+        std::unique_lock<std::recursive_mutex> lock(instance->serversLock);
+        for (auto it = originServers.begin(); it < originServers.end(); it++)
         {
             if (Utils::GetCurrentTimestamp() - it->getTimestamp() > 10 * 1000)
             {
@@ -1008,15 +1025,11 @@ void BroadcastReceiver::Run()
                 if (this->sdk != NULL)
                 {
                     // 设置服务器下线回调
+                    serverList.erase(std::remove(serverList.begin(), serverList.end(), *it), serverList.end());
                     sdk->broadcastOfflineCallback(it->getID());
                 }
             }
-            else
-            {
-                result.push_back(*it);
-            }
         }
-        serverList = result;
 
         if (serverInfo == NULL)
         {
