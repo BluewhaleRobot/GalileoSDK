@@ -978,7 +978,8 @@ void BroadcastReceiver::Run()
 #ifdef _WIN32
             int slen, recv_len;
 #else
-            int slen, recv_len;
+            socklen_t slen;
+            int recv_len;
 #endif // _WIN32
 
             
