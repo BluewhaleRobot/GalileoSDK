@@ -43,8 +43,8 @@ add_executable(GalileoTest
 )
 
 target_link_libraries(GalileoTest
-    ${ROSCPP_LIBRARIES}
-    ${JSONCPP_LIBRARIES}
+    ${ROSCPP_LINK_LIBRARIES}
+    ${JSONCPP_LINK_LIBRARIES}
     ${PROJECT_SOURCE_DIR}/../GalileoSDK/build/libGalileoSDK.so
 )
 
