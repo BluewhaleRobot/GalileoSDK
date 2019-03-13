@@ -46,7 +46,7 @@ matrix:
         - sudo chmod +x /usr/local/sbin/apt-fast
         - sudo wget https://raw.githubusercontent.com/ilikenwf/apt-fast/master/apt-fast.conf -O /etc/apt-fast.conf
         - sudo apt-fast update -qq
-        - sudo apt-get install -y --allow-unauthenticated libjsoncpp-dev ros-kinetic-roscpp ros-kinetic-geometry-msgs
+        - sudo apt-get install -y --allow-unauthenticated ros-kinetic-roscpp ros-kinetic-geometry-msgs
       script:
         - source /opt/ros/kinetic/setup.bash
         - export LIBRARY_PATH=/opt/ros/kinetic/lib/

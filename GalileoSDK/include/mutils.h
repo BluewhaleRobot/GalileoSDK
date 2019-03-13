@@ -15,6 +15,9 @@
 #endif
 #include <chrono>
 #include <mutex>
+#if __ANDROID_API__ < 24
+#include "ifaddrs1.h"
+#endif /* __ANDROID_API__ < 24 */
 
 namespace GalileoSDK
 {

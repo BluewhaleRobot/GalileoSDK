@@ -745,11 +745,11 @@ GALILEO_RETURN_CODE GalileoSDK::WaitForGoal(int goalID)
 
 ServerInfo::ServerInfo() {}
 
-ServerInfo::ServerInfo(Json::Value serverInfoJson)
+ServerInfo::ServerInfo(nlohmann::json serverInfoJson)
 {
-    ID = serverInfoJson["id"].asString();
-    mac = serverInfoJson["mac"].asString();
-    port = serverInfoJson["port"].asInt();
+    ID = serverInfoJson["id"];
+    mac = serverInfoJson["mac"];
+    port = serverInfoJson["port"];
 }
 
 std::string ServerInfo::getMac()
@@ -812,11 +812,11 @@ void ServerInfo::setPort(uint32_t port)
     this->port = port;
 }
 
-Json::Value ServerInfo::toJson() {
-    Json::Value rootJsonValue;
+nlohmann::json ServerInfo::toJson() {
+    nlohmann::json rootJsonValue;
     rootJsonValue["ID"] = ID;
     rootJsonValue["port"] = port;
-    rootJsonValue["timestamp"] = Json::UInt(timestamp);
+    rootJsonValue["timestamp"] = timestamp;
     rootJsonValue["ip"] = ip;
     rootJsonValue["password"] = password;
     rootJsonValue["mac"] = mac;
@@ -824,8 +824,7 @@ Json::Value ServerInfo::toJson() {
 }
 
 std::string ServerInfo::toJsonString() {
-    Json::StreamWriterBuilder wbuilder;
-    return Json::writeString(wbuilder, toJson());
+    return toJson().dump(4);
 }
 
 bool ServerInfo::operator==(const ServerInfo & p2)
@@ -966,8 +965,6 @@ void replaceAll(std::string &str,
 void BroadcastReceiver::Run()
 {
     runningFlag = true;
-    Json::CharReaderBuilder builder;
-    Json::CharReader *reader = builder.newCharReader();
     instance = this;
     while (runningFlag)
     {
@@ -993,21 +990,12 @@ void BroadcastReceiver::Run()
             std::string data = std::string(buf, 0, recv_len);
             if (!data.empty())
             {
-                Json::Value serverInfoJson;
-                std::string errors;
-                bool parsingSuccessful = reader->parse(
-                    data.c_str(), data.c_str() + data.size(), &serverInfoJson, &errors);
-                if (!parsingSuccessful)
-                {
-                    std::cout << errors << std::endl;
-                }
-                else
-                {
-                    serverInfo = new ServerInfo(serverInfoJson);
-                    std::string addrStr = std::string(ipStr);
-                    replaceAll(addrStr, "/", "");
-                    serverInfo->setIP(addrStr);
-                }
+                nlohmann::json serverInfoJson = serverInfoJson.parse(
+                    data.c_str(), data.c_str() + data.size());
+                serverInfo = new ServerInfo(serverInfoJson);
+                std::string addrStr = std::string(ipStr);
+                replaceAll(addrStr, "/", "");
+                serverInfo->setIP(addrStr);
             }
         }
         catch (const std::exception &e)
@@ -1113,25 +1101,23 @@ GALILEO_RETURN_CODE Connect(void * instance, uint8_t * targetID, size_t length,
 
 void __stdcall GetServersOnline(void * instance, uint8_t* servers_json, size_t &length){
     GalileoSDK* sdk = (GalileoSDK*)instance;
-    Json::Value servers(Json::arrayValue);
+    nlohmann::json servers;
     auto serversOnline = sdk->GetServersOnline();
     for (auto it = serversOnline.begin(); it < serversOnline.end(); it++) {
-        servers.append(it->toJson());
+        servers.push_back(it->toJson());
     }
-    Json::StreamWriterBuilder wbuilder;
-    auto serversStr = Json::writeString(wbuilder, servers);
+    auto serversStr = servers.dump(4);
     memcpy(servers_json, serversStr.data(), serversStr.size());
     length = serversStr.size();
 }
 
 void __stdcall GetCurrentServer(void * instance, uint8_t* servers_json, size_t &length) {
     GalileoSDK* sdk = (GalileoSDK*)instance;
-    Json::Value currentServer;
+    nlohmann::json currentServer;
     if (sdk->GetCurrentServer() != NULL) {
         currentServer = sdk->GetCurrentServer()->toJson();
     }
-    Json::StreamWriterBuilder wbuilder;
-    auto serversStr = Json::writeString(wbuilder, currentServer);
+    auto serversStr = currentServer.dump(4);
     memcpy(servers_json, serversStr.data(), serversStr.size());
     length = serversStr.size();
 }
@@ -1273,14 +1259,13 @@ GALILEO_RETURN_CODE __stdcall GetGoalNum(void * instance, uint8_t &goalNum) {
 
 GALILEO_RETURN_CODE __stdcall GetCurrentStatus(void * instance, uint8_t* status_json, size_t &length) {
     GalileoSDK* sdk = (GalileoSDK*)instance;
-    Json::Value rootValue;
+    nlohmann::json rootValue;
     galileo_serial_server::GalileoStatus status;
     GALILEO_RETURN_CODE res = sdk->GetCurrentStatus(&status);
     if (res == GALILEO_RETURN_CODE::OK) {
         rootValue = statusToJson(status);
     }
-    Json::StreamWriterBuilder wbuilder;
-    auto serversStr = Json::writeString(wbuilder, rootValue);
+    auto serversStr = rootValue.dump(4);
     memcpy(status_json, serversStr.data(), serversStr.size());
     length = serversStr.size();
     return res;
@@ -1291,9 +1276,8 @@ void __stdcall SetCurrentStatusCallback(void * instance, void(*callback)(
     GalileoSDK* sdk = (GalileoSDK*)instance;
     StatusCB = callback;
     sdk->SetCurrentStatusCallback([](GALILEO_RETURN_CODE res, galileo_serial_server::GalileoStatus status)->void {
-        Json::Value rootValue = statusToJson(status);
-        Json::StreamWriterBuilder wbuilder;
-        std::string serversStr = Json::writeString(wbuilder, rootValue);
+        nlohmann::json rootValue = statusToJson(status);
+        std::string serversStr = rootValue.dump(4);
         StatusCB(res, (uint8_t*)serversStr.data(), serversStr.size());
     });
 }
@@ -1304,9 +1288,8 @@ void __stdcall SetGoalReachedCallback(
     GalileoSDK* sdk = (GalileoSDK*)instance;
     ReachedCB = callback;
     sdk->SetGoalReachedCallback([](int goalID, galileo_serial_server::GalileoStatus status)->void {
-        Json::Value rootValue = statusToJson(status);
-        Json::StreamWriterBuilder wbuilder;
-        std::string serversStr = Json::writeString(wbuilder, rootValue);
+        nlohmann::json rootValue = statusToJson(status);
+        std::string serversStr = rootValue.dump(4);
         ReachedCB(goalID, (uint8_t*)serversStr.data(), serversStr.size());
     });
 }
@@ -1316,9 +1299,9 @@ GALILEO_RETURN_CODE __stdcall WaitForGoal(void * instance, int goalID) {
     return sdk->WaitForGoal(goalID);
 }
 
-Json::Value statusToJson(galileo_serial_server::GalileoStatus status) {
-    Json::Value rootValue;
-    rootValue["timestamp"] = Json::UInt(status.header.stamp.toNSec() / 1000 / 1000);
+nlohmann::json statusToJson(galileo_serial_server::GalileoStatus status) {
+    nlohmann::json rootValue;
+    rootValue["timestamp"] = (status.header.stamp.toNSec() / 1000 / 1000);
     rootValue["angleGoalStatus"] = status.angleGoalStatus;
     rootValue["busyStatus"] = status.busyStatus;
     rootValue["chargeStatus"] = status.chargeStatus;

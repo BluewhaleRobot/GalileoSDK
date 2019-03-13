@@ -16,7 +16,7 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 #include "tasks/BroadcastReceiver.h"
-#include <json/json.h>
+#include <json.hpp>
 #include <mutex>
 #include <thread>
 #include <stdexcept>
@@ -154,7 +154,7 @@ namespace GalileoSDK {
         int timeout;
     };
 
-    Json::Value statusToJson(galileo_serial_server::GalileoStatus);
+    nlohmann::json statusToJson(galileo_serial_server::GalileoStatus);
 
     // export c functions
     extern "C"

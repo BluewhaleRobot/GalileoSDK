@@ -4,14 +4,14 @@
 
 #include "../Dll.h"
 #include <iostream>
-#include <json/json.h>
+#include <json.hpp>
 #include <string>
 
 namespace GalileoSDK {
     class DLL_PUBLIC ServerInfo {
     public:
         ServerInfo();
-        ServerInfo(Json::Value);
+        ServerInfo(nlohmann::json);
         std::string getMac();
         void setMac(std::string);
         std::string getPassword();
@@ -24,7 +24,7 @@ namespace GalileoSDK {
         void setTimestamp(size_t);
         uint32_t getPort();
         void setPort(uint32_t);
-        Json::Value toJson();
+        nlohmann::json toJson();
         std::string toJsonString();
         bool operator==(const ServerInfo& p2);
 

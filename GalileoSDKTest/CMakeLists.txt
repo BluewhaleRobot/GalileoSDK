@@ -27,12 +27,10 @@ endif()
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 find_package(PkgConfig REQUIRED)
-pkg_search_module(JSONCPP REQUIRED jsoncpp)
 pkg_search_module(ROSCPP REQUIRED roscpp)
 
 include_directories(
    ${PROJECT_SOURCE_DIR}/include
-   ${JSONCPP_INCLUDE_DIRS}
    ${ROSCPP_INCLUDE_DIRS}
    ${PROJECT_SOURCE_DIR}/../include
    ${PROJECT_SOURCE_DIR}/../GalileoSDK/include
@@ -44,7 +42,6 @@ add_executable(GalileoTest
 
 target_link_libraries(GalileoTest
     ${ROSCPP_LINK_LIBRARIES}
-    ${JSONCPP_LINK_LIBRARIES}
     ${PROJECT_SOURCE_DIR}/../GalileoSDK/build/libGalileoSDK.so
 )
 
