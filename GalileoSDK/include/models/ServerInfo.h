@@ -4,7 +4,7 @@
 
 #include "../Dll.h"
 #include <iostream>
-#include <json.hpp>
+#include "../json.hpp"
 #include <string>
 
 namespace GalileoSDK {

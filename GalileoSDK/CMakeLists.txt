@@ -28,16 +28,20 @@ include_directories(
 )
 
 if(ANDROID)
-set(BUILD_SHARED_LIBS OFF)
 add_library(GalileoSDK
    ${PROJECT_SOURCE_DIR}/GalileoSDK.cpp
    ${PROJECT_SOURCE_DIR}/ifaddrs1.c
 )
 else()
-set(BUILD_SHARED_LIBS ON)
 add_library(GalileoSDK
    ${PROJECT_SOURCE_DIR}/GalileoSDK.cpp
 )
+endif()
+
+if(BUILD_SHARED_LIBS)
+   set(SDK_NAME "libGalileoSDK.so")
+else()
+   set(SDK_NAME "libGalileoSDK.a")
 endif()
 
 set_target_properties(GalileoSDK PROPERTIES VERSION ${PROJECT_VERSION})
@@ -53,13 +57,19 @@ install(
    EXPORT GalileoSDK
    RUNTIME DESTINATION bin
    LIBRARY DESTINATION lib
-   ARCHIVE DESTINATION lib/static
+   ARCHIVE DESTINATION lib
 )
 
 install(
    DIRECTORY ${PROJECT_SOURCE_DIR}/include/ 
    DESTINATION include/${PROJECT_NAME}
    FILES_MATCHING PATTERN "*.h"
+)
+
+install(
+   DIRECTORY ${PROJECT_SOURCE_DIR}/include/ 
+   DESTINATION include/${PROJECT_NAME}
+   FILES_MATCHING PATTERN "*.hpp"
 )
 
 install(

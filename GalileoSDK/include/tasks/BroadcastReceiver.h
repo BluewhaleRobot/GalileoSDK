@@ -16,7 +16,7 @@
 #include "../models/ServerInfo.h"
 #include "ros/ros.h"
 #include <iostream>
-#include <json.hpp>
+#include "../json.hpp"
 #include <mutex>
 #include <regex>
 
