@@ -27,7 +27,7 @@ include_directories(
    ${PROJECT_SOURCE_DIR}/../include
 )
 
-if(${BUILD_SHARED_LIBS} STREQUAL OFF)
+if("${BUILD_SHARED_LIBS}" STREQUAL OFF)
    set(SDK_NAME "libGalileoSDK.a")
 else()
    set(BUILD_SHARED_LIBS ON)
@@ -44,8 +44,6 @@ add_library(GalileoSDK
    ${PROJECT_SOURCE_DIR}/GalileoSDK.cpp
 )
 endif()
-
-message("${BUILD_SHARED_LIBS}")
 
 set_target_properties(GalileoSDK PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(GalileoSDK PROPERTIES SOVERSION 0)
