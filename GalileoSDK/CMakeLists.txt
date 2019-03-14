@@ -15,6 +15,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 include(GNUInstallDirs)
 
+find_package(Boost COMPONENTS thread filesystem regex)
 find_package(PkgConfig REQUIRED)
 pkg_search_module(ROSCPP REQUIRED roscpp)
 pkg_search_module(GEOMETRY_MSGS REQUIRED geometry_msgs)
@@ -24,6 +25,7 @@ include_directories(
    ${PROJECT_SOURCE_DIR}/include
    ${ROSCPP_INCLUDE_DIRS}
    ${GEOMETRY_MSGS_INCLUDE_DIRS}
+   ${Boost_INCLUDE_DIRS}
    ${PROJECT_SOURCE_DIR}/../include
 )
 
@@ -51,6 +53,7 @@ set_target_properties(GalileoSDK PROPERTIES SOVERSION 0)
 target_link_libraries(GalileoSDK
    ${ROSCPP_LINK_LIBRARIES}
    ${GEOMETRY_MSGS_LINK_LIBRARIES}
+   ${Boost_LIBRARIES}
 )
 
 install(
