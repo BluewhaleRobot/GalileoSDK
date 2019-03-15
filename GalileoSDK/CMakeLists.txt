@@ -15,7 +15,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 include(GNUInstallDirs)
 
-find_package(Boost COMPONENTS thread filesystem regex)
+find_package(Boost REQUIRED COMPONENTS thread filesystem regex)
 find_package(PkgConfig REQUIRED)
 pkg_search_module(ROSCPP REQUIRED roscpp)
 pkg_search_module(GEOMETRY_MSGS REQUIRED geometry_msgs)
