@@ -158,6 +158,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\dll.h" />
+    <ClInclude Include="include\ifaddrs1.h" />
+    <ClInclude Include="include\json.hpp" />
     <ClInclude Include="include\models\ServerInfo.h" />
     <ClInclude Include="include\tasks\BroadcastReceiver.h" />
     <ClInclude Include="include\GalileoSDK.h" />
@@ -165,6 +167,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GalileoSDK.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="GalileoSDKConfig.cmake.in" />
+    <None Include="meson.build" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

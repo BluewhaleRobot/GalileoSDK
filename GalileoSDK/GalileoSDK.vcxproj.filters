@@ -33,10 +33,23 @@
     <ClInclude Include="include\mutils.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="include\json.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ifaddrs1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GalileoSDK.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="GalileoSDKConfig.cmake.in" />
+    <None Include="meson.build" />
   </ItemGroup>
 </Project>
