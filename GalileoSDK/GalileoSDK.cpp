@@ -253,6 +253,71 @@ GALILEO_RETURN_CODE GalileoSDK::Connect(ServerInfo server)
     return GALILEO_RETURN_CODE::OK;
 }
 
+// connect to server via iot connections
+GALILEO_RETURN_CODE GalileoSDK::Connect(std::string targetID, std::string password,
+    void(*OnConnect)(GALILEO_RETURN_CODE, std::string),
+    void(*OnDisconnect)(GALILEO_RETURN_CODE, std::string)) {
+    std::ifstream conf_file("iot-config.json", std::ios::binary);
+    std::string secret = "";
+    std::string sdk_id = "";
+    if (!conf_file.good())
+    {
+        // 未找到config文件
+        HttpConnection client;
+        sdk_id = Utils::GenID();
+        std::string res = client.postData("localhost", "/api/device", "\"" + sdk_id +"\"", 43026);
+        try {
+            nlohmann::json res_json = nlohmann::json::parse(res);
+            if (res_json["status"] != "OK") {
+                std::cout << "Register device failed" << std::endl;
+            }
+            else {
+                std::cout << "Register device succeed" << std::endl;
+            }
+            res_json.at("description").get_to(secret);
+            nlohmann::json iot_conf_json = {
+                { "secret", secret },
+            { "id", sdk_id }
+            };
+
+            std::ofstream conf_file_out;
+            conf_file_out.open("iot-config.json");
+            conf_file_out << iot_conf_json.dump(4);
+            conf_file_out.close();
+        }
+        catch (std::exception e) {
+            std::cout << e.what() << std::endl;
+        }
+        
+    }
+    else {
+        nlohmann::json iot_conf_json;
+        conf_file >> iot_conf_json;
+        iot_conf_json.at("secret").get_to(secret);
+        iot_conf_json.at("id").get_to(sdk_id);
+    }
+    if (sdk_id.empty() || sdk_id.empty()) {
+        return GALILEO_RETURN_CODE::NETWORK_ERROR;
+    }
+    // 启动 iot 客户端
+
+    // 开始建立连接
+    try {
+        HttpConnection client;
+        nlohmann::json connect_req_json = {
+            {"robot", targetID },
+        {"controller", sdk_id },
+        {"password", password }
+        };
+        std::string res = client.postData("localhost", "/api/device", connect_req_json.dump(4), 43026);
+
+    }
+    catch (std::exception e) {
+        std::cout << e.what() << std::endl;
+    }
+    return GALILEO_RETURN_CODE::OK;
+}
+
 void GalileoSDK::Dispose(){
     // 释放资源
     if(currentServer != NULL && CheckServerOnline(currentServer->getID()) && nh->ok()){
@@ -747,9 +812,9 @@ ServerInfo::ServerInfo() {}
 
 ServerInfo::ServerInfo(nlohmann::json serverInfoJson)
 {
-    ID = serverInfoJson["id"];
-    mac = serverInfoJson["mac"];
-    port = serverInfoJson["port"];
+    serverInfoJson.at("id").get_to(ID);
+    serverInfoJson.at("mac").get_to(mac);
+    serverInfoJson.at("port").get_to(port);
 }
 
 std::string ServerInfo::getMac()
@@ -1356,6 +1421,11 @@ std::string GalileoReturnCodeToString(GALILEO_RETURN_CODE status)
     default:
         return "OK";
     }
+}
+
+GALILEO_RETURN_CODE GalileoSDK::TestHttpPost() {
+    std::cout << Utils::GenID() << std::endl;
+    return OK;
 }
 
 } // namespace GalileoSDK

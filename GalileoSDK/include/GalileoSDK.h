@@ -2,6 +2,7 @@
 #define __GALILEO_SDK_H__
 
 #include <iostream>
+#include <fstream>
 
 #ifdef _WIN32
 #define WIN32
@@ -17,6 +18,8 @@
 #include "std_msgs/String.h"
 #include "tasks/BroadcastReceiver.h"
 #include "json.hpp"
+#include "iot.h"
+#include "HttpConnection.h"
 #include <mutex>
 #include <thread>
 #include <stdexcept>
@@ -50,12 +53,10 @@ class DLL_PUBLIC GalileoSDK
             void (*OnConnect)(GALILEO_RETURN_CODE, std::string),
             void (*OnDisconnect)(GALILEO_RETURN_CODE, std::string));
     GALILEO_RETURN_CODE Connect(ServerInfo server);
-    /*GALILEO_RETURN_CODE WaitForConnect(std::string targetID, bool auto_connect,
-        bool reconnect, int timeout, GALILEO_RETURN_CODE(*OnConnect)(std::string),
-        GALILEO_RETURN_CODE(*OnDisconnect)(std::string)); GALILEO_RETURN_CODE
-        StartNavigation(GALILEO_RETURN_CODE(*OnConnect)(std::string));
-        GALILEO_RETURN_CODE
-        WaitForStartNavigation(GALILEO_RETURN_CODE(*OnConnect)(std::string));*/
+    GALILEO_RETURN_CODE
+    Connect(std::string targetID, std::string password,
+        void(*OnConnect)(GALILEO_RETURN_CODE, std::string),
+        void(*OnDisconnect)(GALILEO_RETURN_CODE, std::string));
     std::vector<ServerInfo> GetServersOnline();
     GALILEO_RETURN_CODE PublishTest();
     ServerInfo *GetCurrentServer();
@@ -97,6 +98,7 @@ class DLL_PUBLIC GalileoSDK
     bool CheckServerOnline(std::string targetid);
     void Dispose();
     ~GalileoSDK();
+    GALILEO_RETURN_CODE TestHttpPost();
 
   private:
     ServerInfo *currentServer;

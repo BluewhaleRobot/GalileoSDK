@@ -486,8 +486,22 @@ void testRelease(){
     }
 }
 
+void testHttpGet() {
+    GalileoSDK::GalileoSDK sdk;
+    sdk.TestHttpPost();
+    Sleep(10);
+}
+
+void testConnect_IOT() {
+    GalileoSDK::GalileoSDK sdk;
+    sdk.Connect("", "xiaoqiang",
+        [](GalileoSDK::GALILEO_RETURN_CODE, std::string) {},
+        [](GalileoSDK::GALILEO_RETURN_CODE, std::string) {});
+    Sleep(10);
+}
+
 int main()
 {
-    testSub();
+    testConnect_IOT();
     return 0;
 }

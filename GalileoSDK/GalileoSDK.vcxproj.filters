@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="源文件\NewFilter1">
-      <UniqueIdentifier>{3805c495-1198-46d7-833e-6302b9ca99b3}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\GalileoSDK.h">
@@ -33,9 +30,21 @@
     <ClInclude Include="include\mutils.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="include\iot.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="include\HttpConnection.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GalileoSDK.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="include\iot.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="include\HttpConnection.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

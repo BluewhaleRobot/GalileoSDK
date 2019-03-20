@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cJSON.c" />
+    <ClCompile Include="dev_sign_mqtt.c" />
+    <ClCompile Include="dm_api.c" />
+    <ClCompile Include="dm_client.c" />
+    <ClCompile Include="dm_client_adapter.c" />
+    <ClCompile Include="dm_cota.c" />
+    <ClCompile Include="dm_fota.c" />
+    <ClCompile Include="dm_ipc.c" />
+    <ClCompile Include="dm_log_report.c" />
+    <ClCompile Include="dm_manager.c" />
+    <ClCompile Include="dm_message.c" />
+    <ClCompile Include="dm_message_cache.c" />
+    <ClCompile Include="dm_msg_process.c" />
+    <ClCompile Include="dm_opt.c" />
+    <ClCompile Include="dm_ota.c" />
+    <ClCompile Include="dm_server.c" />
+    <ClCompile Include="dm_server_adapter.c" />
+    <ClCompile Include="dm_shadow.c" />
+    <ClCompile Include="dm_tsl_alink.c" />
+    <ClCompile Include="dm_utils.c" />
+    <ClCompile Include="impl_linkkit.c" />
+    <ClCompile Include="infra_cjson.c" />
+    <ClCompile Include="infra_compat.c" />
+    <ClCompile Include="infra_defs.c" />
+    <ClCompile Include="infra_log.c" />
+    <ClCompile Include="infra_net.c" />
+    <ClCompile Include="infra_prt_nwk_payload.c" />
+    <ClCompile Include="infra_report.c" />
+    <ClCompile Include="infra_sha256.c" />
+    <ClCompile Include="infra_string.c" />
+    <ClCompile Include="infra_timer.c" />
+    <ClCompile Include="iotx_cm.c" />
+    <ClCompile Include="iotx_cm_coap.c" />
+    <ClCompile Include="iotx_cm_mqtt.c" />
+    <ClCompile Include="iotx_mqtt_client.c" />
+    <ClCompile Include="MQTTConnectClient.c" />
+    <ClCompile Include="MQTTDeserializePublish.c" />
+    <ClCompile Include="MQTTPacket.c" />
+    <ClCompile Include="MQTTSerializePublish.c" />
+    <ClCompile Include="MQTTSubscribeClient.c" />
+    <ClCompile Include="MQTTUnsubscribeClient.c" />
+    <ClCompile Include="mqtt_api.c" />
+    <ClCompile Include="root_ca.c" />
+    <ClCompile Include="wrapper.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cJSON.h" />
+    <ClInclude Include="dev_model_api.h" />
+    <ClInclude Include="dev_sign_api.h" />
+    <ClInclude Include="dev_sign_config.h" />
+    <ClInclude Include="dev_sign_internal.h" />
+    <ClInclude Include="dev_sign_wrapper.h" />
+    <ClInclude Include="dm_client.h" />
+    <ClInclude Include="dm_client_adapter.h" />
+    <ClInclude Include="dm_cota.h" />
+    <ClInclude Include="dm_fota.h" />
+    <ClInclude Include="dm_intf.h" />
+    <ClInclude Include="dm_ipc.h" />
+    <ClInclude Include="dm_manager.h" />
+    <ClInclude Include="dm_message.h" />
+    <ClInclude Include="dm_message_cache.h" />
+    <ClInclude Include="dm_msg_process.h" />
+    <ClInclude Include="dm_opt.h" />
+    <ClInclude Include="dm_ota.h" />
+    <ClInclude Include="dm_server.h" />
+    <ClInclude Include="dm_server_adapter.h" />
+    <ClInclude Include="dm_shadow.h" />
+    <ClInclude Include="dm_tsl_alink.h" />
+    <ClInclude Include="dm_utils.h" />
+    <ClInclude Include="dm_wrapper.h" />
+    <ClInclude Include="infra_cjson.h" />
+    <ClInclude Include="infra_compat.h" />
+    <ClInclude Include="infra_config.h" />
+    <ClInclude Include="infra_defs.h" />
+    <ClInclude Include="infra_list.h" />
+    <ClInclude Include="infra_log.h" />
+    <ClInclude Include="infra_net.h" />
+    <ClInclude Include="infra_report.h" />
+    <ClInclude Include="infra_sha256.h" />
+    <ClInclude Include="infra_string.h" />
+    <ClInclude Include="infra_timer.h" />
+    <ClInclude Include="infra_types.h" />
+    <ClInclude Include="iotx_cm.h" />
+    <ClInclude Include="iotx_cm_coap.h" />
+    <ClInclude Include="iotx_cm_internal.h" />
+    <ClInclude Include="iotx_cm_mqtt.h" />
+    <ClInclude Include="iotx_dm.h" />
+    <ClInclude Include="iotx_dm_config.h" />
+    <ClInclude Include="iotx_dm_internal.h" />
+    <ClInclude Include="iotx_log_report.h" />
+    <ClInclude Include="iotx_mqtt_client.h" />
+    <ClInclude Include="iotx_mqtt_config.h" />
+    <ClInclude Include="MQTTConnect.h" />
+    <ClInclude Include="MQTTPacket.h" />
+    <ClInclude Include="MQTTPublish.h" />
+    <ClInclude Include="MQTTSubscribe.h" />
+    <ClInclude Include="MQTTUnsubscribe.h" />
+    <ClInclude Include="mqtt_api.h" />
+    <ClInclude Include="mqtt_internal.h" />
+    <ClInclude Include="mqtt_wrapper.h" />
+    <ClInclude Include="wrapper.h" />
+    <ClInclude Include="wrappers_defs.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{D164E519-6585-4D9E-9E6E-07805FF1AE06}</ProjectGuid>
+    <RootNamespace>iot</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
