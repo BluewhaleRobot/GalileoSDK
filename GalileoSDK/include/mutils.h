@@ -21,6 +21,8 @@
 #include <random>
 #include <sstream>
 #include <iostream>
+#include "json.hpp"
+#include <galileo_serial_server/GalileoStatus.h>
 
 #if defined(__ANDROID__) && __ANDROID_API__ < 24
 #include "ifaddrs1.h"
@@ -168,9 +170,6 @@ class Utils
     static std::string GenID() {
         std::stringstream id;
         std::stringstream mac;
-        for (int i = 0; i < 64; i++) {
-            id << "A";
-        }
         std::random_device dev;
         std::mt19937 rng(dev());
         std::uniform_int_distribution<std::mt19937::result_type> dice(0, 255);
@@ -188,6 +187,9 @@ class Utils
         else {
             id << mac.str();
         }
+        for (int i = 0; i < 64; i++) {
+            id << "A";
+        }
         return id.str();
     }
 
@@ -198,6 +200,63 @@ class Utils
         GetCurrentDir(buff, FILENAME_MAX);
         std::string current_working_dir(buff);
         return current_working_dir;
+    }
+
+    static std::string IDToDeviceName(std::string id) {
+        return id.substr(0, 32);
+    }
+
+    static nlohmann::json statusToJson(galileo_serial_server::GalileoStatus status) {
+        nlohmann::json rootValue;
+        rootValue["timestamp"] = (status.header.stamp.toNSec() / 1000 / 1000);
+        rootValue["angleGoalStatus"] = status.angleGoalStatus;
+        rootValue["busyStatus"] = status.busyStatus;
+        rootValue["chargeStatus"] = status.chargeStatus;
+        rootValue["controlSpeedTheta"] = status.controlSpeedTheta;
+        rootValue["controlSpeedX"] = status.controlSpeedX;
+        rootValue["currentAngle"] = status.currentAngle;
+        rootValue["currentPosX"] = status.currentPosX;
+        rootValue["currentPosY"] = status.currentPosY;
+        rootValue["currentSpeedTheta"] = status.currentSpeedTheta;
+        rootValue["currentSpeedX"] = status.currentSpeedX;
+        rootValue["gbaStatus"] = status.gbaStatus;
+        rootValue["gcStatus"] = status.gcStatus;
+        rootValue["loopStatus"] = status.loopStatus;
+        rootValue["mapStatus"] = status.mapStatus;
+        rootValue["navStatus"] = status.navStatus;
+        rootValue["power"] = status.power;
+        rootValue["targetDistance"] = status.targetDistance;
+        rootValue["targetNumID"] = status.targetNumID;
+        rootValue["targetStatus"] = status.targetStatus;
+        rootValue["visualStatus"] = status.visualStatus;
+        return rootValue;
+    }
+
+    static galileo_serial_server::GalileoStatus jsonToStatus(nlohmann::json j) {
+        galileo_serial_server::GalileoStatus status;
+        size_t timestamp = j["timestamp"];
+        status.header.stamp.fromNSec(timestamp * 1000 * 1000);
+        j.at("angleGoalStatus").get_to(status.angleGoalStatus);
+        j.at("busyStatus").get_to(status.busyStatus);
+        j.at("chargeStatus").get_to(status.chargeStatus);
+        j.at("controlSpeedTheta").get_to(status.controlSpeedTheta);
+        j.at("controlSpeedX").get_to(status.controlSpeedX);
+        j.at("currentAngle").get_to(status.currentAngle);
+        j.at("currentPosX").get_to(status.currentPosX);
+        j.at("currentPosY").get_to(status.currentPosY);
+        j.at("currentSpeedTheta").get_to(status.currentSpeedTheta);
+        j.at("currentSpeedX").get_to(status.currentSpeedX);
+        j.at("gbaStatus").get_to(status.gbaStatus);
+        j.at("gcStatus").get_to(status.gcStatus);
+        j.at("loopStatus").get_to(status.loopStatus);
+        j.at("mapStatus").get_to(status.mapStatus);
+        j.at("navStatus").get_to(status.navStatus);
+        j.at("power").get_to(status.power);
+        j.at("targetDistance").get_to(status.targetDistance);
+        j.at("targetNumID").get_to(status.targetNumID);
+        j.at("targetStatus").get_to(status.targetStatus);
+        j.at("visualStatus").get_to(status.visualStatus);
+        return status;
     }
 };
 

@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GalileoSDK", "GalileoSDK\Ga
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "iot", "iot\iot.vcxproj", "{D164E519-6585-4D9E-9E6E-07805FF1AE06}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IotWrapper", "IotWrapper\IotWrapper.vcxproj", "{2C36FFD2-8C23-4A95-B44D-5D4F00954462}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +43,14 @@ Global
 		{D164E519-6585-4D9E-9E6E-07805FF1AE06}.Release|x64.Build.0 = Release|x64
 		{D164E519-6585-4D9E-9E6E-07805FF1AE06}.Release|x86.ActiveCfg = Release|Win32
 		{D164E519-6585-4D9E-9E6E-07805FF1AE06}.Release|x86.Build.0 = Release|Win32
+		{2C36FFD2-8C23-4A95-B44D-5D4F00954462}.Debug|x64.ActiveCfg = Debug|x64
+		{2C36FFD2-8C23-4A95-B44D-5D4F00954462}.Debug|x64.Build.0 = Debug|x64
+		{2C36FFD2-8C23-4A95-B44D-5D4F00954462}.Debug|x86.ActiveCfg = Debug|Win32
+		{2C36FFD2-8C23-4A95-B44D-5D4F00954462}.Debug|x86.Build.0 = Debug|Win32
+		{2C36FFD2-8C23-4A95-B44D-5D4F00954462}.Release|x64.ActiveCfg = Release|x64
+		{2C36FFD2-8C23-4A95-B44D-5D4F00954462}.Release|x64.Build.0 = Release|x64
+		{2C36FFD2-8C23-4A95-B44D-5D4F00954462}.Release|x86.ActiveCfg = Release|Win32
+		{2C36FFD2-8C23-4A95-B44D-5D4F00954462}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

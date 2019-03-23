@@ -1,5 +1,6 @@
 // GalileoSDKTest.cpp: 定义控制台应用程序的入口点。
 //
+#define INFRA_LOG
 #include "GalileoSDK.h"
 #include "galileo_serial_server/GalileoStatus.h"
 
@@ -486,22 +487,103 @@ void testRelease(){
     }
 }
 
-void testHttpGet() {
+void testHttpPost() {
     GalileoSDK::GalileoSDK sdk;
-    sdk.TestHttpPost();
-    Sleep(10);
+    sdk.TestHttpPost("a1Eb29fVWHG", "FCAA14A1AFF0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "aOIzYE4cjRu73Ij9SLwevZO5SUCyFTrh");
+    while (true)
+    {
+        Sleep(100);
+    }
 }
 
 void testConnect_IOT() {
     GalileoSDK::GalileoSDK sdk;
-    sdk.Connect("", "xiaoqiang",
-        [](GalileoSDK::GALILEO_RETURN_CODE, std::string) {},
-        [](GalileoSDK::GALILEO_RETURN_CODE, std::string) {});
-    Sleep(10);
+    sdk.Connect("71329A5B0F2D68364BB7B44F3F125531E4C7F5BC3BCE2694DFE39B505FF9C730A614FF2790C1", 10000, "xiaoqiang", NULL, NULL);
+    galileo_serial_server::GalileoStatus status;
+    while (true)
+    {
+        if (sdk.GetCurrentStatus(&status) == GalileoSDK::OK)
+        {
+            std::cout << status.power << std::endl;
+        }
+        else
+        {
+            std::cout << "Get status failed" << std::endl;
+        }
+        Sleep(1000);
+    }
+
 }
+
+void testPubIOT()
+{
+    GalileoSDK::GalileoSDK sdk;
+    sdk.Connect("71329A5B0F2D68364BB7B44F3F125531E4C7F5BC3BCE2694DFE39B505FF9C730A614FF2790C1", 10000, "xiaoqiang", NULL, NULL);
+    while (true)
+    {
+        auto res = sdk.PublishTest();
+        if (res == GalileoSDK::GALILEO_RETURN_CODE::OK)
+            std::cout << "Send test msg" << std::endl;
+        else
+            std::cout << "Send test msg failed" << std::endl;
+        Sleep(1000);
+    }
+}
+
+void testAudioIOT() {
+    GalileoSDK::GalileoSDK sdk;
+    sdk.Connect("71329A5B0F2D68364BB7B44F3F125531E4C7F5BC3BCE2694DFE39B505FF9C730A614FF2790C1", 10000, "xiaoqiang", NULL, NULL);
+    while (true)
+    {
+        char string[] = "测试";
+        std::cout << string << std::endl;
+        auto res = sdk.SendAudio(string);
+        if (res == GalileoSDK::GALILEO_RETURN_CODE::OK)
+            std::cout << "Send audio msg" << std::endl;
+        else
+            std::cout << "Send audio msg failed" << std::endl;
+
+        Sleep(4000);
+
+    }
+}
+
+
+void testConnectIOTWithCallback()
+{
+    GalileoSDK::GalileoSDK sdk;
+    connected = false;
+    sdk.Connect("71329A5B0F2D68364BB7B44F3F125531E4C7F5BC3BCE2694DFE39B505FF9C730A614FF2790C1", 10000, "xiaoqiang",
+        [](GalileoSDK::GALILEO_RETURN_CODE res, std::string id) -> void {
+        std::cout << "OnConnect Callback: result " << res << std::endl;
+        std::cout << "OnConnect Callback: connected to " << id
+            << std::endl;
+        connected = true;
+    },
+        NULL);
+    while (!connected)
+    {
+        std::cout << "not connected" << std::endl;
+        Sleep(1000);
+    }
+
+    std::cout << "connected" << std::endl;
+    Sleep(2 * 1000);
+}
+
+void testConnectIOTWithWrongPassword() {
+
+}
+
 
 int main()
 {
-    testConnect_IOT();
+
+    testConnectIOTWithCallback();
+    /*char string[] = "测试";
+    std::ofstream conf_file_out;
+    conf_file_out.open("test.json");
+    conf_file_out << string;
+    conf_file_out.close();*/
     return 0;
 }

@@ -22,7 +22,7 @@ void(*OnDisconnectCB)(GALILEO_RETURN_CODE, uint8_t* id, size_t length);
 GalileoSDK *GalileoSDK::instance = NULL;
 
 GalileoSDK::GalileoSDK()
-    : nh(NULL), currentServer(NULL), currentStatus(NULL), OnDisconnect(NULL), OnConnect(NULL), CurrentStatusCallback(NULL), GoalReachedCallback(NULL), connectingTaskFlag(false)
+    : nh(NULL), currentServer(NULL), currentStatus(NULL), OnDisconnect(NULL), OnConnect(NULL), CurrentStatusCallback(NULL), GoalReachedCallback(NULL), connectingTaskFlag(false), iotclient(NULL)
 {
     if (instance != NULL) {
         instance->broadcastReceiver.StopTask();
@@ -254,18 +254,43 @@ GALILEO_RETURN_CODE GalileoSDK::Connect(ServerInfo server)
 }
 
 // connect to server via iot connections
-GALILEO_RETURN_CODE GalileoSDK::Connect(std::string targetID, std::string password,
-    void(*OnConnect)(GALILEO_RETURN_CODE, std::string),
-    void(*OnDisconnect)(GALILEO_RETURN_CODE, std::string)) {
+GALILEO_RETURN_CODE GalileoSDK::Connect(std::string targetID, int timeout = 10 * 1000, std::string password="",
+    std::function<void(GALILEO_RETURN_CODE, std::string)>OnConnectCB=NULL,
+    std::function<void(GALILEO_RETURN_CODE, std::string)>OnDisconnectCB=NULL) {
+    this->timeout = timeout;
+    this->targetID = targetID;
+    this->password = password;
+    this->OnConnect = OnConnectCB;
+    this->OnDisconnect = OnDisconnectCB;
+    if (OnConnectCB != NULL) {
+        new std::thread([&]() {
+            auto res = ConnectIOT(this->targetID, this->timeout, this->password);
+            this->OnConnect(res, this->targetID);
+            iotclient->SetOnDisonnectCB([&](GALILEO_RETURN_CODE status, std::string id) {
+                if (this->OnDisconnect != NULL) {
+                    this->OnDisconnect(status, this->targetID);
+                }
+            });
+        });
+    }
+    else {
+        return ConnectIOT(targetID, timeout, password);
+    }
+    return GALILEO_RETURN_CODE::OK;
+}
+
+GALILEO_RETURN_CODE
+GalileoSDK::ConnectIOT(std::string targetID, int timeout, std::string password) {
     std::ifstream conf_file("iot-config.json", std::ios::binary);
     std::string secret = "";
     std::string sdk_id = "";
+    
     if (!conf_file.good())
     {
         // 未找到config文件
         HttpConnection client;
         sdk_id = Utils::GenID();
-        std::string res = client.postData("localhost", "/api/device", "\"" + sdk_id +"\"", 43026);
+        std::string res = client.postData("iot.bwbot.org", "/api/device", "\"" + sdk_id + "\"", 80);
         try {
             nlohmann::json res_json = nlohmann::json::parse(res);
             if (res_json["status"] != "OK") {
@@ -286,9 +311,10 @@ GALILEO_RETURN_CODE GalileoSDK::Connect(std::string targetID, std::string passwo
             conf_file_out.close();
         }
         catch (std::exception e) {
+            std::cout << "Get device profile failed" << std::endl;
             std::cout << e.what() << std::endl;
         }
-        
+
     }
     else {
         nlohmann::json iot_conf_json;
@@ -296,25 +322,60 @@ GALILEO_RETURN_CODE GalileoSDK::Connect(std::string targetID, std::string passwo
         iot_conf_json.at("secret").get_to(secret);
         iot_conf_json.at("id").get_to(sdk_id);
     }
-    if (sdk_id.empty() || sdk_id.empty()) {
+    if (sdk_id.empty() || secret.empty()) {
         return GALILEO_RETURN_CODE::NETWORK_ERROR;
     }
     // 启动 iot 客户端
-
+    iotclient = IOTClient::GetInstance("a1Eb29fVWHG", Utils::IDToDeviceName(sdk_id), secret);
+    if (!iotclient->IsRunning()) {
+        return GALILEO_RETURN_CODE::NETWORK_ERROR;
+    }
+    // 等待3s上线
+    Sleep(3);
     // 开始建立连接
     try {
         HttpConnection client;
         nlohmann::json connect_req_json = {
-            {"robot", targetID },
-        {"controller", sdk_id },
-        {"password", password }
+            { "robot", targetID },
+        { "controller", sdk_id },
+        { "password", password }
         };
-        std::string res = client.postData("localhost", "/api/device", connect_req_json.dump(4), 43026);
-
+        std::string res = client.postData("iot.bwbot.org", "/api/connection", connect_req_json.dump(4), 80);
+        nlohmann::json connection_res = nlohmann::json::parse(res);
+        if (connection_res.is_null())
+            return GALILEO_RETURN_CODE::NETWORK_ERROR;
+        if (connection_res["robotID"] == targetID && connection_res["controllerID"] == sdk_id) {
+            // create connection succeed
+            currentServer = new ServerInfo();
+            currentServer->setID(targetID);
+            iotclient->AddOnStatusUpdatedListener([&](galileo_serial_server::GalileoStatus status) {
+                galileo_serial_server::GalileoStatusPtr status_ptr = boost::make_shared<galileo_serial_server::GalileoStatus>(status);
+                this->UpdateGalileoStatus(status_ptr);
+            });
+        }
     }
     catch (std::exception e) {
         std::cout << e.what() << std::endl;
+        return GALILEO_RETURN_CODE::NETWORK_ERROR;
     }
+
+    // 等待回调更新状态，保证连接可靠
+    int timecount = 0;
+    while (timecount < timeout)
+    {
+        {
+            std::unique_lock<std::mutex> lock(statusLock);
+            if (currentStatus != NULL)
+                break;
+        }
+        Sleep(100);
+        timecount += 100;
+    }
+    if (timecount >= timeout) {
+        Dispose();
+        return GALILEO_RETURN_CODE::TIMEOUT;
+    }
+
     return GALILEO_RETURN_CODE::OK;
 }
 
@@ -393,8 +454,14 @@ GALILEO_RETURN_CODE GalileoSDK::GetCurrentStatus(galileo_serial_server::GalileoS
 
 GALILEO_RETURN_CODE GalileoSDK::PublishTest()
 {
-    if (currentServer == NULL || currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL || iotclient == NULL || !iotclient->IsConnected())
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
+    if (iotclient != NULL && iotclient->IsConnected()) {
+        if (iotclient->SendTestCmd())
+            return GALILEO_RETURN_CODE::OK;
+        else
+            return GALILEO_RETURN_CODE::NETWORK_ERROR;
+    }
     std_msgs::String msg;
     std::stringstream ss;
     ss << "Galileo SDK pub test " << Utils::GetCurrentTimestamp();
@@ -412,13 +479,21 @@ GalileoSDK::~GalileoSDK()
 
 GALILEO_RETURN_CODE GalileoSDK::SendCMD(uint8_t data[], int length)
 {
-    if (currentServer == NULL || currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL || iotclient == NULL || !iotclient->IsConnected())
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
-    galileo_serial_server::GalileoNativeCmds cmd;
-    cmd.data = std::vector<uint8_t>(data, data + length);
-    cmd.length = length;
-    cmdPub.publish(cmd);
-    return GALILEO_RETURN_CODE::OK;
+    if (iotclient != NULL && iotclient->IsConnected()) {
+        if (iotclient->SendGalileoCmd(std::vector<uint8_t>(data, data + length))) {
+            return GALILEO_RETURN_CODE::OK;
+        }
+        return GALILEO_RETURN_CODE::NETWORK_ERROR;
+    }
+    else {
+        galileo_serial_server::GalileoNativeCmds cmd;
+        cmd.data = std::vector<uint8_t>(data, data + length);
+        cmd.length = length;
+        cmdPub.publish(cmd);
+        return GALILEO_RETURN_CODE::OK;
+    }
 };
 
 GALILEO_RETURN_CODE GalileoSDK::StartNav()
@@ -521,12 +596,33 @@ GALILEO_RETURN_CODE GalileoSDK::ResetGoal()
 
 GALILEO_RETURN_CODE GalileoSDK::SetSpeed(float vLinear, float vAngle)
 {
-    if (currentServer == NULL || currentStatus == NULL)
+    if (currentServer == NULL || currentStatus == NULL || iotclient == NULL || !iotclient->IsConnected())
         return GALILEO_RETURN_CODE::NOT_CONNECTED;
+    if (iotclient != NULL && iotclient->IsConnected()) {
+        if (iotclient->SendSpeedCmd(vLinear, vAngle))
+            return GALILEO_RETURN_CODE::OK;
+        else
+            return GALILEO_RETURN_CODE::NETWORK_ERROR;
+    }
     geometry_msgs::Twist speed;
     speed.linear.x = vLinear;
     speed.angular.z = vAngle;
     speedPub.publish(speed);
+    return GALILEO_RETURN_CODE::OK;
+}
+
+GALILEO_RETURN_CODE GalileoSDK::SendAudio(char audio[]) {
+    if (currentServer == NULL || currentStatus == NULL || iotclient == NULL || !iotclient->IsConnected())
+        return GALILEO_RETURN_CODE::NOT_CONNECTED;
+    if (iotclient != NULL && iotclient->IsConnected()) {
+        if (iotclient->SendAudioCmd(audio))
+            return GALILEO_RETURN_CODE::OK;
+        else
+            return GALILEO_RETURN_CODE::NETWORK_ERROR;
+    }
+    std_msgs::String audioMsg;
+    audioMsg.data = audio;
+    audioPub.publish(audioMsg);
     return GALILEO_RETURN_CODE::OK;
 }
 
@@ -1328,7 +1424,7 @@ GALILEO_RETURN_CODE __stdcall GetCurrentStatus(void * instance, uint8_t* status_
     galileo_serial_server::GalileoStatus status;
     GALILEO_RETURN_CODE res = sdk->GetCurrentStatus(&status);
     if (res == GALILEO_RETURN_CODE::OK) {
-        rootValue = statusToJson(status);
+        rootValue = Utils::statusToJson(status);
     }
     auto serversStr = rootValue.dump(4);
     memcpy(status_json, serversStr.data(), serversStr.size());
@@ -1341,7 +1437,7 @@ void __stdcall SetCurrentStatusCallback(void * instance, void(*callback)(
     GalileoSDK* sdk = (GalileoSDK*)instance;
     StatusCB = callback;
     sdk->SetCurrentStatusCallback([](GALILEO_RETURN_CODE res, galileo_serial_server::GalileoStatus status)->void {
-        nlohmann::json rootValue = statusToJson(status);
+        nlohmann::json rootValue = Utils::statusToJson(status);
         std::string serversStr = rootValue.dump(4);
         StatusCB(res, (uint8_t*)serversStr.data(), serversStr.size());
     });
@@ -1353,7 +1449,7 @@ void __stdcall SetGoalReachedCallback(
     GalileoSDK* sdk = (GalileoSDK*)instance;
     ReachedCB = callback;
     sdk->SetGoalReachedCallback([](int goalID, galileo_serial_server::GalileoStatus status)->void {
-        nlohmann::json rootValue = statusToJson(status);
+        nlohmann::json rootValue = Utils::statusToJson(status);
         std::string serversStr = rootValue.dump(4);
         ReachedCB(goalID, (uint8_t*)serversStr.data(), serversStr.size());
     });
@@ -1362,32 +1458,6 @@ void __stdcall SetGoalReachedCallback(
 GALILEO_RETURN_CODE __stdcall WaitForGoal(void * instance, int goalID) {
     GalileoSDK* sdk = (GalileoSDK*)instance;
     return sdk->WaitForGoal(goalID);
-}
-
-nlohmann::json statusToJson(galileo_serial_server::GalileoStatus status) {
-    nlohmann::json rootValue;
-    rootValue["timestamp"] = (status.header.stamp.toNSec() / 1000 / 1000);
-    rootValue["angleGoalStatus"] = status.angleGoalStatus;
-    rootValue["busyStatus"] = status.busyStatus;
-    rootValue["chargeStatus"] = status.chargeStatus;
-    rootValue["controlSpeedTheta"] = status.controlSpeedTheta;
-    rootValue["controlSpeedX"] = status.controlSpeedX;
-    rootValue["currentAngle"] = status.currentAngle;
-    rootValue["currentPosX"] = status.currentPosX;
-    rootValue["currentPosY"] = status.currentPosY;
-    rootValue["currentSpeedTheta"] = status.currentSpeedTheta;
-    rootValue["currentSpeedX"] = status.currentSpeedX;
-    rootValue["gbaStatus"] = status.gbaStatus;
-    rootValue["gcStatus"] = status.gcStatus;
-    rootValue["loopStatus"] = status.loopStatus;
-    rootValue["mapStatus"] = status.mapStatus;
-    rootValue["navStatus"] = status.navStatus;
-    rootValue["power"] = status.power;
-    rootValue["targetDistance"] = status.targetDistance;
-    rootValue["targetNumID"] = status.targetNumID;
-    rootValue["targetStatus"] = status.targetStatus;
-    rootValue["visualStatus"] = status.visualStatus;
-    return rootValue;
 }
 
 std::string GalileoReturnCodeToString(GALILEO_RETURN_CODE status)
@@ -1423,9 +1493,10 @@ std::string GalileoReturnCodeToString(GALILEO_RETURN_CODE status)
     }
 }
 
-GALILEO_RETURN_CODE GalileoSDK::TestHttpPost() {
-    std::cout << Utils::GenID() << std::endl;
-    return OK;
+GALILEO_RETURN_CODE GalileoSDK::TestHttpPost(std::string productID, std::string targetid, std::string deviceSecret) {
+    IOTClient::GetInstance(productID, Utils::IDToDeviceName(targetid), deviceSecret);
+    Sleep(10 * 1000);
+    return GALILEO_RETURN_CODE::OK;
 }
 
 } // namespace GalileoSDK

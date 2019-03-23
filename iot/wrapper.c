@@ -39,7 +39,7 @@ int HAL_GetDeviceName(char device_name[IOTX_DEVICE_NAME_LEN + 1])
 	return device_name_length;
 }
 
-void SetDeviceName(char* device_name, int length)
+void SetDeviceName(const char* device_name, int length)
 {
 	device_name_length = length;
 	int i = 0;
@@ -67,7 +67,7 @@ int HAL_GetDeviceSecret(char device_secret[IOTX_DEVICE_SECRET_LEN + 1])
 	return (int)device_secret_length;
 }
 
-void SetDeviceSecret(char* device_secret, int length){
+void SetDeviceSecret(const char* device_secret, int length){
 	device_secret_length = length;
 	int i = 0;
 	for (i = 0; i < device_secret_length;i++){
@@ -92,7 +92,7 @@ int HAL_GetFirmwareVersion(char *version)
 	return fireware_version_length;
 }
 
-void SetFirewareVersion(char* version, int length){
+void SetFirewareVersion(const char* version, int length){
 	int i = 0;
 	fireware_version_length = length;
 	for (i = 0; i < fireware_version_length; i++){
@@ -119,7 +119,7 @@ int HAL_GetProductKey(char product_key[IOTX_PRODUCT_KEY_LEN + 1])
 	return product_key_length;
 }
 
-void SetProductKey(char* product_key, int length){
+void SetProductKey(const char* product_key, int length){
 	int i = 0;
 	product_key_length = length;
 	for(i=0;i<product_key_length;i++){
@@ -139,7 +139,7 @@ int HAL_GetProductSecret(char product_secret[IOTX_PRODUCT_SECRET_LEN + 1])
 	return product_secret_length;
 }
 
-void SetProductSecret(char* product_secret, int length){
+void SetProductSecret(const char* product_secret, int length){
 	int i = 0;
 	product_secret_length = length;
 	for(i=0;i<product_secret_length;i++){
@@ -172,7 +172,7 @@ void *HAL_Malloc(uint32_t size)
  */
 void *HAL_MutexCreate(void)
 {
-	return (void*)1;
+    return HAL_CPP_MutexCreate();
 }
 
 
@@ -186,7 +186,7 @@ void *HAL_MutexCreate(void)
  */
 void HAL_MutexDestroy(void *mutex)
 {
-	return;
+	return HAL_CPP_MutexDestroy(mutex);
 }
 
 
@@ -200,7 +200,7 @@ void HAL_MutexDestroy(void *mutex)
  */
 void HAL_MutexLock(void *mutex)
 {
-	return;
+	return HAL_CPP_MutexLock(mutex);
 }
 
 
@@ -214,7 +214,7 @@ void HAL_MutexLock(void *mutex)
  */
 void HAL_MutexUnlock(void *mutex)
 {
-	return;
+	return HAL_CPP_MutexUnlock(mutex);
 }
 
 
@@ -230,44 +230,21 @@ void HAL_MutexUnlock(void *mutex)
  */
 void HAL_Printf(const char *fmt, ...)
 {
-	return;
+    va_list args;
+    va_start(args, fmt);
+    vprintf(fmt, args);
+    va_end(args);
+    fflush(stdout);
 }
+
 
 
 uint32_t HAL_Random(uint32_t region)
 {
-	return (uint32_t)1;
+    return HAL_CPP_Random(region);
 }
 
 
-    int HAL_SSLHooks_set(ssl_hooks_t *hooks)
-{
-	return (int)1;
-}
-
-
-    int32_t HAL_SSL_Destroy(uintptr_t handle)
-{
-	return (int32_t)1;
-}
-
-
-    uintptr_t HAL_SSL_Establish(const char *host, uint16_t port, const char *ca_crt, uint32_t ca_crt_len)
-{
-	return (uintptr_t)1;
-}
-
-
-    int HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms)
-{
-	return (int)1;
-}
-
-
-    int HAL_SSL_Write(uintptr_t handle, const char *buf, int len, int timeout_ms)
-{
-	return (int)1;
-}
 
 
 /**
@@ -280,7 +257,7 @@ uint32_t HAL_Random(uint32_t region)
  */
 void HAL_SleepMs(uint32_t ms)
 {
-	return;
+	return HAL_CPP_SleepMs(ms);
 }
 
 
@@ -298,13 +275,18 @@ void HAL_SleepMs(uint32_t ms)
  */
 int HAL_Snprintf(char *str, const int len, const char *fmt, ...)
 {
-	return (int)1;
+    va_list args;
+    int     rc;
+    va_start(args, fmt);
+    rc = vsnprintf(str, len, fmt, args);
+    va_end(args);
+    return rc;
 }
 
 
 void HAL_Srandom(uint32_t seed)
 {
-	return;
+    HAL_CPP_Srandom(seed);
 }
 
 
@@ -317,13 +299,85 @@ void HAL_Srandom(uint32_t seed)
  */
 uint64_t HAL_UptimeMs(void)
 {
-	return (uint64_t)1;
+    return HAL_CPP_UptimeMs();
 }
 
 
 int HAL_Vsnprintf(char *str, const int len, const char *format, va_list ap)
 {
-	return (int)1;
+    return vsnprintf(str, len, format, ap);
 }
 
 
+/**
+* @brief Destroy the specific TCP connection.
+*
+* @param [in] fd: @n Specify the TCP connection by handle.
+*
+* @return The result of destroy TCP connection.
+* @retval < 0 : Fail.
+* @retval   0 : Success.
+*/
+int HAL_TCP_Destroy(uintptr_t fd)
+{
+    return HAL_CPP_TCP_Destroy(fd);
+}
+
+
+/**
+* @brief Establish a TCP connection.
+*
+* @param [in] host: @n Specify the hostname(IP) of the TCP server
+* @param [in] port: @n Specify the TCP port of TCP server
+*
+* @return The handle of TCP connection.
+@retval   0 : Fail.
+@retval > 0 : Success, the value is handle of this TCP connection.
+*/
+uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
+{
+    return HAL_CPP_TCP_Establish(host, port);
+}
+
+
+/**
+* @brief Read data from the specific TCP connection with timeout parameter.
+*        The API will return immediately if 'len' be received from the specific TCP connection.
+*
+* @param [in] fd @n A descriptor identifying a TCP connection.
+* @param [out] buf @n A pointer to a buffer to receive incoming data.
+* @param [out] len @n The length, in bytes, of the data pointed to by the 'buf' parameter.
+* @param [in] timeout_ms @n Specify the timeout value in millisecond. In other words, the API block 'timeout_ms' millisecond maximumly.
+*
+* @retval       -2 : TCP connection error occur.
+* @retval       -1 : TCP connection be closed by remote server.
+* @retval        0 : No any data be received in 'timeout_ms' timeout period.
+* @retval (0, len] : The total number of bytes be received in 'timeout_ms' timeout period.
+
+* @see None.
+*/
+int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
+{
+    return HAL_CPP_TCP_Read(fd, buf, len, timeout_ms);
+}
+
+
+/**
+* @brief Write data into the specific TCP connection.
+*        The API will return immediately if 'len' be written into the specific TCP connection.
+*
+* @param [in] fd @n A descriptor identifying a connection.
+* @param [in] buf @n A pointer to a buffer containing the data to be transmitted.
+* @param [in] len @n The length, in bytes, of the data pointed to by the 'buf' parameter.
+* @param [in] timeout_ms @n Specify the timeout value in millisecond. In other words, the API block 'timeout_ms' millisecond maximumly.
+*
+* @retval      < 0 : TCP connection error occur..
+* @retval        0 : No any data be write into the TCP connection in 'timeout_ms' timeout period.
+* @retval (0, len] : The total number of bytes be written in 'timeout_ms' timeout period.
+
+* @see None.
+*/
+int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
+{
+    return HAL_CPP_TCP_Write(fd, buf, len, timeout_ms);
+}

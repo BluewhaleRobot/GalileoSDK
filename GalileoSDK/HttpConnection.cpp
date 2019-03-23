@@ -49,7 +49,6 @@ namespace GalileoSDK {
         std::string res = std::string(buf);
         auto find_res = res.find("\r\n\r\n");
         auto body = res.substr(res.find("\r\n\r\n") + 4, res.size());
-        std::cout << body << std::endl;
         delete buf;
         return body;
     }

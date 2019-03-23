@@ -36,15 +36,18 @@
     <ClInclude Include="include\HttpConnection.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="include\GalileoReturnCode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GalileoSDK.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="include\iot.cpp">
+    <ClCompile Include="HttpConnection.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="include\HttpConnection.cpp">
+    <ClCompile Include="iot.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

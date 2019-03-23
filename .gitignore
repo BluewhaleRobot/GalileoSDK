@@ -269,3 +269,5 @@ GalileoSDKTest/build/
 GalileoSDKTest/install/
 /deploy/
 GalileoSDK.zip
+IotWrapper/x64
+iot/x64

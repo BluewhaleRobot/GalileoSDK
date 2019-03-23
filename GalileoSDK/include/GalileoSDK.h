@@ -20,6 +20,7 @@
 #include "json.hpp"
 #include "iot.h"
 #include "HttpConnection.h"
+#include "GalileoReturnCode.h"
 #include <mutex>
 #include <thread>
 #include <stdexcept>
@@ -27,22 +28,7 @@
 namespace GalileoSDK
 {
 
-enum GALILEO_RETURN_CODE
-{
-    OK,
-    NOT_CONNECTED,
-    INVALIDE_STATE,
-    NO_SERVER_FOUND,
-    MULTI_SERVER_FOUND,
-    NETWORK_ERROR,
-    ALREADY_CONNECTED,
-    TIMEOUT,
-    SERVER_ERROR,
-    GOAL_CANCELLED,
-    INVALIDE_GOAL,
-    INVALIDE_PARAMS
-};
-std::string GalileoReturnCodeToString(GALILEO_RETURN_CODE status);
+
 
 class DLL_PUBLIC GalileoSDK
 {
@@ -54,9 +40,11 @@ class DLL_PUBLIC GalileoSDK
             void (*OnDisconnect)(GALILEO_RETURN_CODE, std::string));
     GALILEO_RETURN_CODE Connect(ServerInfo server);
     GALILEO_RETURN_CODE
-    Connect(std::string targetID, std::string password,
-        void(*OnConnect)(GALILEO_RETURN_CODE, std::string),
-        void(*OnDisconnect)(GALILEO_RETURN_CODE, std::string));
+    Connect(std::string targetID, int timeout, std::string password,
+        std::function<void(GALILEO_RETURN_CODE, std::string)>OnConnectCB,
+        std::function<void(GALILEO_RETURN_CODE, std::string)>OnDisconnectCB);
+    GALILEO_RETURN_CODE
+    ConnectIOT(std::string targetID, int timeout, std::string password);
     std::vector<ServerInfo> GetServersOnline();
     GALILEO_RETURN_CODE PublishTest();
     ServerInfo *GetCurrentServer();
@@ -95,10 +83,11 @@ class DLL_PUBLIC GalileoSDK
     void SetGoalReachedCallback(
         void (*callback)(int goalID, galileo_serial_server::GalileoStatus));
     GALILEO_RETURN_CODE WaitForGoal(int goalID);
+    GALILEO_RETURN_CODE SendAudio(char audio[]);
     bool CheckServerOnline(std::string targetid);
     void Dispose();
     ~GalileoSDK();
-    GALILEO_RETURN_CODE TestHttpPost();
+    GALILEO_RETURN_CODE TestHttpPost(std::string productID, std::string deviceName, std::string deviceSecret);
 
   private:
     ServerInfo *currentServer;
@@ -115,20 +104,19 @@ class DLL_PUBLIC GalileoSDK
     std::mutex statusLock;
     std::mutex serverLock;
     void SpinThread();
-    void (*OnDisconnect)(GALILEO_RETURN_CODE, std::string);
-    void (*OnConnect)(GALILEO_RETURN_CODE, std::string);
-    void (*CurrentStatusCallback)(GALILEO_RETURN_CODE,
-                                  galileo_serial_server::GalileoStatus);
-    void (*GoalReachedCallback)(int, galileo_serial_server::GalileoStatus);
+    std::function<void(GALILEO_RETURN_CODE, std::string)> OnDisconnect;
+    std::function<void(GALILEO_RETURN_CODE, std::string)> OnConnect;
+    std::function<void(GALILEO_RETURN_CODE, galileo_serial_server::GalileoStatus)> CurrentStatusCallback;
+    std::function<void(int, galileo_serial_server::GalileoStatus)> GoalReachedCallback;
     bool connectingTaskFlag;
     static GalileoSDK *instance;
     // Connect related params
     std::string targetID;
     bool auto_connect;
     int timeout;
+    IOTClient* iotclient;
+    std::string password;
 };
-
-nlohmann::json statusToJson(galileo_serial_server::GalileoStatus);
 
 // export c functions
 extern "C"
