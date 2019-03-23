@@ -21,6 +21,7 @@
 #include "iot.h"
 #include "HttpConnection.h"
 #include "GalileoReturnCode.h"
+#include "mutils.h"
 #include <mutex>
 #include <thread>
 #include <stdexcept>
@@ -36,8 +37,9 @@ class DLL_PUBLIC GalileoSDK
     GalileoSDK();
     GALILEO_RETURN_CODE
     Connect(std::string targetID, bool auto_connect, int timeout,
-            void (*OnConnect)(GALILEO_RETURN_CODE, std::string),
-            void (*OnDisconnect)(GALILEO_RETURN_CODE, std::string));
+        std::function<void(GALILEO_RETURN_CODE, std::string)> OnConnect,
+        std::function<void(GALILEO_RETURN_CODE, std::string)> OnDisonnect
+    );
     GALILEO_RETURN_CODE Connect(ServerInfo server);
     GALILEO_RETURN_CODE
     Connect(std::string targetID, int timeout, std::string password,
@@ -48,7 +50,7 @@ class DLL_PUBLIC GalileoSDK
     std::vector<ServerInfo> GetServersOnline();
     GALILEO_RETURN_CODE PublishTest();
     ServerInfo *GetCurrentServer();
-    static GalileoSDK *GetInstance();
+    GalileoSDK *GetInstance();
     void broadcastOfflineCallback(std::string id);
     // Galileo commnads related
     GALILEO_RETURN_CODE SendCMD(uint8_t[], int);
@@ -78,10 +80,8 @@ class DLL_PUBLIC GalileoSDK
     GALILEO_RETURN_CODE MoveTo(float x, float y, uint8_t *goalNum);
     GALILEO_RETURN_CODE GetGoalNum(uint8_t *goalNum);
     GALILEO_RETURN_CODE GetCurrentStatus(galileo_serial_server::GalileoStatus *);
-    void SetCurrentStatusCallback(void (*callback)(
-        GALILEO_RETURN_CODE, galileo_serial_server::GalileoStatus));
-    void SetGoalReachedCallback(
-        void (*callback)(int goalID, galileo_serial_server::GalileoStatus));
+    void SetCurrentStatusCallback(std::function<void(GALILEO_RETURN_CODE, galileo_serial_server::GalileoStatus)> callback);
+    void SetGoalReachedCallback(std::function<void(int goalID, galileo_serial_server::GalileoStatus)> callback);
     GALILEO_RETURN_CODE WaitForGoal(int goalID);
     GALILEO_RETURN_CODE SendAudio(char audio[]);
     bool CheckServerOnline(std::string targetid);
@@ -91,7 +91,7 @@ class DLL_PUBLIC GalileoSDK
 
   private:
     ServerInfo *currentServer;
-    BroadcastReceiver broadcastReceiver;
+    static BroadcastReceiver* broadcastReceiver;
     ros::NodeHandle *nh;
     ros::Publisher testPub;
     ros::Publisher cmdPub;
@@ -109,7 +109,7 @@ class DLL_PUBLIC GalileoSDK
     std::function<void(GALILEO_RETURN_CODE, galileo_serial_server::GalileoStatus)> CurrentStatusCallback;
     std::function<void(int, galileo_serial_server::GalileoStatus)> GoalReachedCallback;
     bool connectingTaskFlag;
-    static GalileoSDK *instance;
+    static std::vector<GalileoSDK*> instances;
     // Connect related params
     std::string targetID;
     bool auto_connect;

@@ -158,6 +158,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\dll.h" />
+    <ClInclude Include="include\ifaddrs1.h" />
+    <ClInclude Include="include\json.hpp" />
     <ClInclude Include="include\GalileoReturnCode.h" />
     <ClInclude Include="include\HttpConnection.h" />
     <ClInclude Include="include\iot.h" />
@@ -175,6 +177,13 @@
     <ProjectReference Include="..\iot\iot.vcxproj">
       <Project>{d164e519-6585-4d9e-9e6e-07805ff1ae06}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="GalileoSDKConfig.cmake.in" />
+    <None Include="meson.build" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -29,7 +29,8 @@ public:
   void StopTask();
   static std::vector<ServerInfo> GetServers();
   void Run();
-  void SetSDK(GalileoSDK *);
+  void AddSDK(GalileoSDK *);
+  void RemoveSDK(GalileoSDK *);
 
 private:
 #ifdef _WIN32
@@ -41,7 +42,7 @@ private:
   bool runningFlag;
   std::vector<ServerInfo> serverList;
   static BroadcastReceiver *instance;
-  GalileoSDK *sdk;
+  static std::set<GalileoSDK *> sdks;
   std::recursive_mutex serversLock;
   bool stoppedFlag;
 };
