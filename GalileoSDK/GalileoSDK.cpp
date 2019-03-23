@@ -319,7 +319,7 @@ GalileoSDK::ConnectIOT(std::string targetID, int timeout, std::string password) 
         return GALILEO_RETURN_CODE::NETWORK_ERROR;
     }
     // 启动 iot 客户端
-    iotclient = IOTClient::GetInstance("a1Eb29fVWHG", Utils::IDToDeviceName(sdk_id), secret);
+    iotclient = new IOTClient("a1Eb29fVWHG", Utils::IDToDeviceName(sdk_id), secret);
     if (!iotclient->IsRunning()) {
         return GALILEO_RETURN_CODE::NETWORK_ERROR;
     }
@@ -467,6 +467,8 @@ GalileoSDK::~GalileoSDK()
 {
     instances.erase(std::remove(instances.begin(), instances.end(), this), instances.end());
     broadcastReceiver->RemoveSDK(this);
+    delete iotclient;
+    iotclient = NULL;
     if (instances.size() == 0) {
         broadcastReceiver->StopTask();
         delete broadcastReceiver;
@@ -1174,6 +1176,8 @@ void BroadcastReceiver::Run()
                 std::cout << "Server: " << it->getID() << " offline" << std::endl;
                 for (auto sdk = sdks.begin(); sdk != sdks.end(); sdk++) {
                     // 设置服务器下线回调
+                    if ((*sdk)->GetCurrentServer()->getID() != it->getID())
+                        continue;
                     serverList.erase(std::remove(serverList.begin(), serverList.end(), *it), serverList.end());
                     (*sdk)->broadcastOfflineCallback(it->getID());
                 }
@@ -1486,12 +1490,6 @@ std::string GalileoReturnCodeToString(GALILEO_RETURN_CODE status)
     default:
         return "OK";
     }
-}
-
-GALILEO_RETURN_CODE GalileoSDK::TestHttpPost(std::string productID, std::string targetid, std::string deviceSecret) {
-    IOTClient::GetInstance(productID, Utils::IDToDeviceName(targetid), deviceSecret);
-    Sleep(10 * 1000);
-    return GALILEO_RETURN_CODE::OK;
 }
 
 } // namespace GalileoSDK

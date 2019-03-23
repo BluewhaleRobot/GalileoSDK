@@ -29,8 +29,6 @@
 namespace GalileoSDK
 {
 
-
-
 class DLL_PUBLIC GalileoSDK
 {
   public:
@@ -87,7 +85,6 @@ class DLL_PUBLIC GalileoSDK
     bool CheckServerOnline(std::string targetid);
     void Dispose();
     ~GalileoSDK();
-    GALILEO_RETURN_CODE TestHttpPost(std::string productID, std::string deviceName, std::string deviceSecret);
 
   private:
     ServerInfo *currentServer;

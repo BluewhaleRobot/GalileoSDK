@@ -9,19 +9,9 @@
 
 namespace GalileoSDK{
 
-    std::map<size_t, std::function<void(galileo_serial_server::GalileoStatus status)>> IOTClient::statusUpdateCallbacks;
-    size_t IOTClient::callbackIndex = 0;
-    IOTClient* IOTClient::instance = NULL;
-    std::string IOTClient::galileoStatusTopic = "";
-    std::string IOTClient::galileoCmdTopic = "";
-    std::string IOTClient::testTopic = "";
-    std::string IOTClient::audioTopic = "";
-    std::string IOTClient::speedTopic = "";
-
+    
     IOTClient::IOTClient(std::string productID, std::string deviceName, std::string deviceSecret)
-        :OnConnectCB(NULL), OnDisconnecCB(NULL), productID(productID), deviceName(deviceName), deviceSecret(deviceSecret), runningFlag(false), exitFlag(true), connectedFlag(false){
-        if (instance != NULL)
-            return;
+        :OnConnectCB(NULL), OnDisconnecCB(NULL), callbackIndex(0), productID(productID), deviceName(deviceName), deviceSecret(deviceSecret), runningFlag(false), exitFlag(true), connectedFlag(false){
         void *pclient = NULL;
         int res = 0;
         int loop_cnt = 0;
@@ -51,27 +41,27 @@ namespace GalileoSDK{
 
         res = IOT_MQTT_Subscribe(pclient, galileoStatusTopic.c_str(), IOTX_MQTT_QOS0,
             [](void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg) {
+            IOTClient* iotclient = (IOTClient*)pcontext;
             iotx_mqtt_topic_info_t *topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
             if (msg->event_type == IOTX_MQTT_EVENT_PUBLISH_RECEIVED) {
                 std::string topic(topic_info->ptopic, topic_info->topic_len);
-                if (topic == galileoStatusTopic) {
+                if (topic == iotclient->galileoStatusTopic) {
                     nlohmann::json j = nlohmann::json::parse(std::string(topic_info->payload, topic_info->payload_len));
                     auto status = Utils::jsonToStatus(j);
-                    if (statusUpdateCallbacks.size() != 0) {
-                        for (auto it = statusUpdateCallbacks.begin(); it != statusUpdateCallbacks.end(); ++it) {
+                    if (iotclient->statusUpdateCallbacks.size() != 0) {
+                        for (auto it = iotclient->statusUpdateCallbacks.begin(); it != iotclient->statusUpdateCallbacks.end(); ++it) {
                             it->second(status);
                         }
                     }
                 }
             }
-        }, NULL);
+        }, (void*)this);
         if (res < 0) {
             IOT_MQTT_Destroy(&pclient);
             return;
         }
         runningFlag = true;
         new std::thread(&IOTClient::LoopThread, this);
-        instance = this;
     }
 
     void IOTClient::LoopThread() {
@@ -143,17 +133,6 @@ namespace GalileoSDK{
         return res == 0;
     }
 
-    IOTClient* IOTClient::GetInstance() {
-        return instance;
-    }
-
-    IOTClient* IOTClient::GetInstance(std::string productID, std::string deviceName, std::string deviceSecret) {
-        if (instance == NULL)
-            return new IOTClient(productID, deviceName, deviceSecret);
-        else
-            return instance;
-    }
-
     bool IOTClient::IsRunning() {
         return runningFlag;
     }
@@ -170,8 +149,6 @@ namespace GalileoSDK{
             Sleep(100);
         }
         IOT_MQTT_Destroy(&pclient);
-        delete instance;
-        instance = NULL;
     }
 
 }

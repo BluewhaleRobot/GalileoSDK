@@ -43,6 +43,8 @@ uintptr_t HAL_CPP_TCP_Establish(const char *host, uint16_t port) {
     address.sin_family = AF_INET;
     address.sin_port = htons(port);
     server = gethostbyname(host);
+    if (server == NULL)
+        return (uintptr_t)(-1);
     memcpy((char *)&address.sin_addr.s_addr, (char*)server->h_addr, server->h_length);
     if (-1 == connect(sockfd, (struct sockaddr *)&address, sizeof(address))) {
         return (uintptr_t)(-1);
