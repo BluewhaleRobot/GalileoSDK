@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(
    GalileoSDK
-   VERSION 1.0.0
+   VERSION 1.1.0
    LANGUAGES CXX
 )
 
@@ -54,7 +54,7 @@ add_library(GalileoSDK
 endif()
 
 set_target_properties(GalileoSDK PROPERTIES VERSION ${PROJECT_VERSION})
-set_target_properties(GalileoSDK PROPERTIES SOVERSION 0)
+set_target_properties(GalileoSDK PROPERTIES SOVERSION 1)
 set_target_properties(GalileoSDK PROPERTIES LINKER_LANGUAGE CXX)
 
 target_link_libraries(GalileoSDK
