@@ -1261,6 +1261,34 @@ GALILEO_RETURN_CODE Connect(void * instance, uint8_t * targetID, size_t length,
     return sdk->Connect(targetIDStr, auto_connect, timeout, OnConnectTmp, OnDisconnectTmp);
 }
 
+GALILEO_RETURN_CODE __stdcall
+ConnectIOT(void *instance, uint8_t *targetID, size_t length, int timeout, uint8_t *password, size_t pass_length,
+    void(*OnConnect)(GALILEO_RETURN_CODE, uint8_t *, size_t),
+    void(*OnDisconnect)(GALILEO_RETURN_CODE, uint8_t *, size_t)) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+
+    std::string targetIDStr(targetID, targetID + length);
+    std::string passwordStr(password, password + pass_length);
+
+    std::function<void(GALILEO_RETURN_CODE, std::string id)> OnConnectTmp = NULL;
+    std::function<void(GALILEO_RETURN_CODE, std::string id)> OnDisconnectTmp = NULL;
+    OnConnectTmp = NULL;
+    OnDisconnectTmp = NULL;
+    if (OnConnect != NULL) {
+        OnConnectTmp = [&OnConnect](GALILEO_RETURN_CODE status, std::string id) -> void {
+            if (OnConnect != NULL)
+                OnConnect(status, (uint8_t*)id.data(), id.length());
+        };
+    }
+    if (OnDisconnect != NULL) {
+        OnDisconnectTmp = [&OnDisconnect](GALILEO_RETURN_CODE status, std::string id) -> void {
+            if (OnDisconnect != NULL)
+                OnDisconnect(status, (uint8_t*)id.data(), id.length());
+        };
+    }
+    return sdk->Connect(targetIDStr, timeout, passwordStr, OnConnectTmp, OnDisconnectTmp);
+}
+
 void __stdcall GetServersOnline(void * instance, uint8_t* servers_json, size_t &length){
     GalileoSDK* sdk = (GalileoSDK*)instance;
     nlohmann::json servers;

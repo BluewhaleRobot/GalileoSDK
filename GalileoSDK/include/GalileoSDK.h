@@ -124,6 +124,10 @@ extern "C"
         void *instance, uint8_t *targetID, size_t length, bool auto_connect, int timeout,
         void (*OnConnect)(GALILEO_RETURN_CODE, uint8_t *, size_t),
         void (*OnDisconnect)(GALILEO_RETURN_CODE, uint8_t *, size_t));
+    DLL_PUBLIC GALILEO_RETURN_CODE __stdcall
+        ConnectIOT(void *instance, uint8_t *targetID, size_t length, int timeout, uint8_t *password, size_t pass_length,
+            void(*OnConnect)(GALILEO_RETURN_CODE, uint8_t *, size_t),
+            void(*OnDisconnect)(GALILEO_RETURN_CODE, uint8_t *, size_t));
     DLL_PUBLIC void __stdcall GetServersOnline(void *instance, uint8_t *servers_json, size_t &length);
     DLL_PUBLIC void __stdcall GetCurrentServer(void *instance, uint8_t *servers_json, size_t &length);
     DLL_PUBLIC GALILEO_RETURN_CODE __stdcall PublishTest(void *instance);

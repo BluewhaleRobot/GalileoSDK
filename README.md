@@ -29,7 +29,18 @@ source /opt/ros/kinetic/setup.bash
 export LIBRARY_PATH=/opt/ros/kinetic/lib/
 # 安装SDK
 git clone https://github.com/bluewhalerobot/GalileoSDK
-cd GalileoSDK/GalileoSDK
+cd GalileoSDK
+cd IotWrapper
+mkdir build
+cd build
+cmake ..
+make
+cd ../../iot
+mkdir build
+cd build
+cmake ..
+make
+cd ../../GalileoSDK
 mkdir build
 cd build
 cmake ..
