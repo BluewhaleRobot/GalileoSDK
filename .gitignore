@@ -273,3 +273,4 @@ IotWrapper/x64
 iot/x64
 iot/build/
 IotWrapper/build/
+iot-config.json

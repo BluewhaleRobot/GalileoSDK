@@ -47,7 +47,7 @@ GALILEO_RETURN_CODE GalileoSDK::Connect(
     bool auto_connect = true,
     int timeout = 10 * 1000,
     std::function<void(GALILEO_RETURN_CODE, std::string)> OnConnect = NULL,
-    std::function<void(GALILEO_RETURN_CODE, std::string)> OnDisonnect = NULL)
+    std::function<void(GALILEO_RETURN_CODE, std::string)> OnDisconnect = NULL)
 {
     if (currentServer != NULL)
     {
@@ -297,7 +297,7 @@ GalileoSDK::ConnectIOT(std::string targetID, int timeout, std::string password) 
                 { "secret", secret },
             { "id", sdk_id }
             };
-
+            
             std::ofstream conf_file_out;
             conf_file_out.open("iot-config.json");
             conf_file_out << iot_conf_json.dump(4);

@@ -29,13 +29,13 @@ namespace GalileoSDK {
 #else
         write(sockfd, request.c_str(), request.size());
 #endif
-        char *buf = new char[1024 * 1024];
+        char *buf = (char *)malloc(1024 * 1024);
         int offset = 0;
         int rc;
 #ifdef WIN32
-        while (rc = recv(sockfd, buf + offset, 1024, 0))
+        while ((rc = recv(sockfd, buf + offset, 1024, 0)))
 #else
-        while (rc = read(sockfd, buf + offset, 1024))
+        while ((rc = read(sockfd, buf + offset, 1024)))
 #endif
         {
             offset += rc;
@@ -49,7 +49,7 @@ namespace GalileoSDK {
         std::string res = std::string(buf);
         auto find_res = res.find("\r\n\r\n");
         auto body = res.substr(res.find("\r\n\r\n") + 4, res.size());
-        delete buf;
+        free(buf);
         return body;
     }
     std::string HttpConnection::postData(std::string host, std::string path, std::string post_content, int port = 80)
