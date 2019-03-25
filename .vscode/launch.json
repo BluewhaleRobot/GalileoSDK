@@ -3,17 +3,26 @@
     // 悬停以查看现有属性的描述。
     // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
-    "configurations": [
+    "configurations": [    
+        
         {
-            "name": "(Windows) Launch",
-            "type": "cppvsdbg",
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/x64/Debug/GalileoSDKTest.exe",
+            "program": "${workspaceFolder}/GalileoSDKTest/bin/GalileoTest",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": true
+            "externalConsole": true,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
         }
     ]
 }

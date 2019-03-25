@@ -29,6 +29,7 @@
         "system_error": "cpp",
         "thread": "cpp",
         "typeindex": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "forward_list": "cpp"
     }
 }

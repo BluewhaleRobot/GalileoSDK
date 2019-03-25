@@ -729,6 +729,6 @@ void testIOTDisconnect() {
 
 int main()
 {
-    testMultiSDKOffline();
+    testAudioIOT();
     return 0;
 }

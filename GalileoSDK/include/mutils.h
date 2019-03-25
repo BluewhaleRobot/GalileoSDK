@@ -15,6 +15,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #define GetCurrentDir getcwd
+#include <linux/if_packet.h>
 #endif
 #include <chrono>
 #include <mutex>
@@ -78,7 +79,8 @@ class Utils
         return myIPs;
     }
 
-    static std::vector<std::string> ListMac() {
+    static std::vector<std::string> ListMac()
+    {
         std::vector<std::string> myMacs;
 
         PIP_ADAPTER_INFO pAdapterInfo;
@@ -110,10 +112,11 @@ class Utils
                 for (int i = 0; i < 6; i++)
                 {
                     int mac_byte = (int)(pAdapter->Address[i]);
-                    if ((uint8_t)(pAdapter->Address[i]) < 16) {
+                    if ((uint8_t)(pAdapter->Address[i]) < 16)
+                    {
                         mac_ss << 0 << std::uppercase << std::hex << mac_byte;
                     }
-                    else 
+                    else
                     {
                         mac_ss << std::uppercase << std::hex << mac_byte;
                     }
@@ -156,7 +159,7 @@ class Utils
                 char addressBuffer[INET_ADDRSTRLEN];
                 inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
                 std::string ifname(ifa->ifa_name);
-                if(ifname.find("lo") == 0 || ifname.find("docker") == 0 || ifname.find("virtual") == 0)
+                if (ifname.find("lo") == 0 || ifname.find("docker") == 0 || ifname.find("virtual") == 0)
                     continue;
                 ips.push_back(addressBuffer);
             }
@@ -171,7 +174,6 @@ class Utils
         struct ifaddrs *ifAddrStruct = NULL;
         struct ifaddrs *ifa = NULL;
         std::vector<std::string> macs;
-        void *tmpAddrPtr = NULL;
 
         getifaddrs(&ifAddrStruct);
 
@@ -181,17 +183,24 @@ class Utils
             {
                 continue;
             }
-            if (ifa->ifa_addr->sa_family == AF_INET)
+            if (ifa->ifa_addr->sa_family == AF_PACKET)
             { // check it is IP4
                 // is a valid IP4 Address
                 std::string ifname(ifa->ifa_name);
-                if(ifname.find("lo") == 0 || ifname.find("docker") == 0 || ifname.find("virtual") == 0)
+                if (ifname.find("lo") == 0 || ifname.find("docker") == 0 || ifname.find("virtual") == 0)
                     continue;
-                tmpAddrPtr = &((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
-                char addressBuffer[INET_ADDRSTRLEN];
-                inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
+                struct sockaddr_ll *s = (struct sockaddr_ll*)ifa->ifa_addr;
+
                 std::stringstream mac_ss;
-                mac_ss << 0 << std::uppercase << std::hex << addressBuffer;
+                for (int i = 0; i < 6; i++)
+                {
+                    if (s->sll_addr[i] < 16)
+                    {
+                        mac_ss << 0 << std::uppercase << std::hex << (int)(s->sll_addr[i]);
+                    }
+                    else
+                        mac_ss << std::uppercase << std::hex << (int)(s->sll_addr[i]);
+                }
                 macs.push_back(mac_ss.str());
             }
         }
@@ -201,46 +210,52 @@ class Utils
     }
 #endif
 
-    static std::string GenID() {
+    static std::string GenID()
+    {
         std::stringstream id;
         std::stringstream mac;
         std::random_device dev;
         std::mt19937 rng(dev());
         std::uniform_int_distribution<std::mt19937::result_type> dice(0, 255);
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 8; i++)
+        {
             uint8_t dice_roll = dice(rng);
-            if(dice_roll < 16)
+            if (dice_roll < 16)
                 mac << 0 << std::uppercase << std::hex << dice_roll;
             else
-                mac << std::uppercase <<  std::hex << (unsigned int)dice_roll;
+                mac << std::uppercase << std::hex << (unsigned int)dice_roll;
         }
         auto macs = ListMac();
-        if (macs.size() != 0) {
+        if (macs.size() != 0)
+        {
             id << macs[0];
         }
-        else {
+        else
+        {
             id << mac.str();
         }
-        for (int i = 0; i < 64; i++) {
+        for (int i = 0; i < 64; i++)
+        {
             id << "A";
         }
         return id.str();
     }
 
-
-
-    static std::string GetCurrentWorkingDir(void) {
+    static std::string GetCurrentWorkingDir(void)
+    {
         char buff[FILENAME_MAX];
         GetCurrentDir(buff, FILENAME_MAX);
         std::string current_working_dir(buff);
         return current_working_dir;
     }
 
-    static std::string IDToDeviceName(std::string id) {
+    static std::string IDToDeviceName(std::string id)
+    {
         return id.substr(0, 32);
     }
 
-    static nlohmann::json statusToJson(galileo_serial_server::GalileoStatus status) {
+    static nlohmann::json statusToJson(galileo_serial_server::GalileoStatus status)
+    {
         nlohmann::json rootValue;
         rootValue["timestamp"] = (status.header.stamp.toNSec() / 1000 / 1000);
         rootValue["angleGoalStatus"] = status.angleGoalStatus;
@@ -266,7 +281,8 @@ class Utils
         return rootValue;
     }
 
-    static galileo_serial_server::GalileoStatus jsonToStatus(nlohmann::json j) {
+    static galileo_serial_server::GalileoStatus jsonToStatus(nlohmann::json j)
+    {
         galileo_serial_server::GalileoStatus status;
         size_t timestamp = j["timestamp"];
         status.header.stamp.fromNSec(timestamp * 1000 * 1000);

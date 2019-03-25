@@ -5,7 +5,7 @@ namespace GalileoSDK {
     HttpConnection::HttpConnection()
     {
 #ifdef WIN32
-        //¥À¥¶“ª∂®“™≥ı ºªØ“ªœ¬£¨∑Ò‘Úgethostbyname∑µªÿ“ª÷±Œ™ø’
+        //Ê≠§Â§Ñ‰∏ÄÂÆöË¶ÅÂàùÂßãÂåñ‰∏Ä‰∏ãÔºåÂê¶ÂàôgethostbynameËøîÂõû‰∏ÄÁõ¥‰∏∫Á©∫
         WSADATA wsa = { 0 };
         WSAStartup(MAKEWORD(2, 2), &wsa);
 #endif
@@ -19,7 +19,7 @@ namespace GalileoSDK {
         sockfd = socket(AF_INET, SOCK_STREAM, 0);
         address.sin_family = AF_INET;
         address.sin_port = htons(port);
-        server = gethostbyname(host.c_str());
+        server = gethostbyname(host.c_str()); 
         memcpy((char *)&address.sin_addr.s_addr, (char*)server->h_addr, server->h_length);
         if (-1 == connect(sockfd, (struct sockaddr *)&address, sizeof(address))) {
             return "";
@@ -54,7 +54,7 @@ namespace GalileoSDK {
     }
     std::string HttpConnection::postData(std::string host, std::string path, std::string post_content, int port = 80)
     {
-        //POST«Î«Û∑Ω Ω
+        //POSTËØ∑Ê±ÇÊñπÂºè
         std::stringstream stream;
         stream << "POST " << path;
         stream << " HTTP/1.0\r\n";
@@ -69,7 +69,7 @@ namespace GalileoSDK {
     }
     std::string HttpConnection::getData(std::string host, std::string path, std::string get_content, int port = 80)
     {
-        //GET«Î«Û∑Ω Ω
+        //GETËØ∑Ê±ÇÊñπÂºè
         std::stringstream stream;
         stream << "GET " << path << "?" << get_content;
         stream << " HTTP/1.0\r\n";

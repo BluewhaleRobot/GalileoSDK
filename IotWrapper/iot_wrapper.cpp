@@ -22,11 +22,15 @@ void HAL_CPP_MutexDestroy(void *mutex) {
 }
 
 void HAL_CPP_MutexLock(void *mutex) {
+    if (mutex == NULL)
+        return;
     std::mutex *g_mutex = (std::mutex *)mutex;
     g_mutex->lock();
 }
 
 void HAL_CPP_MutexUnlock(void *mutex) {
+    if (mutex == NULL)
+        return;
     std::mutex *g_mutex = (std::mutex *)mutex;
     g_mutex->unlock();
 }
