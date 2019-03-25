@@ -58,7 +58,7 @@ int32_t HAL_CPP_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout
 #ifdef WIN32
     rc = recv(fd, buf + offset, len, 0);
 #else
-    rc = read(fd, buf + offset, len, timeout_ms);
+    rc = read(fd, buf + offset, len);
 #endif
     return rc;
 }
@@ -68,7 +68,7 @@ int32_t HAL_CPP_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t 
     int32_t res = send(fd, buf, len, 0);
     return res;
 #else
-    return write(fd, buf, len, timeout_ms);
+    return write(fd, buf, len);
 #endif
 }
 
@@ -84,6 +84,7 @@ int HAL_CPP_TCP_Destroy(uintptr_t fd) {
 #endif
 }
 
+#ifdef WIN32
 LARGE_INTEGER
 getFILETIMEoffset()
 {
@@ -144,8 +145,10 @@ clock_gettime(int X, struct timeval *tv)
     tv->tv_usec = t.QuadPart % 1000000;
     return (0);
 }
+#endif
 
 uint64_t HAL_CPP_UptimeMs() {
+#ifdef WIN32
     uint64_t time_ms;
     struct timeval ts;
 
@@ -153,4 +156,11 @@ uint64_t HAL_CPP_UptimeMs() {
     time_ms = ((uint64_t)ts.tv_sec * (uint64_t)1000) + (ts.tv_usec / 1000);
 
     return time_ms;
+#else
+    uint64_t time_ms;
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    time_ms = ((uint64_t)ts.tv_sec * (uint64_t)1000) + (ts.tv_nsec / 1000 / 1000);
+    return time_ms;
+#endif
 }

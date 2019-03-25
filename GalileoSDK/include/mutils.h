@@ -165,6 +165,40 @@ class Utils
             freeifaddrs(ifAddrStruct);
         return ips;
     }
+
+    static std::vector<std::string> ListMac()
+    {
+        struct ifaddrs *ifAddrStruct = NULL;
+        struct ifaddrs *ifa = NULL;
+        std::vector<std::string> macs;
+        void *tmpAddrPtr = NULL;
+
+        getifaddrs(&ifAddrStruct);
+
+        for (ifa = ifAddrStruct; ifa != NULL; ifa = ifa->ifa_next)
+        {
+            if (!ifa->ifa_addr)
+            {
+                continue;
+            }
+            if (ifa->ifa_addr->sa_family == AF_INET)
+            { // check it is IP4
+                // is a valid IP4 Address
+                std::string ifname(ifa->ifa_name);
+                if(ifname.find("lo") == 0 || ifname.find("docker") == 0 || ifname.find("virtual") == 0)
+                    continue;
+                tmpAddrPtr = &((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
+                char addressBuffer[INET_ADDRSTRLEN];
+                inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
+                std::stringstream mac_ss;
+                mac_ss << 0 << std::uppercase << std::hex << addressBuffer;
+                macs.push_back(mac_ss.str());
+            }
+        }
+        if (ifAddrStruct != NULL)
+            freeifaddrs(ifAddrStruct);
+        return macs;
+    }
 #endif
 
     static std::string GenID() {

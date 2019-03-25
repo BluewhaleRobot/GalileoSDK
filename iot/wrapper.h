@@ -2,6 +2,7 @@
 #define __WRAPPER_H__
 
 #if defined(__cplusplus)
+#include "iot_wrapper.h"
 extern "C" {
 #endif
 
@@ -21,7 +22,9 @@ extern "C" {
 #include "infra_types.h"
 #include "infra_defs.h"
 #include "wrappers_defs.h"
+#ifndef __cplusplus
 #include "iot_wrapper.h"
+#endif
 
 void *HAL_Malloc(uint32_t size);
 void HAL_Free(void *ptr);

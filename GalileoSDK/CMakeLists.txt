@@ -9,7 +9,7 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fpic")
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
@@ -27,6 +27,8 @@ include_directories(
    ${GEOMETRY_MSGS_INCLUDE_DIRS}
    ${Boost_INCLUDE_DIRS}
    ${PROJECT_SOURCE_DIR}/../include
+   ${PROJECT_SOURCE_DIR}/../iot
+   ${PROJECT_SOURCE_DIR}/../IotWrapper
 )
 
 if("${BUILD_SHARED_LIBS}" STREQUAL OFF)
@@ -40,20 +42,27 @@ if(ANDROID)
 add_library(GalileoSDK
    ${PROJECT_SOURCE_DIR}/GalileoSDK.cpp
    ${PROJECT_SOURCE_DIR}/ifaddrs1.c
+   ${PROJECT_SOURCE_DIR}/HttpConnection.cpp
+   ${PROJECT_SOURCE_DIR}/iot.cpp
 )
 else()
 add_library(GalileoSDK
    ${PROJECT_SOURCE_DIR}/GalileoSDK.cpp
+   ${PROJECT_SOURCE_DIR}/HttpConnection.cpp
+   ${PROJECT_SOURCE_DIR}/iot.cpp
 )
 endif()
 
 set_target_properties(GalileoSDK PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(GalileoSDK PROPERTIES SOVERSION 0)
+set_target_properties(GalileoSDK PROPERTIES LINKER_LANGUAGE CXX)
 
 target_link_libraries(GalileoSDK
    ${ROSCPP_LINK_LIBRARIES}
    ${GEOMETRY_MSGS_LINK_LIBRARIES}
    ${Boost_LIBRARIES}
+   ${PROJECT_SOURCE_DIR}/../iot/build/libiot.a
+   ${PROJECT_SOURCE_DIR}/../IotWrapper/build/libIotWrapper.a
 )
 
 install(
@@ -78,6 +87,18 @@ install(
 
 install(
    DIRECTORY ${PROJECT_SOURCE_DIR}/../include/galileo_serial_server
+   DESTINATION include/${PROJECT_NAME}
+   FILES_MATCHING PATTERN "*.h"
+)
+
+install(
+   DIRECTORY ${PROJECT_SOURCE_DIR}/../iot/
+   DESTINATION include/${PROJECT_NAME}
+   FILES_MATCHING PATTERN "*.h"
+)
+
+install(
+   DIRECTORY ${PROJECT_SOURCE_DIR}/../IotWrapper/
    DESTINATION include/${PROJECT_NAME}
    FILES_MATCHING PATTERN "*.h"
 )

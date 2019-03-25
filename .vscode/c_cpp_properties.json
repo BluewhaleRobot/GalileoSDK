@@ -5,8 +5,9 @@
             "includePath": [
                 "${workspaceFolder}",
                 "${workspaceFolder}/include",
-                "${workspaceFolder}/GalileoSDK/include"
-
+                "${workspaceFolder}/GalileoSDK/include",
+                "${workspaceFolder}/IotWrapper",
+                "${workspaceFolder}/iot"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",

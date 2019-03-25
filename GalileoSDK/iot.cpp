@@ -7,6 +7,13 @@
         printf("%s", "\r\n"); \
     } while(0)
 
+#ifndef _WIN32
+void Sleep(uint64_t miliseconds)
+{
+    usleep(miliseconds * 1000);
+}
+#endif
+
 namespace GalileoSDK{
 
     
@@ -143,7 +150,7 @@ namespace GalileoSDK{
 
     IOTClient::~IOTClient() {
         runningFlag = false;
-        // µÈ´ýÍË³ö
+        // ï¿½È´ï¿½ï¿½Ë³ï¿½
         while (!exitFlag)
         {
             Sleep(100);

@@ -50,7 +50,17 @@ matrix:
       script:
         - source /opt/ros/kinetic/setup.bash
         - export LIBRARY_PATH=/opt/ros/kinetic/lib/
-        - cd GalileoSDK
+        - cd IotWrapper
+        - mkdir build
+        - cd build
+        - cmake ..
+        - make
+        - cd ../../iot
+        - mkdir build
+        - cd build
+        - cmake ..
+        - make
+        - cd ../../GalileoSDK
         - mkdir build
         - cd build
         - cmake ..

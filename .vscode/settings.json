@@ -1,5 +1,34 @@
 {
     "files.associations": {
-        "stdexcept": "cpp"
+        "stdexcept": "cpp",
+        "*.ipp": "cpp",
+        "cctype": "cpp",
+        "clocale": "cpp",
+        "cmath": "cpp",
+        "cstdarg": "cpp",
+        "cstddef": "cpp",
+        "cstdio": "cpp",
+        "cstdlib": "cpp",
+        "cstring": "cpp",
+        "ctime": "cpp",
+        "cwchar": "cpp",
+        "cwctype": "cpp",
+        "atomic": "cpp",
+        "strstream": "cpp",
+        "*.tcc": "cpp",
+        "chrono": "cpp",
+        "cinttypes": "cpp",
+        "codecvt": "cpp",
+        "cstdint": "cpp",
+        "optional": "cpp",
+        "string_view": "cpp",
+        "initializer_list": "cpp",
+        "iosfwd": "cpp",
+        "mutex": "cpp",
+        "ratio": "cpp",
+        "system_error": "cpp",
+        "thread": "cpp",
+        "typeindex": "cpp",
+        "algorithm": "cpp"
     }
 }

@@ -1,16 +1,23 @@
 #ifndef __IOT_WRAPPER_H__
 #define __IOT_WRAPPER_H__
-
-#if defined(IOT_WRAPPER)
+#if defined(__cplusplus)
 #include <random>
 #include <mutex>
 #include <chrono>
 #include <thread>
+#ifdef WIN32
 #include <winsock2.h>
 #include <WS2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
-#ifdef WIN32
-
+#else
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h> 
 #endif // WIN32
 extern "C" {
 #endif
@@ -26,7 +33,7 @@ extern "C" {
     int HAL_CPP_TCP_Destroy(uintptr_t fd);
     void HAL_CPP_Srandom(uint32_t seed);
     uint64_t HAL_CPP_UptimeMs(void);
-#if defined(IOT_WRAPPER)
+#if defined(__cplusplus)
 }
 #endif
 
