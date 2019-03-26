@@ -1487,6 +1487,18 @@ GALILEO_RETURN_CODE __stdcall WaitForGoal(void * instance, int goalID) {
     return sdk->WaitForGoal(goalID);
 }
 
+GALILEO_RETURN_CODE __stdcall SendAudio(void *instance, uint8_t* audio, size_t length) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    std::vector<uint8_t> audioStr(audio, audio + length);
+    return sdk->SendAudio((char*)audioStr.data());
+}
+
+bool __stdcall CheckServerOnline(void *instance, uint8_t *targetID, size_t length) {
+    GalileoSDK* sdk = (GalileoSDK*)instance;
+    std::string targetIDStr(targetID, targetID + length);
+    return sdk->CheckServerOnline(targetIDStr);
+}
+
 std::string GalileoReturnCodeToString(GALILEO_RETURN_CODE status)
 {
     switch (status)

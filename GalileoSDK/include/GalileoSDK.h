@@ -165,6 +165,8 @@ extern "C"
         void *instance,
         void (*callback)(int goalID, uint8_t *status_json, size_t length));
     DLL_PUBLIC GALILEO_RETURN_CODE __stdcall WaitForGoal(void *instance, int goalID);
+    DLL_PUBLIC GALILEO_RETURN_CODE __stdcall SendAudio(void *instance, uint8_t* audio, size_t length);
+    DLL_PUBLIC bool __stdcall CheckServerOnline(void *instance, uint8_t *targetID, size_t length);
 }
 
 }; // namespace GalileoSDK
