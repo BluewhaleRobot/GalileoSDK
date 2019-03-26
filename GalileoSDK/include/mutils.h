@@ -23,7 +23,7 @@
 #include <sstream>
 #include <iostream>
 #include "json.hpp"
-#include <galileo_serial_server/GalileoStatus.h>
+#include "galileo_serial_server/GalileoStatus.h"
 
 #if defined(__ANDROID__) && __ANDROID_API__ < 24
 #include "ifaddrs1.h"
