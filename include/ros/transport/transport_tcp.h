@@ -41,6 +41,7 @@
 #include <boost/thread/recursive_mutex.hpp>
 #include "ros/io.h"
 #include <ros/common.h>
+#include <ros/network.h>
 
 namespace ros
 {

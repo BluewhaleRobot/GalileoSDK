@@ -1,4 +1,4 @@
-// GalileoSDKTest.cpp: 定义控制台应用程序的入口点。
+﻿// GalileoSDKTest.cpp: 定义控制台应用程序的入口点。
 //
 #define INFRA_LOG
 #include "GalileoSDK.h"
@@ -729,6 +729,6 @@ void testIOTDisconnect() {
 
 int main()
 {
-    testAudioIOT();
+	testSub();
     return 0;
 }

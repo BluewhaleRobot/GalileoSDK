@@ -5,7 +5,9 @@
 #include <fstream>
 
 #ifdef _WIN32
+#ifndef WIN32
 #define WIN32
+#endif
 #pragma comment(lib, "Ws2_32.lib")
 #endif
 
@@ -15,6 +17,7 @@
 #include "geometry_msgs/Twist.h"
 #include "models/ServerInfo.h"
 #include "ros/ros.h"
+#include "ros/network.h"
 #include "std_msgs/String.h"
 #include "tasks/BroadcastReceiver.h"
 #include "json.hpp"

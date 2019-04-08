@@ -7,7 +7,9 @@ namespace GalileoSDK {
 #ifdef WIN32
         //此处一定要初始化一下，否则gethostbyname返回一直为空
         WSADATA wsa = { 0 };
-        WSAStartup(MAKEWORD(2, 2), &wsa);
+		if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
+			std::cout << "HttpConnection WSAStartup failed" << std::endl;
+		}
 #endif
     }
     
@@ -30,6 +32,8 @@ namespace GalileoSDK {
         write(sockfd, request.c_str(), request.size());
 #endif
         char *buf = (char *)malloc(1024 * 1024);
+		if (buf == NULL)
+			return "";
         int offset = 0;
         int rc;
 #ifdef WIN32

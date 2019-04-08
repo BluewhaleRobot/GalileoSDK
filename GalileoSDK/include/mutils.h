@@ -244,7 +244,9 @@ class Utils
     static std::string GetCurrentWorkingDir(void)
     {
         char buff[FILENAME_MAX];
-        GetCurrentDir(buff, FILENAME_MAX);
+		if (GetCurrentDir(buff, FILENAME_MAX) != 0) {
+			return "";
+		}
         std::string current_working_dir(buff);
         return current_working_dir;
     }

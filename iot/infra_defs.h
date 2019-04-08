@@ -1,4 +1,4 @@
-#ifndef _INFRA_DEFS_H_
+﻿#ifndef _INFRA_DEFS_H_
 #define _INFRA_DEFS_H_
 
 #include "infra_types.h"
