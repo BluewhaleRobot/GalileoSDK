@@ -48,8 +48,41 @@ matrix:
         - sudo apt-fast update -qq
         - sudo apt-get install -y --allow-unauthenticated ros-kinetic-roscpp ros-kinetic-geometry-msgs
       script:
-        - source /opt/ros/kinetic/setup.bash
-        - export LIBRARY_PATH=/opt/ros/kinetic/lib/
+        # install cmake
+        - cd ..
+        - wget -q https://github.com/Kitware/CMake/releases/download/v3.14.0-rc4/cmake-3.14.0-rc4.tar.gz
+        - tar -xzf cmake-3.14.0-rc4.tar.gz > /dev/null
+        - cd cmake-3.14.0-rc4/
+        - travis_wait 30 env CC=$(which clang) CXX=$(which clang++) ./bootstrap --prefix=/usr --parallel=4 | awk "(NR%200)==0{print;}"
+        - make | awk "(NR%200)==0{print;}"
+        - sudo make install > /dev/null
+        - which cmake 
+        - cmake --version
+        - cd ..
+        # install ros packages
+        - mkdir -p amd64/src
+        - cd amd64/src
+        - git clone https://github.com/ros/catkin --depth=1
+        - git clone https://github.com/ros/common_msgs --depth=1
+        - git clone https://github.com/ros/gencpp --depth=1
+        - git clone https://github.com/jsk-ros-pkg/geneus --depth=1
+        - git clone https://github.com/ros/genlisp --depth=1
+        - git clone https://github.com/ros/genmsg --depth=1
+        - git clone https://github.com/RethinkRobotics-opensource/gennodejs --depth=1
+        - git clone https://github.com/ros/genpy --depth=1
+        - git clone https://github.com/ros/message_generation --depth=1
+        - git clone https://github.com/ros/message_runtime --depth=1
+        - git clone https://github.com/BluewhaleRobot/ros_comm --depth=1
+        - git clone https://github.com/ros/ros_comm_msgs --depth=1
+        - git clone https://github.com/BluewhaleRobot/rosconsole --depth=1
+        - git clone https://github.com/BluewhaleRobot/roscpp_core --depth=1
+        - git clone https://github.com/ros/std_msgs --depth=1
+        - travis_wait 20 sudo apt-get install -yqq --allow-unauthenticated python-catkin-pkg python-catkin-tools > /dev/null
+        - cd ..
+        - ./src/catkin/bin/catkin_make -DCATKIN_WHITELIST_PACKAGES="" -DBUILD_SHARED_LIBS=OFF -DBoost_USE_STATIC_LIBS=ON -DBoost_LIB_PREFIX=lib -DCATKIN_ENABLE_TESTING=OFF | awk "(NR%50)==0{print;}"
+        - source ./devel/setup.bash
+        - cd ../GalileoSDK
+        # build galileo sdk
         - cd IotWrapper
         - mkdir build
         - cd build
