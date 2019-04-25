@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 3.12.0)
 project(
    GalileoSDK
-   VERSION 1.1.0
-   LANGUAGES CXX
+   VERSION 1.2.3
 )
 
 if(NOT CMAKE_BUILD_TYPE)
