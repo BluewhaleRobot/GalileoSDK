@@ -489,7 +489,7 @@ void testRelease(){
 
 void testConnect_IOT() {
     GalileoSDK::GalileoSDK sdk;
-    sdk.Connect("71329A5B0F2D68364BB7B44F3F125531E4C7F5BC3BCE2694DFE39B505FF9C730A614FF2790C1", 10000, "xiaoqiang", NULL, NULL);
+    sdk.Connect("8FB56D27D6C961E9036F62182ADE9544D71E23C31E5DF4C7DD692B9E4296A131434B1066D365", 10000, "xiaoqiang", NULL, NULL);
     galileo_serial_server::GalileoStatus status;
     while (true)
     {
@@ -729,6 +729,6 @@ void testIOTDisconnect() {
 
 int main()
 {
-	testSub();
+	testConnect_IOT();
     return 0;
 }

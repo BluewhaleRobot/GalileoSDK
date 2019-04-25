@@ -1,4 +1,4 @@
-#include "iot.h"
+﻿#include "iot.h"
 
 #define EXAMPLE_TRACE(fmt, ...)  \
     do { \
@@ -19,7 +19,7 @@ namespace GalileoSDK{
     
     IOTClient::IOTClient(std::string productID, std::string deviceName, std::string deviceSecret)
         :OnConnectCB(NULL), OnDisconnecCB(NULL), callbackIndex(0), productID(productID), deviceName(deviceName), deviceSecret(deviceSecret), runningFlag(false), exitFlag(true), connectedFlag(false){
-        void *pclient = NULL;
+        pclient = NULL;
         int res = 0;
         int loop_cnt = 0;
         iotx_mqtt_param_t mqtt_params;
@@ -32,7 +32,7 @@ namespace GalileoSDK{
         memset(&mqtt_params, 0x0, sizeof(mqtt_params));
 
         mqtt_params.handle_event.h_fp = [](void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg) {
-            //EXAMPLE_TRACE("msg->event_type : %d", msg->event_type);
+            // EXAMPLE_TRACE("msg->event_type : %d", msg->event_type);
         };
 
         pclient = IOT_MQTT_Construct(&mqtt_params);
@@ -150,7 +150,6 @@ namespace GalileoSDK{
 
     IOTClient::~IOTClient() {
         runningFlag = false;
-        // �ȴ��˳�
         while (!exitFlag)
         {
             Sleep(100);

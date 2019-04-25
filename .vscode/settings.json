@@ -30,6 +30,9 @@
         "thread": "cpp",
         "typeindex": "cpp",
         "algorithm": "cpp",
-        "forward_list": "cpp"
-    }
+        "forward_list": "cpp",
+        "iostream": "cpp"
+    },
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
 }

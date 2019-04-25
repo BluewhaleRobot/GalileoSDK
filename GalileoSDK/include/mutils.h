@@ -286,7 +286,8 @@ class Utils
     static galileo_serial_server::GalileoStatus jsonToStatus(nlohmann::json j)
     {
         galileo_serial_server::GalileoStatus status;
-        size_t timestamp = j["timestamp"];
+        size_t timestamp = 0;
+        j.at("timestamp").get_to(timestamp);
         status.header.stamp.fromNSec(timestamp * 1000 * 1000);
         j.at("angleGoalStatus").get_to(status.angleGoalStatus);
         j.at("busyStatus").get_to(status.busyStatus);
