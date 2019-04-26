@@ -96,15 +96,15 @@ namespace GalileoSDK{
         OnDisconnecCB = cb;
     }
 
-    size_t IOTClient::AddOnStatusUpdatedListener(std::function<void(galileo_serial_server::GalileoStatus status)> OnStatusUpdate) {
-        size_t id = callbackIndex;
+    int64_t IOTClient::AddOnStatusUpdatedListener(std::function<void(galileo_serial_server::GalileoStatus status)> OnStatusUpdate) {
+        int64_t id = callbackIndex;
         callbackIndex += 1;
-        statusUpdateCallbacks.insert(std::pair<size_t, std::function<void(galileo_serial_server::GalileoStatus)>>(id, OnStatusUpdate));
+        statusUpdateCallbacks.insert(std::pair<int64_t, std::function<void(galileo_serial_server::GalileoStatus)>>(id, OnStatusUpdate));
         return id;
     }
 
 
-    void IOTClient::RemoveOnStatusUpdatedListener(size_t id) {
+    void IOTClient::RemoveOnStatusUpdatedListener(int64_t id) {
         statusUpdateCallbacks.erase(id);
     }
 

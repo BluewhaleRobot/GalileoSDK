@@ -56,6 +56,16 @@ set_target_properties(GalileoSDK PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(GalileoSDK PROPERTIES SOVERSION 1)
 set_target_properties(GalileoSDK PROPERTIES LINKER_LANGUAGE CXX)
 
+if(ANDROID)
+target_link_libraries(GalileoSDK
+   ${ROSCPP_LINK_LIBRARIES}
+   ${GEOMETRY_MSGS_LINK_LIBRARIES}
+   ${Boost_LIBRARIES}
+   ${PROJECT_SOURCE_DIR}/../iot/build/libiot.a
+   ${PROJECT_SOURCE_DIR}/../IotWrapper/build/libIotWrapper.a
+   log
+)
+else()
 target_link_libraries(GalileoSDK
    ${ROSCPP_LINK_LIBRARIES}
    ${GEOMETRY_MSGS_LINK_LIBRARIES}
@@ -63,6 +73,7 @@ target_link_libraries(GalileoSDK
    ${PROJECT_SOURCE_DIR}/../iot/build/libiot.a
    ${PROJECT_SOURCE_DIR}/../IotWrapper/build/libIotWrapper.a
 )
+endif()
 
 install(
    TARGETS GalileoSDK
@@ -86,6 +97,12 @@ install(
 
 install(
    DIRECTORY ${PROJECT_SOURCE_DIR}/../include/galileo_serial_server
+   DESTINATION include/${PROJECT_NAME}
+   FILES_MATCHING PATTERN "*.h"
+)
+
+install(
+   DIRECTORY ${PROJECT_SOURCE_DIR}/../include/spdlog
    DESTINATION include/${PROJECT_NAME}
    FILES_MATCHING PATTERN "*.h"
 )

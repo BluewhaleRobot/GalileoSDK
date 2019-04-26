@@ -16,12 +16,29 @@ namespace GalileoSDK
 	// ////////////////////////////////
 	std::vector<GalileoSDK*> GalileoSDK::instances;
 	BroadcastReceiver* GalileoSDK::broadcastReceiver = NULL;
+	spdlog::logger* GalileoSDK::logger = NULL;
 
 	GalileoSDK::GalileoSDK()
-		: nh(NULL), currentServer(NULL), currentStatus(NULL), OnDisconnect(NULL), OnConnect(NULL), CurrentStatusCallback(NULL), GoalReachedCallback(NULL), connectingTaskFlag(false), iotclient(NULL)
+		:nh(NULL), currentServer(NULL), currentStatus(NULL), OnDisconnect(NULL), OnConnect(NULL), CurrentStatusCallback(NULL), GoalReachedCallback(NULL), connectingTaskFlag(false), iotclient(NULL)
 	{
 		auto_connect = false;
 		timeout = 10000;
+		if(logger == NULL){
+			#if defined(__ANDROID__)
+			Utils::mkdirs("/sdcard/galileosdk");
+			auto file_logger = std::make_shared<spdlog::sinks::basic_file_sink_mt>("/sdcard/galileosdk/sdk.log", true);
+			auto android_logger = std::make_shared<spdlog::sinks::android_sink_mt>("galileo_sdk_logcat", "galileo_sdk");
+			logger = new spdlog::logger("galileo_logger", {file_logger, android_logger});
+			#else
+			Utils::mkdirs("logs");
+			auto file_logger = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/galileo-sdk.log", true);
+			logger = new spdlog::logger("galileo_logger", file_logger);
+			#endif
+			logger->set_level(spdlog::level::debug);
+			logger->set_pattern("[%H:%M:%S %z] [%n] [%^---%L---%$] [thread %t] %v");
+			logger->info("sdk created");
+			spdlog::flush_every(std::chrono::seconds(1));
+		}
 		if (broadcastReceiver == NULL) {
 			broadcastReceiver = new BroadcastReceiver();
 			new std::thread(&BroadcastReceiver::Run, broadcastReceiver);
@@ -31,6 +48,7 @@ namespace GalileoSDK
 
 	ServerInfo* GalileoSDK::GetCurrentServer() {
 		std::unique_lock<std::mutex> lock(serverLock);
+		spdlog::info("sdk GetCurrentServer");
 		return currentServer;
 	}
 
@@ -51,6 +69,7 @@ namespace GalileoSDK
 		std::function<void(GALILEO_RETURN_CODE, std::string)> OnConnect = NULL,
 		std::function<void(GALILEO_RETURN_CODE, std::string)> OnDisconnect = NULL)
 	{
+		logger->info("OK 1");
 		if (currentServer != NULL)
 		{
 			return GALILEO_RETURN_CODE::ALREADY_CONNECTED;
@@ -60,6 +79,8 @@ namespace GalileoSDK
 			this->OnDisconnect = OnDisconnect;
 		}
 
+		logger->info("OK 2");
+
 		this->auto_connect = auto_connect;
 		this->timeout = timeout;
 		this->targetID = targetID;
@@ -67,9 +88,11 @@ namespace GalileoSDK
 		// 设置了回调函数，采用异步方式执行
 		if (OnConnect != NULL)
 		{
+			logger->info("OK 2.1");
 			this->OnConnect = OnConnect;
 			new std::thread([&]() -> void {
 				auto sdk = GetInstance();
+				logger->info("OK 2.2");
 				if (sdk->connectingTaskFlag)
 					return;
 				sdk->connectingTaskFlag = true;
@@ -103,6 +126,7 @@ namespace GalileoSDK
 						return;
 					}
 				}
+				logger->info("OK 2.3");
 				if (!sdk->targetID.empty())
 				{
 					int timecount = 0;
@@ -131,19 +155,26 @@ namespace GalileoSDK
 						return;
 					}
 				}
+				logger->info("OK 2.4");
 				if (sdk->currentServer != NULL) {
+					logger->info("OK 2.4.1");
 					std::string targetid = sdk->currentServer->getID();
+					logger->info("OK 2.4.2");
 					GALILEO_RETURN_CODE res = sdk->Connect(*(sdk->currentServer));
+					logger->info("OK 2.4.3");
 					if (sdk->OnConnect != NULL)
 					{
 						sdk->OnConnect(res, targetid);
+						logger->info("OK 2.4.4");
 					}
 				}
+				logger->info("OK 2.5");
 				sdk->connectingTaskFlag = false;
 				return;
 				});
 			return GALILEO_RETURN_CODE::OK;
 		}
+		logger->info("OK 3");
 		if (targetID.empty() && auto_connect)
 		{
 			int timecount = 0;
@@ -198,6 +229,7 @@ namespace GalileoSDK
 				return GALILEO_RETURN_CODE::NO_SERVER_FOUND;
 			}
 		}
+		logger->info("OK 4");
 		return Connect(*currentServer);
 	}
 
@@ -214,13 +246,21 @@ namespace GalileoSDK
 		if (myIPs.size() == 0)
 			return GALILEO_RETURN_CODE::NETWORK_ERROR;
 		// 若有多个网络接口则连接第一个
+		logger->info("OK 2.4.3.1");
 		params.insert(std::pair<std::string, std::string>("__ip", myIPs.at(0)));
 		ros::init(params, "galileo_sdk_client", ros::init_options::AnonymousName);
 		std::cout << "Connected to server: " << server.getID() << std::endl;
+		logger->info("Connected to server: {0}", server.getID());
 		std::cout << "Master URI: " << masterURI.str() << std::endl;
+		logger->info("Master URI:  {0}", masterURI.str());
 		std::cout << "IP: " << myIPs.at(0) << std::endl;
+		logger->info("IP: {0}", myIPs.at(0));
+		logger->info("OK 2.4.3.2");
 		ros::network::setHostRecord("xiaoqiang-desktop", server.getIP());
+		logger->info("hosts records {0}", server.getIP());
+		logger->info("OK 2.4.3.3");
 		nh = new ros::NodeHandle();
+		logger->info("OK 2.4.3.4");
 		testPub = nh->advertise<std_msgs::String>("pub_test", 10);
 		cmdPub = nh->advertise<galileo_serial_server::GalileoNativeCmds>(
 			"/galileo/cmds", 10);
@@ -232,6 +272,7 @@ namespace GalileoSDK
 		broadcastReceiver->AddSDK(this);
 		// 等待回调更新状态，保证连接可靠
 		int timecount = 0;
+		logger->info("OK 2.4.3.5");
 		while (timecount < timeout)
 		{
 			{
@@ -242,10 +283,12 @@ namespace GalileoSDK
 			Sleep(100);
 			timecount += 100;
 		}
+		logger->info("OK 2.4.3.6");
 		if (timecount >= timeout) {
 			Dispose();
 			return GALILEO_RETURN_CODE::TIMEOUT;
 		}
+		logger->info("OK 2.4.3.7");
 
 		return GALILEO_RETURN_CODE::OK;
 	}
@@ -395,6 +438,7 @@ namespace GalileoSDK
 	void GalileoSDK::UpdateGalileoStatus(
 		const galileo_serial_server::GalileoStatusConstPtr & status)
 	{
+		logger->info("UpdateGalileoStatus OK1");
 		std::unique_lock<std::mutex> lock(statusLock);
 		if (currentStatus != NULL && currentStatus->targetStatus != 0 &&
 			status->targetStatus == 0)
@@ -403,11 +447,13 @@ namespace GalileoSDK
 			if (GoalReachedCallback != NULL)
 				GoalReachedCallback(status->targetNumID, *status);
 		}
+		logger->info("UpdateGalileoStatus OK2");
 		currentStatus = status;
 		if (CurrentStatusCallback != NULL)
 		{
 			CurrentStatusCallback(GALILEO_RETURN_CODE::OK, *status);
 		}
+		logger->info("UpdateGalileoStatus OK3");
 	}
 
 	void GalileoSDK::SpinThread()
@@ -476,6 +522,9 @@ namespace GalileoSDK
 		if (instances.size() == 0) {
 			broadcastReceiver->StopTask();
 			delete broadcastReceiver;
+			delete logger;
+			logger = NULL;
+			broadcastReceiver = NULL;
 		}
 		Dispose();
 	}
@@ -954,12 +1003,12 @@ namespace GalileoSDK
 		this->ID = ID;
 	}
 
-	size_t ServerInfo::getTimestamp()
+	int64_t ServerInfo::getTimestamp()
 	{
 		return timestamp;
 	}
 
-	void ServerInfo::setTimestamp(size_t timestamp)
+	void ServerInfo::setTimestamp(int64_t timestamp)
 	{
 		this->timestamp = timestamp;
 	}
@@ -1111,7 +1160,7 @@ namespace GalileoSDK
 		else
 		{
 			std::unique_lock<std::recursive_mutex> lock(instance->serversLock);
-			return instance->serverList;
+			return std::vector<ServerInfo>(instance->serverList);
 		}
 	}
 
@@ -1121,7 +1170,7 @@ namespace GalileoSDK
 	{
 		if (from.empty())
 			return;
-		size_t start_pos = 0;
+		int64_t start_pos = 0;
 		while ((start_pos = str.find(from, start_pos)) != std::string::npos)
 		{
 			str.replace(start_pos, from.length(), to);
@@ -1139,6 +1188,7 @@ namespace GalileoSDK
 			return;
 		while (runningFlag)
 		{
+			// GalileoSDK::logger->info("BroadcastReceiver::Run OK1");
 			ServerInfo* serverInfo = NULL;
 			try
 			{
@@ -1156,20 +1206,28 @@ namespace GalileoSDK
 				char ipStr[INET_ADDRSTRLEN];
 				inet_ntop(AF_INET, &(si_other.sin_addr), ipStr, INET_ADDRSTRLEN);
 				std::string data = std::string(buf, 0, recv_len);
+				// GalileoSDK::logger->info("BroadcastReceiver::Run OK1.1");
 				if (!data.empty())
 				{
 					nlohmann::json serverInfoJson = serverInfoJson.parse(
 						data.c_str(), data.c_str() + data.size());
+					// GalileoSDK::logger->info("BroadcastReceiver::Run OK1.2");
 					serverInfo = new ServerInfo(serverInfoJson);
 					std::string addrStr = std::string(ipStr);
 					replaceAll(addrStr, "/", "");
+					// GalileoSDK::logger->info("BroadcastReceiver::Run OK1.3");
 					serverInfo->setIP(addrStr);
+					// GalileoSDK::logger->info("BroadcastReceiver::Run OK1.4");
 				}
 			}
 			catch (const std::exception & e)
 			{
 				std::cout << e.what() << std::endl;
 			}
+
+			
+				
+			// GalileoSDK::logger->info("BroadcastReceiver::Run OK2");
 
 			std::vector<ServerInfo> originServers = serverList;
 
@@ -1178,16 +1236,26 @@ namespace GalileoSDK
 			{
 				if (Utils::GetCurrentTimestamp() - it->getTimestamp() > 10 * 1000)
 				{
+					if(sdks.size() > 0){
+						// GalileoSDK::logger->info("BroadcastReceiver::Run OK2.1 {0}", Utils::GetCurrentTimestamp());
+						// GalileoSDK::logger->info("BroadcastReceiver::Run OK2.1 {0}", it->getTimestamp());
+							
+					}
 					std::cout << "Server: " << it->getID() << " offline" << std::endl;
 					for (auto sdk = sdks.begin(); sdk != sdks.end(); sdk++) {
 						// 设置服务器下线回调
 						if ((*sdk)->GetCurrentServer()->getID() != it->getID())
 							continue;
+						// GalileoSDK::logger->info("BroadcastReceiver::Run OK2.2");
 						serverList.erase(std::remove(serverList.begin(), serverList.end(), *it), serverList.end());
+						// GalileoSDK::logger->info("BroadcastReceiver::Run OK2.2.1");
 						(*sdk)->broadcastOfflineCallback(it->getID());
+						// GalileoSDK::logger->info("BroadcastReceiver::Run OK2.3");
 					}
 				}
 			}
+
+			// GalileoSDK::logger->info("BroadcastReceiver::Run OK3");
 
 			if (serverInfo == NULL)
 			{
@@ -1204,16 +1272,25 @@ namespace GalileoSDK
 					it->setIP(serverInfo->getIP());
 					it->setMac(serverInfo->getMac());
 					newServerFlag = false;
+					// GalileoSDK::logger->info("BroadcastReceiver::Run OK2.1 update server");
+					// GalileoSDK::logger->info("BroadcastReceiver::Run OK2.1 {0}", Utils::GetCurrentTimestamp());
+					// GalileoSDK::logger->info("BroadcastReceiver::Run OK2.1 {0}", it->getTimestamp());
 				}
 			}
+
+			// GalileoSDK::logger->info("BroadcastReceiver::Run OK4");
 
 			// 更新服务器列表
 			if (newServerFlag)
 			{
 				serverInfo->setTimestamp(Utils::GetCurrentTimestamp());
 				serverList.push_back(*serverInfo);
+				// GalileoSDK::logger->info("BroadcastReceiver::Run OK2.1 new server");
+				// GalileoSDK::logger->info("BroadcastReceiver::Run OK2.1 {0}", Utils::GetCurrentTimestamp());
+				// GalileoSDK::logger->info("BroadcastReceiver::Run OK2.1 {0}", serverInfo->getTimestamp());
 			}
 			delete serverInfo;
+			// GalileoSDK::logger->info("BroadcastReceiver::Run OK5");
 		}
 #ifdef _WIN32
 		closesocket(serverSocket);
@@ -1239,10 +1316,10 @@ namespace GalileoSDK
 		delete sdk;
 	}
 
-	GALILEO_RETURN_CODE Connect(void* instance, uint8_t * targetID, size_t length,
+	GALILEO_RETURN_CODE Connect(void* instance, uint8_t * targetID, int64_t length,
 		bool auto_connect, int timeout,
-		void(*OnConnect)(GALILEO_RETURN_CODE, uint8_t*, size_t),
-		void(*OnDisconnect)(GALILEO_RETURN_CODE, uint8_t*, size_t))
+		void(*OnConnect)(GALILEO_RETURN_CODE, uint8_t*, int64_t),
+		void(*OnDisconnect)(GALILEO_RETURN_CODE, uint8_t*, int64_t))
 	{
 		GalileoSDK* sdk = (GalileoSDK*)instance;
 		std::string targetIDStr(targetID, targetID + length);
@@ -1268,9 +1345,9 @@ namespace GalileoSDK
 	}
 
 	GALILEO_RETURN_CODE __stdcall
-		ConnectIOT(void* instance, uint8_t * targetID, size_t length, int timeout, uint8_t * password, size_t pass_length,
-			void(*OnConnect)(GALILEO_RETURN_CODE, uint8_t*, size_t),
-			void(*OnDisconnect)(GALILEO_RETURN_CODE, uint8_t*, size_t)) {
+		ConnectIOT(void* instance, uint8_t * targetID, int64_t length, int timeout, uint8_t * password, int64_t pass_length,
+			void(*OnConnect)(GALILEO_RETURN_CODE, uint8_t*, int64_t),
+			void(*OnDisconnect)(GALILEO_RETURN_CODE, uint8_t*, int64_t)) {
 		GalileoSDK* sdk = (GalileoSDK*)instance;
 
 		std::string targetIDStr(targetID, targetID + length);
@@ -1295,7 +1372,7 @@ namespace GalileoSDK
 		return sdk->Connect(targetIDStr, timeout, passwordStr, OnConnectTmp, OnDisconnectTmp);
 	}
 
-	void __stdcall GetServersOnline(void* instance, uint8_t * servers_json, size_t & length) {
+	void __stdcall GetServersOnline(void* instance, uint8_t * servers_json, int64_t & length) {
 		GalileoSDK* sdk = (GalileoSDK*)instance;
 		nlohmann::json servers;
 		auto serversOnline = sdk->GetServersOnline();
@@ -1307,7 +1384,7 @@ namespace GalileoSDK
 		length = serversStr.size();
 	}
 
-	void __stdcall GetCurrentServer(void* instance, uint8_t * servers_json, size_t & length) {
+	void __stdcall GetCurrentServer(void* instance, uint8_t * servers_json, int64_t & length) {
 		GalileoSDK* sdk = (GalileoSDK*)instance;
 		nlohmann::json currentServer;
 		if (sdk->GetCurrentServer() != NULL) {
@@ -1453,7 +1530,7 @@ namespace GalileoSDK
 		return sdk->GetGoalNum(&goalNum);
 	}
 
-	GALILEO_RETURN_CODE __stdcall GetCurrentStatus(void* instance, uint8_t * status_json, size_t & length) {
+	GALILEO_RETURN_CODE __stdcall GetCurrentStatus(void* instance, uint8_t * status_json, int64_t & length) {
 		GalileoSDK* sdk = (GalileoSDK*)instance;
 		nlohmann::json rootValue;
 		galileo_serial_server::GalileoStatus status;
@@ -1468,7 +1545,7 @@ namespace GalileoSDK
 	}
 
 	void __stdcall SetCurrentStatusCallback(void* instance, void(*callback)(
-		GALILEO_RETURN_CODE, uint8_t * status_json, size_t length)) {
+		GALILEO_RETURN_CODE, uint8_t * status_json, int64_t length)) {
 		GalileoSDK* sdk = (GalileoSDK*)instance;
 		sdk->SetCurrentStatusCallback([&](GALILEO_RETURN_CODE res, galileo_serial_server::GalileoStatus status)->void {
 			nlohmann::json rootValue = Utils::statusToJson(status);
@@ -1479,7 +1556,7 @@ namespace GalileoSDK
 
 	void __stdcall SetGoalReachedCallback(
 		void* instance,
-		void(*callback)(int goalID, uint8_t * status_json, size_t length)) {
+		void(*callback)(int goalID, uint8_t * status_json, int64_t length)) {
 		GalileoSDK* sdk = (GalileoSDK*)instance;
 		sdk->SetGoalReachedCallback([&](int goalID, galileo_serial_server::GalileoStatus status)->void {
 			nlohmann::json rootValue = Utils::statusToJson(status);
@@ -1493,13 +1570,13 @@ namespace GalileoSDK
 		return sdk->WaitForGoal(goalID);
 	}
 
-	GALILEO_RETURN_CODE __stdcall SendAudio(void* instance, uint8_t * audio, size_t length) {
+	GALILEO_RETURN_CODE __stdcall SendAudio(void* instance, uint8_t * audio, int64_t length) {
 		GalileoSDK* sdk = (GalileoSDK*)instance;
 		std::vector<uint8_t> audioStr(audio, audio + length);
 		return sdk->SendAudio((char*)audioStr.data());
 	}
 
-	bool __stdcall CheckServerOnline(void* instance, uint8_t * targetID, size_t length) {
+	bool __stdcall CheckServerOnline(void* instance, uint8_t * targetID, int64_t length) {
 		GalileoSDK* sdk = (GalileoSDK*)instance;
 		std::string targetIDStr(targetID, targetID + length);
 		return sdk->CheckServerOnline(targetIDStr);

@@ -22,6 +22,7 @@
 #include <random>
 #include <sstream>
 #include <iostream>
+#include <boost/filesystem.hpp>
 #include "json.hpp"
 #include "galileo_serial_server/GalileoStatus.h"
 
@@ -286,7 +287,7 @@ class Utils
     static galileo_serial_server::GalileoStatus jsonToStatus(nlohmann::json j)
     {
         galileo_serial_server::GalileoStatus status;
-        size_t timestamp = 0;
+        int64_t timestamp = 0;
         j.at("timestamp").get_to(timestamp);
         status.header.stamp.fromNSec(timestamp * 1000 * 1000);
         j.at("angleGoalStatus").get_to(status.angleGoalStatus);
@@ -310,6 +311,11 @@ class Utils
         j.at("targetStatus").get_to(status.targetStatus);
         j.at("visualStatus").get_to(status.visualStatus);
         return status;
+    }
+
+    static void mkdirs(std::string path){
+        boost::filesystem::path dir(path.c_str());
+        boost::filesystem::create_directories(dir);
     }
 };
 

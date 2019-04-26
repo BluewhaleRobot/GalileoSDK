@@ -20,8 +20,8 @@ namespace GalileoSDK {
         void setIP(std::string);
         std::string getID();
         void setID(std::string);
-        size_t getTimestamp();
-        void setTimestamp(size_t);
+        int64_t getTimestamp();
+        void setTimestamp(int64_t);
         uint32_t getPort();
         void setPort(uint32_t);
         nlohmann::json toJson();
@@ -31,7 +31,7 @@ namespace GalileoSDK {
     private:
         std::string ID;
         uint32_t port;
-        size_t timestamp;
+        int64_t timestamp;
         std::string ip = "";
         std::string password = "xiaoqiang";
         std::string mac;

@@ -25,6 +25,11 @@
 #include "HttpConnection.h"
 #include "GalileoReturnCode.h"
 #include "mutils.h"
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+#ifdef __ANDROID__
+#include "spdlog/sinks/android_sink.h"
+#endif
 #include <mutex>
 #include <thread>
 #include <stdexcept>
@@ -88,6 +93,7 @@ class DLL_PUBLIC GalileoSDK
     bool CheckServerOnline(std::string targetid);
     void Dispose();
     ~GalileoSDK();
+    static spdlog::logger* logger;
 
   private:
     ServerInfo *currentServer;
@@ -124,15 +130,15 @@ extern "C"
     DLL_PUBLIC void *__stdcall CreateInstance();
     DLL_PUBLIC void __stdcall ReleaseInstance(void *instance);
     DLL_PUBLIC GALILEO_RETURN_CODE __stdcall Connect(
-        void *instance, uint8_t *targetID, size_t length, bool auto_connect, int timeout,
-        void (*OnConnect)(GALILEO_RETURN_CODE, uint8_t *, size_t),
-        void (*OnDisconnect)(GALILEO_RETURN_CODE, uint8_t *, size_t));
+        void *instance, uint8_t *targetID, int64_t length, bool auto_connect, int timeout,
+        void (*OnConnect)(GALILEO_RETURN_CODE, uint8_t *, int64_t),
+        void (*OnDisconnect)(GALILEO_RETURN_CODE, uint8_t *, int64_t));
     DLL_PUBLIC GALILEO_RETURN_CODE __stdcall
-        ConnectIOT(void *instance, uint8_t *targetID, size_t length, int timeout, uint8_t *password, size_t pass_length,
-            void(*OnConnect)(GALILEO_RETURN_CODE, uint8_t *, size_t),
-            void(*OnDisconnect)(GALILEO_RETURN_CODE, uint8_t *, size_t));
-    DLL_PUBLIC void __stdcall GetServersOnline(void *instance, uint8_t *servers_json, size_t &length);
-    DLL_PUBLIC void __stdcall GetCurrentServer(void *instance, uint8_t *servers_json, size_t &length);
+        ConnectIOT(void *instance, uint8_t *targetID, int64_t length, int timeout, uint8_t *password, int64_t pass_length,
+            void(*OnConnect)(GALILEO_RETURN_CODE, uint8_t *, int64_t),
+            void(*OnDisconnect)(GALILEO_RETURN_CODE, uint8_t *, int64_t));
+    DLL_PUBLIC void __stdcall GetServersOnline(void *instance, uint8_t *servers_json, int64_t &length);
+    DLL_PUBLIC void __stdcall GetCurrentServer(void *instance, uint8_t *servers_json, int64_t &length);
     DLL_PUBLIC GALILEO_RETURN_CODE __stdcall PublishTest(void *instance);
     DLL_PUBLIC void *__stdcall GetInstance();
     DLL_PUBLIC GALILEO_RETURN_CODE __stdcall SendCMD(void *instance, uint8_t *, int);
@@ -161,15 +167,15 @@ extern "C"
     DLL_PUBLIC GALILEO_RETURN_CODE __stdcall StopCharge(void *instance);
     DLL_PUBLIC GALILEO_RETURN_CODE __stdcall MoveTo(void *instance, float x, float y, uint8_t &goalNum);
     DLL_PUBLIC GALILEO_RETURN_CODE __stdcall GetGoalNum(void *instance, uint8_t &goalNum);
-    DLL_PUBLIC GALILEO_RETURN_CODE __stdcall GetCurrentStatus(void *instance, uint8_t *status_json, size_t &length);
+    DLL_PUBLIC GALILEO_RETURN_CODE __stdcall GetCurrentStatus(void *instance, uint8_t *status_json, int64_t &length);
     DLL_PUBLIC void __stdcall SetCurrentStatusCallback(void *instance, void (*callback)(
-                                                                           GALILEO_RETURN_CODE, uint8_t *status_json, size_t length));
+                                                                           GALILEO_RETURN_CODE, uint8_t *status_json, int64_t length));
     DLL_PUBLIC void __stdcall SetGoalReachedCallback(
         void *instance,
-        void (*callback)(int goalID, uint8_t *status_json, size_t length));
+        void (*callback)(int goalID, uint8_t *status_json, int64_t length));
     DLL_PUBLIC GALILEO_RETURN_CODE __stdcall WaitForGoal(void *instance, int goalID);
-    DLL_PUBLIC GALILEO_RETURN_CODE __stdcall SendAudio(void *instance, uint8_t* audio, size_t length);
-    DLL_PUBLIC bool __stdcall CheckServerOnline(void *instance, uint8_t *targetID, size_t length);
+    DLL_PUBLIC GALILEO_RETURN_CODE __stdcall SendAudio(void *instance, uint8_t* audio, int64_t length);
+    DLL_PUBLIC bool __stdcall CheckServerOnline(void *instance, uint8_t *targetID, int64_t length);
 }
 
 }; // namespace GalileoSDK

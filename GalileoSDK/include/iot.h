@@ -16,8 +16,8 @@ namespace GalileoSDK {
     class IOTClient {
     public:
         IOTClient(std::string productID, std::string deviceName, std::string deviceSecret);
-        size_t AddOnStatusUpdatedListener(std::function<void(galileo_serial_server::GalileoStatus status)> OnStatusUpdate);
-        void RemoveOnStatusUpdatedListener(size_t id);
+        int64_t AddOnStatusUpdatedListener(std::function<void(galileo_serial_server::GalileoStatus status)> OnStatusUpdate);
+        void RemoveOnStatusUpdatedListener(int64_t id);
         bool SendGalileoCmd(std::vector<uint8_t> cmds);
         bool SendTestCmd();
         bool SendAudioCmd(char audio[]);
@@ -28,10 +28,10 @@ namespace GalileoSDK {
         void SetOnDisonnectCB(std::function<void(GALILEO_RETURN_CODE, std::string)> cb);
         ~IOTClient();
     private:
-        std::map<size_t, std::function<void(galileo_serial_server::GalileoStatus status)>> statusUpdateCallbacks;
+        std::map<int64_t, std::function<void(galileo_serial_server::GalileoStatus status)>> statusUpdateCallbacks;
         std::function<void(GALILEO_RETURN_CODE, std::string)> OnConnectCB;
         std::function<void(GALILEO_RETURN_CODE, std::string)> OnDisconnecCB;
-        size_t callbackIndex;
+        int64_t callbackIndex;
         std::string productID;
         std::string deviceName;
         std::string deviceSecret;
