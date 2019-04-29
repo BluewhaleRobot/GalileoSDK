@@ -13,6 +13,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 find_package(PkgConfig REQUIRED)
 pkg_search_module(ROSCPP REQUIRED roscpp)
+find_package(Boost REQUIRED COMPONENTS thread filesystem regex system)
 
 include_directories(
    ${PROJECT_SOURCE_DIR}/include
@@ -30,5 +31,6 @@ add_executable(GalileoTest
 target_link_libraries(GalileoTest
     ${ROSCPP_LINK_LIBRARIES}
     ${PROJECT_SOURCE_DIR}/../GalileoSDK/build/libGalileoSDK.so
+    ${Boost_LIBRARIES}
 )
 
