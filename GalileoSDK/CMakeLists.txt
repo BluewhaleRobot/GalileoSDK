@@ -37,41 +37,34 @@ else()
    set(SDK_NAME "libGalileoSDK.so")
 endif()
 
+add_library(GalileoSDK
+   ${PROJECT_SOURCE_DIR}/GalileoSDK.cpp
+   ${PROJECT_SOURCE_DIR}/HttpConnection.cpp
+   ${PROJECT_SOURCE_DIR}/iot.cpp
+)
+
 if(ANDROID)
 add_library(GalileoSDK
-   ${PROJECT_SOURCE_DIR}/GalileoSDK.cpp
    ${PROJECT_SOURCE_DIR}/ifaddrs1.c
-   ${PROJECT_SOURCE_DIR}/HttpConnection.cpp
-   ${PROJECT_SOURCE_DIR}/iot.cpp
 )
 else()
-add_library(GalileoSDK
-   ${PROJECT_SOURCE_DIR}/GalileoSDK.cpp
-   ${PROJECT_SOURCE_DIR}/HttpConnection.cpp
-   ${PROJECT_SOURCE_DIR}/iot.cpp
-)
 endif()
 
 set_target_properties(GalileoSDK PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(GalileoSDK PROPERTIES SOVERSION 1)
 set_target_properties(GalileoSDK PROPERTIES LINKER_LANGUAGE CXX)
 
+target_link_libraries(GalileoSDK
+   ${ROSCPP_LINK_LIBRARIES}
+   ${GEOMETRY_MSGS_LINK_LIBRARIES}
+   ${Boost_LIBRARIES}
+   ${PROJECT_SOURCE_DIR}/../iot/build/libiot.a
+   ${PROJECT_SOURCE_DIR}/../IotWrapper/build/libIotWrapper.a
+)
+
 if(ANDROID)
 target_link_libraries(GalileoSDK
-   ${ROSCPP_LINK_LIBRARIES}
-   ${GEOMETRY_MSGS_LINK_LIBRARIES}
-   ${Boost_LIBRARIES}
-   ${PROJECT_SOURCE_DIR}/../iot/build/libiot.a
-   ${PROJECT_SOURCE_DIR}/../IotWrapper/build/libIotWrapper.a
    log
-)
-else()
-target_link_libraries(GalileoSDK
-   ${ROSCPP_LINK_LIBRARIES}
-   ${GEOMETRY_MSGS_LINK_LIBRARIES}
-   ${Boost_LIBRARIES}
-   ${PROJECT_SOURCE_DIR}/../iot/build/libiot.a
-   ${PROJECT_SOURCE_DIR}/../IotWrapper/build/libIotWrapper.a
 )
 endif()
 
