@@ -37,17 +37,19 @@ else()
    set(SDK_NAME "libGalileoSDK.so")
 endif()
 
+if(ANDROID)
+add_library(GalileoSDK
+   ${PROJECT_SOURCE_DIR}/GalileoSDK.cpp
+   ${PROJECT_SOURCE_DIR}/HttpConnection.cpp
+   ${PROJECT_SOURCE_DIR}/iot.cpp
+   ${PROJECT_SOURCE_DIR}/ifaddrs1.c
+)
+else()
 add_library(GalileoSDK
    ${PROJECT_SOURCE_DIR}/GalileoSDK.cpp
    ${PROJECT_SOURCE_DIR}/HttpConnection.cpp
    ${PROJECT_SOURCE_DIR}/iot.cpp
 )
-
-if(ANDROID)
-add_library(GalileoSDK
-   ${PROJECT_SOURCE_DIR}/ifaddrs1.c
-)
-else()
 endif()
 
 set_target_properties(GalileoSDK PROPERTIES VERSION ${PROJECT_VERSION})
