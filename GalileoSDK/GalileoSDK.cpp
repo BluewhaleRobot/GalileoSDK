@@ -634,6 +634,10 @@ namespace GalileoSDK
 	{
 		if (currentServer == NULL || currentStatus == NULL)
 			return GALILEO_RETURN_CODE::NOT_CONNECTED;
+		if (currentStatus->chargeStatus != 0)
+		{
+			StopChargeLocal();
+		}
 		if (iotclient != NULL && iotclient->IsConnected()) {
 			if (iotclient->SendSpeedCmd(vLinear, vAngle))
 				return GALILEO_RETURN_CODE::OK;
