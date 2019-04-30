@@ -450,11 +450,11 @@ namespace GalileoSDK
 		if (GalileoSDK::GetInstance() == NULL)
 			return;
 		auto sdk = GalileoSDK::GetInstance();
-		sdk->Dispose();
 		if (sdk->OnDisconnect != NULL)
 		{
 			sdk->OnDisconnect(GALILEO_RETURN_CODE::NOT_CONNECTED, id);
 		}
+		sdk->Dispose();
 	}
 
 	bool GalileoSDK::CheckServerOnline(std::string targetid) {
@@ -1200,7 +1200,7 @@ namespace GalileoSDK
 				std::cout << e.what() << std::endl;
 			}
 
-			std::vector<ServerInfo> originServers = serverList;
+			std::vector<ServerInfo> originServers = std::vector<ServerInfo>(serverList);
 
 			std::unique_lock<std::recursive_mutex> lock(instance->serversLock);
 			for (auto it = originServers.begin(); it < originServers.end(); it++)
@@ -1210,6 +1210,9 @@ namespace GalileoSDK
 					std::cout << "Server: " << it->getID() << " offline" << std::endl;
 					for (auto sdk = sdks.begin(); sdk != sdks.end(); sdk++) {
 						// 设置服务器下线回调
+						if((*sdk)->GetCurrentServer() == NULL){
+							continue;
+						}
 						if ((*sdk)->GetCurrentServer()->getID() != it->getID())
 							continue;
 						serverList.erase(std::remove(serverList.begin(), serverList.end(), *it), serverList.end());
