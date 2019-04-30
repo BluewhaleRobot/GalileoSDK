@@ -560,6 +560,10 @@ namespace GalileoSDK
 		{
 			return GALILEO_RETURN_CODE::INVALIDE_STATE;
 		}
+		if (currentStatus->chargeStatus != 0)
+		{
+			StopChargeLocal();
+		}
 		uint8_t cmd[] = { 'g', (uint8_t)goalID };
 		return SendCMD(cmd, 2);
 	}
@@ -910,6 +914,18 @@ namespace GalileoSDK
 		{
 			return GALILEO_RETURN_CODE::INVALIDE_STATE;
 		}
+		// wait for goal start
+		// start timeout 5s
+		int timeoutCount = 5000;
+		int timecount = 0;
+		while (timecount < timeoutCount) {
+			if (currentStatus->targetNumID != goalID) {
+				Sleep(100);
+				timecount += 100;
+			}
+			else
+				break;
+		}
 		if (currentStatus->targetNumID != goalID)
 		{
 			return GALILEO_RETURN_CODE::INVALIDE_GOAL;
@@ -927,6 +943,9 @@ namespace GalileoSDK
 			if (afterStatus.targetNumID != goalID)
 			{
 				return GALILEO_RETURN_CODE::GOAL_CANCELLED;
+			}
+			if(afterStatus.targetStatus == 0 && afterStatus.targetDistance < 0.3 && afterStatus.targetNumID == goalID) {
+				return GALILEO_RETURN_CODE::OK;
 			}
 		}
 	}
