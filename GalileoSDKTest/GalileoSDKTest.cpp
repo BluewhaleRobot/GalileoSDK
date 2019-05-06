@@ -727,8 +727,28 @@ void testIOTDisconnect() {
     }
 }
 
+void testAudio() {
+	GalileoSDK::GalileoSDK sdk;
+	if (sdk.Connect("F9DF41E6CA1C41CD8ECB510C3EF84A4472191922695EBA5A7514D459FC919608A2EF4FB50622",true, 10000, NULL, NULL) != GalileoSDK::GALILEO_RETURN_CODE::OK)
+	{
+		std::cout << "Connect to server failed" << std::endl;
+	}
+	std::ifstream audioFile("audio.mp3", std::ios::binary);
+	if (!audioFile.good()) {
+		std::cout << "audio.mp3" << " not found." << std::endl;
+		exit(-1);
+	}
+
+	std::vector<char> audioFileBuff((
+		std::istreambuf_iterator<char>(audioFile)),
+		(std::istreambuf_iterator<char>()));
+
+	sdk.SendRawAudio((uint8_t*)(audioFileBuff.data()), audioFileBuff.size());
+	Sleep(10000);
+}
+
 int main()
 {
-	testConnect_IOT();
+	testAudio();
     return 0;
 }

@@ -246,6 +246,7 @@ namespace GalileoSDK
 			"/galileo/cmds", 10);
 		audioPub = nh->advertise<std_msgs::String>("/xiaoqiang_tts/text", 10);
 		speedPub = nh->advertise<geometry_msgs::Twist>("/cmd_vel", 10);
+		audioRawPub = nh->advertise<audio_common_msgs::AudioData>("/xiaoqiang_audio/audio", 10);
 		galileoStatusSub = nh->subscribe("/galileo/status", 0,
 			&GalileoSDK::UpdateGalileoStatus, this);
 		new std::thread(&GalileoSDK::SpinThread, this);
@@ -663,6 +664,15 @@ namespace GalileoSDK
 		std_msgs::String audioMsg;
 		audioMsg.data = audio;
 		audioPub.publish(audioMsg);
+		return GALILEO_RETURN_CODE::OK;
+	}
+
+	GALILEO_RETURN_CODE GalileoSDK::SendRawAudio(uint8_t audio[], int length) {
+		if (currentServer == NULL || currentStatus == NULL)
+			return GALILEO_RETURN_CODE::NOT_CONNECTED;
+		audio_common_msgs::AudioData audioData;
+		audioData.data = std::vector<uint8_t>(audio, audio + length);
+		audioRawPub.publish(audioData);
 		return GALILEO_RETURN_CODE::OK;
 	}
 
@@ -1552,6 +1562,11 @@ namespace GalileoSDK
 		GalileoSDK* sdk = (GalileoSDK*)instance;
 		std::vector<uint8_t> audioStr(audio, audio + length);
 		return sdk->SendAudio((char*)audioStr.data());
+	}
+
+	GALILEO_RETURN_CODE __stdcall SendRawAudio(void* instance, uint8_t* audio, int64_t length) {
+		GalileoSDK* sdk = (GalileoSDK*)instance;
+		return sdk->SendRawAudio(audio, length);
 	}
 
 	bool __stdcall CheckServerOnline(void* instance, uint8_t * targetID, int64_t length) {

@@ -14,6 +14,7 @@
 #include "Dll.h"
 #include "galileo_serial_server/GalileoNativeCmds.h"
 #include "galileo_serial_server/GalileoStatus.h"
+#include "audio_common_msgs/AudioData.h"
 #include "geometry_msgs/Twist.h"
 #include "models/ServerInfo.h"
 #include "ros/ros.h"
@@ -90,6 +91,7 @@ class DLL_PUBLIC GalileoSDK
     void SetGoalReachedCallback(std::function<void(int goalID, galileo_serial_server::GalileoStatus)> callback);
     GALILEO_RETURN_CODE WaitForGoal(int goalID);
     GALILEO_RETURN_CODE SendAudio(char audio[]);
+	GALILEO_RETURN_CODE SendRawAudio(uint8_t audio[], int length);
     bool CheckServerOnline(std::string targetid);
     void Dispose();
     ~GalileoSDK();
@@ -103,6 +105,7 @@ class DLL_PUBLIC GalileoSDK
     ros::Publisher cmdPub;
     ros::Publisher audioPub;
     ros::Publisher speedPub;
+	ros::Publisher audioRawPub;
     ros::Subscriber galileoStatusSub;
     void UpdateGalileoStatus(
         const galileo_serial_server::GalileoStatusConstPtr &status);
@@ -175,6 +178,7 @@ extern "C"
         void (*callback)(int goalID, uint8_t *status_json, int64_t length));
     DLL_PUBLIC GALILEO_RETURN_CODE __stdcall WaitForGoal(void *instance, int goalID);
     DLL_PUBLIC GALILEO_RETURN_CODE __stdcall SendAudio(void *instance, uint8_t* audio, int64_t length);
+	DLL_PUBLIC GALILEO_RETURN_CODE __stdcall SendRawAudio(void* instance, uint8_t* audio, int64_t length);
     DLL_PUBLIC bool __stdcall CheckServerOnline(void *instance, uint8_t *targetID, int64_t length);
 }
 
