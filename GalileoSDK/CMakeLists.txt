@@ -97,6 +97,12 @@ install(
 )
 
 install(
+   DIRECTORY ${PROJECT_SOURCE_DIR}/../include/audio_common_msgs
+   DESTINATION include/${PROJECT_NAME}
+   FILES_MATCHING PATTERN "*.h"
+)
+
+install(
    DIRECTORY ${PROJECT_SOURCE_DIR}/../include/spdlog
    DESTINATION include/${PROJECT_NAME}
    FILES_MATCHING PATTERN "*.h"
