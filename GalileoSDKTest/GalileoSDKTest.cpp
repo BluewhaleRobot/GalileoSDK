@@ -747,8 +747,20 @@ void testAudio() {
 	Sleep(10000);
 }
 
+void testGreeting() {
+	GalileoSDK::GalileoSDK sdk;
+	if (sdk.Connect("8FB56D27D6C961E9036F62182ADE9544D71E23C31E5DF4C7DD692B9E4296A131434B1066D365", true, 10000, NULL, NULL) != GalileoSDK::GALILEO_RETURN_CODE::OK)
+	{
+		std::cout << "Connect to server failed" << std::endl;
+	}
+	sdk.EnableGreeting(true);
+	Sleep(10 * 1000);
+	sdk.EnableGreeting(false);
+	Sleep(10 * 1000);
+}
+
 int main()
 {
-	testAudio();
+	testGreeting();
     return 0;
 }

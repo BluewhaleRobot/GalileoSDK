@@ -676,6 +676,15 @@ namespace GalileoSDK
 		return GALILEO_RETURN_CODE::OK;
 	}
 
+	GALILEO_RETURN_CODE GalileoSDK::EnableGreeting(bool flag) {
+		if (currentServer == NULL || currentStatus == NULL)
+			return GALILEO_RETURN_CODE::NOT_CONNECTED;
+		uint8_t cmd[] = { 'H', 0 };
+		if (!flag)
+			cmd[1] = 1;
+		return SendCMD(cmd, 2);
+	}
+
 	GALILEO_RETURN_CODE GalileoSDK::Shutdown()
 	{
 		if (currentServer == NULL || currentStatus == NULL)
@@ -1567,6 +1576,11 @@ namespace GalileoSDK
 	GALILEO_RETURN_CODE __stdcall SendRawAudio(void* instance, uint8_t* audio, int64_t length) {
 		GalileoSDK* sdk = (GalileoSDK*)instance;
 		return sdk->SendRawAudio(audio, length);
+	}
+
+	GALILEO_RETURN_CODE __stdcall EnableGreeting(void* instance, bool flag) {
+		GalileoSDK* sdk = (GalileoSDK*)instance;
+		return sdk->EnableGreeting(flag);
 	}
 
 	bool __stdcall CheckServerOnline(void* instance, uint8_t * targetID, int64_t length) {

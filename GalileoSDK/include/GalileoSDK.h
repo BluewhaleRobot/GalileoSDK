@@ -92,6 +92,7 @@ class DLL_PUBLIC GalileoSDK
     GALILEO_RETURN_CODE WaitForGoal(int goalID);
     GALILEO_RETURN_CODE SendAudio(char audio[]);
 	GALILEO_RETURN_CODE SendRawAudio(uint8_t audio[], int length);
+	GALILEO_RETURN_CODE EnableGreeting(bool flag);
     bool CheckServerOnline(std::string targetid);
     void Dispose();
     ~GalileoSDK();
@@ -179,6 +180,7 @@ extern "C"
     DLL_PUBLIC GALILEO_RETURN_CODE __stdcall WaitForGoal(void *instance, int goalID);
     DLL_PUBLIC GALILEO_RETURN_CODE __stdcall SendAudio(void *instance, uint8_t* audio, int64_t length);
 	DLL_PUBLIC GALILEO_RETURN_CODE __stdcall SendRawAudio(void* instance, uint8_t* audio, int64_t length);
+	DLL_PUBLIC GALILEO_RETURN_CODE __stdcall EnableGreeting(void* instance, bool flag);
     DLL_PUBLIC bool __stdcall CheckServerOnline(void *instance, uint8_t *targetID, int64_t length);
 }
 
