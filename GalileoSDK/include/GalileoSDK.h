@@ -90,13 +90,13 @@ class DLL_PUBLIC GalileoSDK
     void SetCurrentStatusCallback(std::function<void(GALILEO_RETURN_CODE, galileo_serial_server::GalileoStatus)> callback);
     void SetGoalReachedCallback(std::function<void(int goalID, galileo_serial_server::GalileoStatus)> callback);
     GALILEO_RETURN_CODE WaitForGoal(int goalID);
-    GALILEO_RETURN_CODE SendAudio(char audio[]);
-	GALILEO_RETURN_CODE SendRawAudio(uint8_t audio[], int length);
+    GALILEO_RETURN_CODE SendAudio(const char audio[]);
+	GALILEO_RETURN_CODE SendRawAudio(const uint8_t audio[], int length);
 	GALILEO_RETURN_CODE EnableGreeting(bool flag);
     bool CheckServerOnline(std::string targetid);
     void Dispose();
     ~GalileoSDK();
-    static spdlog::logger* logger;
+    static std::shared_ptr<spdlog::logger> logger;
 
   private:
     ServerInfo *currentServer;

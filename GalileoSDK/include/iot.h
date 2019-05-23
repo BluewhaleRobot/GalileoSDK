@@ -20,7 +20,7 @@ namespace GalileoSDK {
         void RemoveOnStatusUpdatedListener(int64_t id);
         bool SendGalileoCmd(std::vector<uint8_t> cmds);
         bool SendTestCmd();
-        bool SendAudioCmd(char audio[]);
+        bool SendAudioCmd(const char audio[]);
         bool SendSpeedCmd(float vLinear, float vAngle);
         bool IsRunning();
         bool IsConnected();

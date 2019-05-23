@@ -123,7 +123,7 @@ namespace GalileoSDK{
         return res == 0;
     }
 
-    bool IOTClient::SendAudioCmd(char audio[]) {
+    bool IOTClient::SendAudioCmd(const char audio[]) {
         int res = IOT_MQTT_Publish_Simple(0, audioTopic.c_str(), IOTX_MQTT_QOS0,
             (void*)(audio), strlen(audio));
         return res == 0;

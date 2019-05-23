@@ -16,7 +16,7 @@ namespace GalileoSDK
 	// ////////////////////////////////
 	std::vector<GalileoSDK*> GalileoSDK::instances;
 	BroadcastReceiver* GalileoSDK::broadcastReceiver = NULL;
-	spdlog::logger* GalileoSDK::logger = NULL;
+	std::shared_ptr<spdlog::logger> GalileoSDK::logger = NULL;
 
 	GalileoSDK::GalileoSDK()
 		:nh(NULL), currentServer(NULL), currentStatus(NULL), OnDisconnect(NULL), OnConnect(NULL), CurrentStatusCallback(NULL), GoalReachedCallback(NULL), connectingTaskFlag(false), iotclient(NULL)
@@ -28,15 +28,18 @@ namespace GalileoSDK
 			Utils::mkdirs("/sdcard/galileosdk");
 			auto file_logger = std::make_shared<spdlog::sinks::basic_file_sink_mt>("/sdcard/galileosdk/sdk.log", true);
 			auto android_logger = std::make_shared<spdlog::sinks::android_sink_mt>("galileo_sdk_logcat", "galileo_sdk");
-			logger = new spdlog::logger("galileo_logger", {file_logger, android_logger});
+			spdlog::sinks_init_list sinks = { file_logger , android_logger };
+			logger = std::make_shared<spdlog::logger>("galileo_logger", sinks);
 			#else
 			Utils::mkdirs("logs");
 			auto file_logger = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/galileo-sdk.log", true);
-			logger = new spdlog::logger("galileo_logger", file_logger);
+			spdlog::sinks_init_list sinks = { file_logger };
+			logger = std::make_shared<spdlog::logger>("galileo_logger", sinks);
 			#endif
-			logger->set_level(spdlog::level::debug);
+			logger->set_level(spdlog::level::trace);
 			logger->set_pattern("[%H:%M:%S %z] [%n] [%^---%L---%$] [thread %t] %v");
 			spdlog::flush_every(std::chrono::seconds(1));
+			spdlog::set_default_logger(logger);
 		}
 		if (broadcastReceiver == NULL) {
 			broadcastReceiver = new BroadcastReceiver();
@@ -503,7 +506,6 @@ namespace GalileoSDK
 		if (instances.size() == 0) {
 			broadcastReceiver->StopTask();
 			delete broadcastReceiver;
-			delete logger;
 			logger = NULL;
 			broadcastReceiver = NULL;
 		}
@@ -652,7 +654,7 @@ namespace GalileoSDK
 		return GALILEO_RETURN_CODE::OK;
 	}
 
-	GALILEO_RETURN_CODE GalileoSDK::SendAudio(char audio[]) {
+	GALILEO_RETURN_CODE GalileoSDK::SendAudio(const char audio[]) {
 		if (currentServer == NULL || currentStatus == NULL)
 			return GALILEO_RETURN_CODE::NOT_CONNECTED;
 		if (iotclient != NULL && iotclient->IsConnected()) {
@@ -667,7 +669,7 @@ namespace GalileoSDK
 		return GALILEO_RETURN_CODE::OK;
 	}
 
-	GALILEO_RETURN_CODE GalileoSDK::SendRawAudio(uint8_t audio[], int length) {
+	GALILEO_RETURN_CODE GalileoSDK::SendRawAudio(const uint8_t audio[], int length) {
 		if (currentServer == NULL || currentStatus == NULL)
 			return GALILEO_RETURN_CODE::NOT_CONNECTED;
 		audio_common_msgs::AudioData audioData;
@@ -1570,6 +1572,7 @@ namespace GalileoSDK
 	GALILEO_RETURN_CODE __stdcall SendAudio(void* instance, uint8_t * audio, int64_t length) {
 		GalileoSDK* sdk = (GalileoSDK*)instance;
 		std::vector<uint8_t> audioStr(audio, audio + length);
+		audioStr.push_back('\0');
 		return sdk->SendAudio((char*)audioStr.data());
 	}
 

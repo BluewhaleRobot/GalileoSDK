@@ -526,8 +526,8 @@ void testAudioIOT() {
     sdk.Connect("71329A5B0F2D68364BB7B44F3F125531E4C7F5BC3BCE2694DFE39B505FF9C730A614FF2790C1", 10000, "xiaoqiang", NULL, NULL);
     while (true)
     {
-        char string[] = "测试";
-        auto res = sdk.SendAudio(string);
+        std::string string = u8"测试";
+        auto res = sdk.SendAudio(string.c_str());
         if (res == GalileoSDK::GALILEO_RETURN_CODE::OK)
             std::cout << "Send audio msg" << std::endl;
         else
@@ -566,8 +566,8 @@ void testConnectIOTWithWrongPassword() {
     sdk.Connect("71329A5B0F2D68364BB7B44F3F125531E4C7F5BC3BCE2694DFE39B505FF9C730A614FF2790C1", 10000, "xiaoqiang1", NULL, NULL);
     while (true)
     {
-        char string[] = "测试";
-        auto res = sdk.SendAudio(string);
+        std::string string = u8"测试";
+        auto res = sdk.SendAudio(string.c_str());
         if (res == GalileoSDK::GALILEO_RETURN_CODE::OK)
             std::cout << "Send audio msg" << std::endl;
         else
@@ -761,6 +761,11 @@ void testGreeting() {
 
 int main()
 {
-	testGreeting();
-    return 0;
+	GalileoSDK::GalileoSDK sdk;
+	sdk.Connect("F9DF41E6CA1C41CD8ECB510C3EF84A4472191922695EBA5A7514D459FC919608A2EF4FB50622", true, 10000, NULL, NULL);
+    while(true){
+		std::string msg = u8"欢迎光临";
+		sdk.SendAudio(msg.c_str());
+		Sleep(5 * 1000);
+	}
 }
