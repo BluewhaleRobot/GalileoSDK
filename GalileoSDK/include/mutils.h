@@ -72,6 +72,12 @@ class Utils
                     pAdapter = pAdapter->Next;
                     continue;
                 }
+				std::string ip = std::string(pAdapter->IpAddressList.IpAddress.String);
+				if (ip.find("0.") == 0) {
+					pAdapter = pAdapter->Next;
+					continue;
+				}
+				
                 myIPs.push_back(pAdapter->IpAddressList.IpAddress.String);
                 pAdapter = pAdapter->Next;
             }
@@ -162,6 +168,10 @@ class Utils
                 std::string ifname(ifa->ifa_name);
                 if (ifname.find("lo") == 0 || ifname.find("docker") == 0 || ifname.find("virtual") == 0)
                     continue;
+				std::string ip = std::string(addressBuffer);
+				if (ip.find("0.") == 0) {
+					continue;
+				}
                 ips.push_back(addressBuffer);
             }
         }

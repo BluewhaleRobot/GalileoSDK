@@ -38,7 +38,7 @@ namespace GalileoSDK
 			#endif
 			logger->set_level(spdlog::level::trace);
 			logger->set_pattern("[%H:%M:%S %z] [%n] [%^---%L---%$] [thread %t] %v");
-			spdlog::flush_every(std::chrono::seconds(1));
+			logger->flush_on(spdlog::level::trace);
 			spdlog::set_default_logger(logger);
 		}
 		if (broadcastReceiver == NULL) {
@@ -46,6 +46,7 @@ namespace GalileoSDK
 			new std::thread(&BroadcastReceiver::Run, broadcastReceiver);
 		}
 		instances.push_back(this);
+		logger->info("Galileo SDK started");
 	}
 
 	ServerInfo* GalileoSDK::GetCurrentServer() {
