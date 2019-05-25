@@ -138,11 +138,11 @@ struct Definition< ::rosgraph_msgs::Clock_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "# roslib/Clock is used for publishing simulated time in ROS. \n\
-# This message simply communicates the current time.\n\
-# For more information, see http://www.ros.org/wiki/Clock\n\
-time clock\n\
-";
+    return "# roslib/Clock is used for publishing simulated time in ROS. \n"
+"# This message simply communicates the current time.\n"
+"# For more information, see http://www.ros.org/wiki/Clock\n"
+"time clock\n"
+;
   }
 
   static const char* value(const ::rosgraph_msgs::Clock_<ContainerAllocator>&) { return value(); }

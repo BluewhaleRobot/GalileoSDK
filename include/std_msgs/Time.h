@@ -138,8 +138,8 @@ struct Definition< ::std_msgs::Time_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "time data\n\
-";
+    return "time data\n"
+;
   }
 
   static const char* value(const ::std_msgs::Time_<ContainerAllocator>&) { return value(); }

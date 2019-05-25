@@ -135,8 +135,8 @@ struct Definition< ::roscpp::SetLoggerLevelResponse_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "\n\
-";
+    return "\n"
+;
   }
 
   static const char* value(const ::roscpp::SetLoggerLevelResponse_<ContainerAllocator>&) { return value(); }

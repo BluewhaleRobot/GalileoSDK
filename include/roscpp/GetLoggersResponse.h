@@ -139,13 +139,13 @@ struct Definition< ::roscpp::GetLoggersResponse_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "Logger[] loggers\n\
-\n\
-================================================================================\n\
-MSG: roscpp/Logger\n\
-string name\n\
-string level\n\
-";
+    return "Logger[] loggers\n"
+"\n"
+"================================================================================\n"
+"MSG: roscpp/Logger\n"
+"string name\n"
+"string level\n"
+;
   }
 
   static const char* value(const ::roscpp::GetLoggersResponse_<ContainerAllocator>&) { return value(); }

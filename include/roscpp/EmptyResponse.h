@@ -135,8 +135,8 @@ struct Definition< ::roscpp::EmptyResponse_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "\n\
-";
+    return "\n"
+;
   }
 
   static const char* value(const ::roscpp::EmptyResponse_<ContainerAllocator>&) { return value(); }

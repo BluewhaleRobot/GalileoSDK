@@ -148,10 +148,10 @@ struct Definition< ::std_msgs::MultiArrayDimension_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "string label   # label of given dimension\n\
-uint32 size    # size of given dimension (in type units)\n\
-uint32 stride  # stride of given dimension\n\
-";
+    return "string label   # label of given dimension\n"
+"uint32 size    # size of given dimension (in type units)\n"
+"uint32 stride  # stride of given dimension\n"
+;
   }
 
   static const char* value(const ::std_msgs::MultiArrayDimension_<ContainerAllocator>&) { return value(); }

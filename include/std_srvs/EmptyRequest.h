@@ -135,8 +135,8 @@ struct Definition< ::std_srvs::EmptyRequest_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "\n\
-";
+    return "\n"
+;
   }
 
   static const char* value(const ::std_srvs::EmptyRequest_<ContainerAllocator>&) { return value(); }

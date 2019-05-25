@@ -203,39 +203,39 @@ struct Definition< ::rosgraph_msgs::TopicStatistics_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "# name of the topic\n\
-string topic\n\
-\n\
-# node id of the publisher\n\
-string node_pub\n\
-\n\
-# node id of the subscriber\n\
-string node_sub\n\
-\n\
-# the statistics apply to this time window\n\
-time window_start\n\
-time window_stop\n\
-\n\
-# number of messages delivered during the window\n\
-int32 delivered_msgs\n\
-# numbers of messages dropped during the window\n\
-int32 dropped_msgs\n\
-\n\
-# traffic during the window, in bytes\n\
-int32 traffic\n\
-\n\
-# mean/stddev/max period between two messages\n\
-duration period_mean\n\
-duration period_stddev\n\
-duration period_max\n\
-\n\
-# mean/stddev/max age of the message based on the\n\
-# timestamp in the message header. In case the\n\
-# message does not have a header, it will be 0.\n\
-duration stamp_age_mean\n\
-duration stamp_age_stddev\n\
-duration stamp_age_max\n\
-";
+    return "# name of the topic\n"
+"string topic\n"
+"\n"
+"# node id of the publisher\n"
+"string node_pub\n"
+"\n"
+"# node id of the subscriber\n"
+"string node_sub\n"
+"\n"
+"# the statistics apply to this time window\n"
+"time window_start\n"
+"time window_stop\n"
+"\n"
+"# number of messages delivered during the window\n"
+"int32 delivered_msgs\n"
+"# numbers of messages dropped during the window\n"
+"int32 dropped_msgs\n"
+"\n"
+"# traffic during the window, in bytes\n"
+"int32 traffic\n"
+"\n"
+"# mean/stddev/max period between two messages\n"
+"duration period_mean\n"
+"duration period_stddev\n"
+"duration period_max\n"
+"\n"
+"# mean/stddev/max age of the message based on the\n"
+"# timestamp in the message header. In case the\n"
+"# message does not have a header, it will be 0.\n"
+"duration stamp_age_mean\n"
+"duration stamp_age_stddev\n"
+"duration stamp_age_max\n"
+;
   }
 
   static const char* value(const ::rosgraph_msgs::TopicStatistics_<ContainerAllocator>&) { return value(); }

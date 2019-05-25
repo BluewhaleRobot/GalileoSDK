@@ -135,8 +135,8 @@ struct Definition< ::roscpp::GetLoggersRequest_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "\n\
-";
+    return "\n"
+;
   }
 
   static const char* value(const ::roscpp::GetLoggersRequest_<ContainerAllocator>&) { return value(); }

@@ -160,7 +160,7 @@ namespace GalileoSDK
 				}
 				sdk->connectingTaskFlag = false;
 				return;
-				});
+			});
 			return GALILEO_RETURN_CODE::OK;
 		}
 		if (targetID.empty() && auto_connect)
@@ -1315,7 +1315,12 @@ namespace GalileoSDK
 		delete sdk;
 	}
 
-	GALILEO_RETURN_CODE Connect(void* instance, uint8_t * targetID, int64_t length,
+	void __stdcall Dispose(void* instance) {
+		GalileoSDK* sdk = (GalileoSDK*)instance;
+		sdk->Dispose();
+	}
+
+	GALILEO_RETURN_CODE __stdcall Connect(void* instance, uint8_t * targetID, int64_t length,
 		bool auto_connect, int timeout,
 		void(*OnConnect)(GALILEO_RETURN_CODE, uint8_t*, int64_t),
 		void(*OnDisconnect)(GALILEO_RETURN_CODE, uint8_t*, int64_t))
@@ -1328,13 +1333,13 @@ namespace GalileoSDK
 		OnConnectTmp = NULL;
 		OnDisconnectTmp = NULL;
 		if (OnConnect != NULL) {
-			OnConnectTmp = [&OnConnect](GALILEO_RETURN_CODE status, std::string id) -> void {
+			OnConnectTmp = [OnConnect](GALILEO_RETURN_CODE status, std::string id) -> void {
 				if (OnConnect != NULL)
 					OnConnect(status, (uint8_t*)id.data(), id.length());
 			};
 		}
 		if (OnDisconnect != NULL) {
-			OnDisconnectTmp = [&OnDisconnect](GALILEO_RETURN_CODE status, std::string id) -> void {
+			OnDisconnectTmp = [OnDisconnect](GALILEO_RETURN_CODE status, std::string id) -> void {
 				if (OnDisconnect != NULL)
 					OnDisconnect(status, (uint8_t*)id.data(), id.length());
 			};
@@ -1357,13 +1362,13 @@ namespace GalileoSDK
 		OnConnectTmp = NULL;
 		OnDisconnectTmp = NULL;
 		if (OnConnect != NULL) {
-			OnConnectTmp = [&OnConnect](GALILEO_RETURN_CODE status, std::string id) -> void {
+			OnConnectTmp = [OnConnect](GALILEO_RETURN_CODE status, std::string id) -> void {
 				if (OnConnect != NULL)
 					OnConnect(status, (uint8_t*)id.data(), id.length());
 			};
 		}
 		if (OnDisconnect != NULL) {
-			OnDisconnectTmp = [&OnDisconnect](GALILEO_RETURN_CODE status, std::string id) -> void {
+			OnDisconnectTmp = [OnDisconnect](GALILEO_RETURN_CODE status, std::string id) -> void {
 				if (OnDisconnect != NULL)
 					OnDisconnect(status, (uint8_t*)id.data(), id.length());
 			};
@@ -1546,22 +1551,22 @@ namespace GalileoSDK
 	void __stdcall SetCurrentStatusCallback(void* instance, void(*callback)(
 		GALILEO_RETURN_CODE, uint8_t * status_json, int64_t length)) {
 		GalileoSDK* sdk = (GalileoSDK*)instance;
-		sdk->SetCurrentStatusCallback([&](GALILEO_RETURN_CODE res, galileo_serial_server::GalileoStatus status)->void {
+		sdk->SetCurrentStatusCallback([callback](GALILEO_RETURN_CODE res, galileo_serial_server::GalileoStatus status)->void {
 			nlohmann::json rootValue = Utils::statusToJson(status);
 			std::string serversStr = rootValue.dump(4);
 			callback(res, (uint8_t*)serversStr.data(), serversStr.size());
-			});
+		});
 	}
 
 	void __stdcall SetGoalReachedCallback(
 		void* instance,
 		void(*callback)(int goalID, uint8_t * status_json, int64_t length)) {
 		GalileoSDK* sdk = (GalileoSDK*)instance;
-		sdk->SetGoalReachedCallback([&](int goalID, galileo_serial_server::GalileoStatus status)->void {
+		sdk->SetGoalReachedCallback([callback](int goalID, galileo_serial_server::GalileoStatus status)->void {
 			nlohmann::json rootValue = Utils::statusToJson(status);
 			std::string serversStr = rootValue.dump(4);
 			callback(goalID, (uint8_t*)serversStr.data(), serversStr.size());
-			});
+		});
 	}
 
 	GALILEO_RETURN_CODE __stdcall WaitForGoal(void* instance, int goalID) {

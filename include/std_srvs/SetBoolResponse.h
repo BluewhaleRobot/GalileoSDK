@@ -143,10 +143,10 @@ struct Definition< ::std_srvs::SetBoolResponse_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "bool success\n\
-string message\n\
-\n\
-";
+    return "bool success\n"
+"string message\n"
+"\n"
+;
   }
 
   static const char* value(const ::std_srvs::SetBoolResponse_<ContainerAllocator>&) { return value(); }

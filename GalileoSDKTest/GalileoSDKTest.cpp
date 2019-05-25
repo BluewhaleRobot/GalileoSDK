@@ -762,10 +762,26 @@ void testGreeting() {
 int main()
 {
 	GalileoSDK::GalileoSDK sdk;
-	sdk.Connect("F9DF41E6CA1C41CD8ECB510C3EF84A4472191922695EBA5A7514D459FC919608A2EF4FB50622", true, 10000, NULL, NULL);
-    while(true){
-		std::string msg = u8"欢迎光临";
-		sdk.SendAudio(msg.c_str());
-		Sleep(5 * 1000);
+	//sdk.Connect("F9DF41E6CA1C41CD8ECB510C3EF84A4472191922695EBA5A7514D459FC919608A2EF4FB50622", true, 10000, NULL, NULL);
+	char targetID[] = "F9DF41E6CA1C41CD8ECB510C3EF84A4472191922695EBA5A7514D459FC919608A2EF4FB50622";
+	//"DE97938343D1731CDF1155735D62E3F52703F89BF782D340D5425A45BB903B62601119BAC428"
+	
+	auto res1 = sdk.Connect("DE97938343D1731CDF1155735D62E3F52703F89BF782D340D5425A45BB903B62601119BAC428", true, 10000, NULL, NULL);
+	std::cout << (res1 == GalileoSDK::GALILEO_RETURN_CODE::OK) << std::endl;
+	galileo_serial_server::GalileoStatus status;
+	sdk.GetCurrentStatus(&status);
+	std::cout << status.power << std::endl;
+	sdk.Dispose();
+	auto res = sdk.Connect("F9DF41E6CA1C41CD8ECB510C3EF84A4472191922695EBA5A7514D459FC919608A2EF4FB50622", true, 10000, NULL, NULL);
+	std::cout << (res == GalileoSDK::GALILEO_RETURN_CODE::OK) << std::endl;
+	sdk.GetCurrentStatus(&status);
+	std::cout << status.power << std::endl;
+	
+	int count = 0;
+	while (count < 20)
+	{
+		count++;
+		Sleep(1000);
 	}
+
 }

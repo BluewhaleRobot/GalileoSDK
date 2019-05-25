@@ -191,42 +191,42 @@ struct Definition< ::rosgraph_msgs::Log_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "##\n\
-## Severity level constants\n\
-##\n\
-byte DEBUG=1 #debug level\n\
-byte INFO=2  #general level\n\
-byte WARN=4  #warning level\n\
-byte ERROR=8 #error level\n\
-byte FATAL=16 #fatal/critical level\n\
-##\n\
-## Fields\n\
-##\n\
-Header header\n\
-byte level\n\
-string name # name of the node\n\
-string msg # message \n\
-string file # file the message came from\n\
-string function # function the message came from\n\
-uint32 line # line the message came from\n\
-string[] topics # topic names that the node publishes\n\
-\n\
-================================================================================\n\
-MSG: std_msgs/Header\n\
-# Standard metadata for higher-level stamped data types.\n\
-# This is generally used to communicate timestamped data \n\
-# in a particular coordinate frame.\n\
-# \n\
-# sequence ID: consecutively increasing ID \n\
-uint32 seq\n\
-#Two-integer timestamp that is expressed as:\n\
-# * stamp.sec: seconds (stamp_secs) since epoch (in Python the variable is called 'secs')\n\
-# * stamp.nsec: nanoseconds since stamp_secs (in Python the variable is called 'nsecs')\n\
-# time-handling sugar is provided by the client library\n\
-time stamp\n\
-#Frame this data is associated with\n\
-string frame_id\n\
-";
+    return "##\n"
+"## Severity level constants\n"
+"##\n"
+"byte DEBUG=1 #debug level\n"
+"byte INFO=2  #general level\n"
+"byte WARN=4  #warning level\n"
+"byte ERROR=8 #error level\n"
+"byte FATAL=16 #fatal/critical level\n"
+"##\n"
+"## Fields\n"
+"##\n"
+"Header header\n"
+"byte level\n"
+"string name # name of the node\n"
+"string msg # message \n"
+"string file # file the message came from\n"
+"string function # function the message came from\n"
+"uint32 line # line the message came from\n"
+"string[] topics # topic names that the node publishes\n"
+"\n"
+"================================================================================\n"
+"MSG: std_msgs/Header\n"
+"# Standard metadata for higher-level stamped data types.\n"
+"# This is generally used to communicate timestamped data \n"
+"# in a particular coordinate frame.\n"
+"# \n"
+"# sequence ID: consecutively increasing ID \n"
+"uint32 seq\n"
+"#Two-integer timestamp that is expressed as:\n"
+"# * stamp.sec: seconds (stamp_secs) since epoch (in Python the variable is called 'secs')\n"
+"# * stamp.nsec: nanoseconds since stamp_secs (in Python the variable is called 'nsecs')\n"
+"# time-handling sugar is provided by the client library\n"
+"time stamp\n"
+"#Frame this data is associated with\n"
+"string frame_id\n"
+;
   }
 
   static const char* value(const ::rosgraph_msgs::Log_<ContainerAllocator>&) { return value(); }

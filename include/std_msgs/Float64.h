@@ -138,8 +138,8 @@ struct Definition< ::std_msgs::Float64_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "float64 data\n\
-";
+    return "float64 data\n"
+;
   }
 
   static const char* value(const ::std_msgs::Float64_<ContainerAllocator>&) { return value(); }

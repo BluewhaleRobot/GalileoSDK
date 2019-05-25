@@ -138,8 +138,8 @@ struct Definition< ::std_msgs::Bool_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "bool data\n\
-";
+    return "bool data\n"
+;
   }
 
   static const char* value(const ::std_msgs::Bool_<ContainerAllocator>&) { return value(); }

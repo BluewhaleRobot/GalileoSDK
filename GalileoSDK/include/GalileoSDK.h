@@ -133,6 +133,7 @@ extern "C"
 {
     DLL_PUBLIC void *__stdcall CreateInstance();
     DLL_PUBLIC void __stdcall ReleaseInstance(void *instance);
+	DLL_PUBLIC void __stdcall Dispose(void* instance);
     DLL_PUBLIC GALILEO_RETURN_CODE __stdcall Connect(
         void *instance, uint8_t *targetID, int64_t length, bool auto_connect, int timeout,
         void (*OnConnect)(GALILEO_RETURN_CODE, uint8_t *, int64_t),

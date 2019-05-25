@@ -138,8 +138,8 @@ struct Definition< ::std_msgs::UInt16_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "uint16 data\n\
-";
+    return "uint16 data\n"
+;
   }
 
   static const char* value(const ::std_msgs::UInt16_<ContainerAllocator>&) { return value(); }

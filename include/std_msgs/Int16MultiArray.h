@@ -144,48 +144,48 @@ struct Definition< ::std_msgs::Int16MultiArray_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "# Please look at the MultiArrayLayout message definition for\n\
-# documentation on all multiarrays.\n\
-\n\
-MultiArrayLayout  layout        # specification of data layout\n\
-int16[]           data          # array of data\n\
-\n\
-\n\
-================================================================================\n\
-MSG: std_msgs/MultiArrayLayout\n\
-# The multiarray declares a generic multi-dimensional array of a\n\
-# particular data type.  Dimensions are ordered from outer most\n\
-# to inner most.\n\
-\n\
-MultiArrayDimension[] dim # Array of dimension properties\n\
-uint32 data_offset        # padding elements at front of data\n\
-\n\
-# Accessors should ALWAYS be written in terms of dimension stride\n\
-# and specified outer-most dimension first.\n\
-# \n\
-# multiarray(i,j,k) = data[data_offset + dim_stride[1]*i + dim_stride[2]*j + k]\n\
-#\n\
-# A standard, 3-channel 640x480 image with interleaved color channels\n\
-# would be specified as:\n\
-#\n\
-# dim[0].label  = \"height\"\n\
-# dim[0].size   = 480\n\
-# dim[0].stride = 3*640*480 = 921600  (note dim[0] stride is just size of image)\n\
-# dim[1].label  = \"width\"\n\
-# dim[1].size   = 640\n\
-# dim[1].stride = 3*640 = 1920\n\
-# dim[2].label  = \"channel\"\n\
-# dim[2].size   = 3\n\
-# dim[2].stride = 3\n\
-#\n\
-# multiarray(i,j,k) refers to the ith row, jth column, and kth channel.\n\
-\n\
-================================================================================\n\
-MSG: std_msgs/MultiArrayDimension\n\
-string label   # label of given dimension\n\
-uint32 size    # size of given dimension (in type units)\n\
-uint32 stride  # stride of given dimension\n\
-";
+    return "# Please look at the MultiArrayLayout message definition for\n"
+"# documentation on all multiarrays.\n"
+"\n"
+"MultiArrayLayout  layout        # specification of data layout\n"
+"int16[]           data          # array of data\n"
+"\n"
+"\n"
+"================================================================================\n"
+"MSG: std_msgs/MultiArrayLayout\n"
+"# The multiarray declares a generic multi-dimensional array of a\n"
+"# particular data type.  Dimensions are ordered from outer most\n"
+"# to inner most.\n"
+"\n"
+"MultiArrayDimension[] dim # Array of dimension properties\n"
+"uint32 data_offset        # padding elements at front of data\n"
+"\n"
+"# Accessors should ALWAYS be written in terms of dimension stride\n"
+"# and specified outer-most dimension first.\n"
+"# \n"
+"# multiarray(i,j,k) = data[data_offset + dim_stride[1]*i + dim_stride[2]*j + k]\n"
+"#\n"
+"# A standard, 3-channel 640x480 image with interleaved color channels\n"
+"# would be specified as:\n"
+"#\n"
+"# dim[0].label  = \"height\"\n"
+"# dim[0].size   = 480\n"
+"# dim[0].stride = 3*640*480 = 921600  (note dim[0] stride is just size of image)\n"
+"# dim[1].label  = \"width\"\n"
+"# dim[1].size   = 640\n"
+"# dim[1].stride = 3*640 = 1920\n"
+"# dim[2].label  = \"channel\"\n"
+"# dim[2].size   = 3\n"
+"# dim[2].stride = 3\n"
+"#\n"
+"# multiarray(i,j,k) refers to the ith row, jth column, and kth channel.\n"
+"\n"
+"================================================================================\n"
+"MSG: std_msgs/MultiArrayDimension\n"
+"string label   # label of given dimension\n"
+"uint32 size    # size of given dimension (in type units)\n"
+"uint32 stride  # stride of given dimension\n"
+;
   }
 
   static const char* value(const ::std_msgs::Int16MultiArray_<ContainerAllocator>&) { return value(); }

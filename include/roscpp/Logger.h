@@ -143,9 +143,9 @@ struct Definition< ::roscpp::Logger_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "string name\n\
-string level\n\
-";
+    return "string name\n"
+"string level\n"
+;
   }
 
   static const char* value(const ::roscpp::Logger_<ContainerAllocator>&) { return value(); }

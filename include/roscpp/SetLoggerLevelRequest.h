@@ -143,9 +143,9 @@ struct Definition< ::roscpp::SetLoggerLevelRequest_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "string logger\n\
-string level\n\
-";
+    return "string logger\n"
+"string level\n"
+;
   }
 
   static const char* value(const ::roscpp::SetLoggerLevelRequest_<ContainerAllocator>&) { return value(); }

@@ -135,8 +135,8 @@ struct Definition< ::std_msgs::Empty_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "\n\
-";
+    return "\n"
+;
   }
 
   static const char* value(const ::std_msgs::Empty_<ContainerAllocator>&) { return value(); }

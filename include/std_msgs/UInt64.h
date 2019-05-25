@@ -138,8 +138,8 @@ struct Definition< ::std_msgs::UInt64_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "uint64 data\n\
-";
+    return "uint64 data\n"
+;
   }
 
   static const char* value(const ::std_msgs::UInt64_<ContainerAllocator>&) { return value(); }

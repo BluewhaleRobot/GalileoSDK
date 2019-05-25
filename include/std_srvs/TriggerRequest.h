@@ -135,8 +135,8 @@ struct Definition< ::std_srvs::TriggerRequest_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "\n\
-";
+    return "\n"
+;
   }
 
   static const char* value(const ::std_srvs::TriggerRequest_<ContainerAllocator>&) { return value(); }

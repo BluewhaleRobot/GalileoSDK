@@ -138,8 +138,8 @@ struct Definition< ::std_msgs::Float32_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "float32 data\n\
-";
+    return "float32 data\n"
+;
   }
 
   static const char* value(const ::std_msgs::Float32_<ContainerAllocator>&) { return value(); }

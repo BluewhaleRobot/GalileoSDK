@@ -153,11 +153,11 @@ struct Definition< ::std_msgs::ColorRGBA_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "float32 r\n\
-float32 g\n\
-float32 b\n\
-float32 a\n\
-";
+    return "float32 r\n"
+"float32 g\n"
+"float32 b\n"
+"float32 a\n"
+;
   }
 
   static const char* value(const ::std_msgs::ColorRGBA_<ContainerAllocator>&) { return value(); }

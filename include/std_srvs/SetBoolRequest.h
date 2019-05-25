@@ -138,8 +138,8 @@ struct Definition< ::std_srvs::SetBoolRequest_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "bool data\n\
-";
+    return "bool data\n"
+;
   }
 
   static const char* value(const ::std_srvs::SetBoolRequest_<ContainerAllocator>&) { return value(); }

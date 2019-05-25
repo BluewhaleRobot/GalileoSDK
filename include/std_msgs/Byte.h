@@ -138,8 +138,8 @@ struct Definition< ::std_msgs::Byte_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "byte data\n\
-";
+    return "byte data\n"
+;
   }
 
   static const char* value(const ::std_msgs::Byte_<ContainerAllocator>&) { return value(); }
