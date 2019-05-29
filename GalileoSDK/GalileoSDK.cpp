@@ -750,7 +750,7 @@ namespace GalileoSDK
 	{
 		if (currentServer == NULL || currentStatus == NULL)
 			return GALILEO_RETURN_CODE::NOT_CONNECTED;
-		if (currentStatus->mapStatus != 0)
+		if (currentStatus->mapStatus != 0 || currentStatus->navStatus != 0)
 		{
 			return GALILEO_RETURN_CODE::INVALIDE_STATE;
 		}
@@ -786,7 +786,7 @@ namespace GalileoSDK
 	{
 		if (currentServer == NULL || currentStatus == NULL)
 			return GALILEO_RETURN_CODE::NOT_CONNECTED;
-		if (currentStatus->mapStatus != 1)
+		if (currentStatus->mapStatus != 0 || currentStatus->navStatus != 0)
 		{
 			return GALILEO_RETURN_CODE::INVALIDE_STATE;
 		}
