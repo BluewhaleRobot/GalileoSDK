@@ -791,7 +791,7 @@ namespace GalileoSDK
 			return GALILEO_RETURN_CODE::INVALIDE_STATE;
 		}
 		uint8_t cmd[] = { 'V', 3 };
-		return SendCMD(cmd, 3);
+		return SendCMD(cmd, 2);
 	}
 
 	GALILEO_RETURN_CODE GalileoSDK::StartChargeLocal()
