@@ -28,6 +28,7 @@
 #include "mutils.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/sinks/rotating_file_sink.h"
 #ifdef __ANDROID__
 #include "spdlog/sinks/android_sink.h"
 #endif
@@ -94,6 +95,7 @@ class DLL_PUBLIC GalileoSDK
 	GALILEO_RETURN_CODE SendRawAudio(const uint8_t audio[], int length);
 	GALILEO_RETURN_CODE EnableGreeting(bool flag);
     bool CheckServerOnline(std::string targetid);
+    int64_t GetStatusUpdateStamp();
     void Dispose();
     ~GalileoSDK();
     static std::shared_ptr<spdlog::logger> logger;
@@ -126,6 +128,7 @@ class DLL_PUBLIC GalileoSDK
     int timeout;
     IOTClient* iotclient;
     std::string password;
+    int64_t statusUpdateStamp;
 };
 
 // export c functions

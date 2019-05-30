@@ -19,20 +19,20 @@ namespace GalileoSDK
 	std::shared_ptr<spdlog::logger> GalileoSDK::logger = NULL;
 
 	GalileoSDK::GalileoSDK()
-		:nh(NULL), currentServer(NULL), currentStatus(NULL), OnDisconnect(NULL), OnConnect(NULL), CurrentStatusCallback(NULL), GoalReachedCallback(NULL), connectingTaskFlag(false), iotclient(NULL)
+		:nh(NULL), currentServer(NULL), currentStatus(NULL), OnDisconnect(NULL), OnConnect(NULL), CurrentStatusCallback(NULL), GoalReachedCallback(NULL), connectingTaskFlag(false), iotclient(NULL), statusUpdateStamp(0)
 	{
 		auto_connect = false;
 		timeout = 10000;
 		if(logger == NULL){
 			#if defined(__ANDROID__)
 			Utils::mkdirs("/sdcard/galileosdk");
-			auto file_logger = std::make_shared<spdlog::sinks::basic_file_sink_mt>("/sdcard/galileosdk/sdk.log", true);
+			auto file_logger = std::make_shared<spdlog::sinks::rotating_file_sink_mt>("/sdcard/galileosdk/sdk.log", 1048576 * 5, 3, false);
 			auto android_logger = std::make_shared<spdlog::sinks::android_sink_mt>("galileo_sdk_logcat", "galileo_sdk");
 			spdlog::sinks_init_list sinks = { file_logger , android_logger };
 			logger = std::make_shared<spdlog::logger>("galileo_logger", sinks);
 			#else
 			Utils::mkdirs("logs");
-			auto file_logger = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/galileo-sdk.log", true);
+			auto file_logger = std::make_shared<spdlog::sinks::rotating_file_sink_mt>("logs/galileo-sdk.log", 1048576 * 5, 3, false);
 			spdlog::sinks_init_list sinks = { file_logger };
 			logger = std::make_shared<spdlog::logger>("galileo_logger", sinks);
 			#endif
@@ -254,7 +254,6 @@ namespace GalileoSDK
 		galileoStatusSub = nh->subscribe("/galileo/status", 0,
 			&GalileoSDK::UpdateGalileoStatus, this);
 		new std::thread(&GalileoSDK::SpinThread, this);
-		broadcastReceiver->AddSDK(this);
 		// 等待回调更新状态，保证连接可靠
 		int timecount = 0;
 		while (timecount < timeout)
@@ -271,7 +270,7 @@ namespace GalileoSDK
 			Dispose();
 			return GALILEO_RETURN_CODE::TIMEOUT;
 		}
-
+		broadcastReceiver->AddSDK(this);
 		return GALILEO_RETURN_CODE::OK;
 	}
 
@@ -427,6 +426,7 @@ namespace GalileoSDK
 		const galileo_serial_server::GalileoStatusConstPtr & status)
 	{
 		std::unique_lock<std::mutex> lock(statusLock);
+		statusUpdateStamp = Utils::GetCurrentTimestamp();
 		if (currentStatus != NULL && currentStatus->targetStatus != 0 &&
 			status->targetStatus == 0)
 		{
@@ -976,6 +976,10 @@ namespace GalileoSDK
 		}
 	}
 
+	int64_t GalileoSDK::GetStatusUpdateStamp(){
+		return statusUpdateStamp;
+	}
+
 	// Implementation of class ServerInfo
 	// ////////////////////////////////
 
@@ -1242,7 +1246,9 @@ namespace GalileoSDK
 			}
 			catch (const std::exception & e)
 			{
-				std::cout << e.what() << std::endl;
+				if(GalileoSDK::logger != NULL){
+					GalileoSDK::logger->info("broadcast exception: {0}", e.what());
+				}
 			}
 
 			std::vector<ServerInfo> originServers = std::vector<ServerInfo>(serverList);
@@ -1250,9 +1256,12 @@ namespace GalileoSDK
 			std::unique_lock<std::recursive_mutex> lock(instance->serversLock);
 			for (auto it = originServers.begin(); it < originServers.end(); it++)
 			{
-				if (Utils::GetCurrentTimestamp() - it->getTimestamp() > 10 * 1000)
+				if (Utils::GetCurrentTimestamp() - it->getTimestamp() > 5 * 1000)
 				{
-					std::cout << "Server: " << it->getID() << " offline" << std::endl;
+					if(GalileoSDK::logger != NULL){
+						GalileoSDK::logger->info("Server: {0} offline", it->getID());
+					}
+					serverList.erase(std::remove(serverList.begin(), serverList.end(), *it), serverList.end());
 					for (auto sdk = sdks.begin(); sdk != sdks.end(); sdk++) {
 						// 设置服务器下线回调
 						if((*sdk)->GetCurrentServer() == NULL){
@@ -1260,9 +1269,34 @@ namespace GalileoSDK
 						}
 						if ((*sdk)->GetCurrentServer()->getID() != it->getID())
 							continue;
-						serverList.erase(std::remove(serverList.begin(), serverList.end(), *it), serverList.end());
 						(*sdk)->broadcastOfflineCallback(it->getID());
 					}
+				}
+			}
+			std::set<ServerInfo*> offlineServers;
+			for(auto sdk = sdks.begin(); sdk != sdks.end(); sdk ++){
+				// 检查最后获取状态和当前的时间
+				auto currentServer = (*sdk)->GetCurrentServer();
+				if(currentServer == NULL){
+					continue;
+				}
+				if(Utils::GetCurrentTimestamp() -  (*sdk)->GetStatusUpdateStamp() > 5 * 1000){
+					offlineServers.insert(currentServer);
+				}
+			}
+			for(auto it = offlineServers.begin(); it != offlineServers.end(); it ++){
+				if(GalileoSDK::logger != NULL){
+					GalileoSDK::logger->info("Server: {0} offline", (*it)->getID());
+				}
+				serverList.erase(std::remove(serverList.begin(), serverList.end(), **it), serverList.end());
+				for (auto sdk = sdks.begin(); sdk != sdks.end(); sdk++) {
+					// 设置服务器下线回调
+					if((*sdk)->GetCurrentServer() == NULL){
+						continue;
+					}
+					if ((*sdk)->GetCurrentServer()->getID() != (*it)->getID())
+						continue;
+					(*sdk)->broadcastOfflineCallback((*it)->getID());
 				}
 			}
 
