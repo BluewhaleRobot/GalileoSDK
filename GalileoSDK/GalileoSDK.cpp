@@ -75,6 +75,9 @@ namespace GalileoSDK
 		{
 			return GALILEO_RETURN_CODE::ALREADY_CONNECTED;
 		}
+
+		statusUpdateStamp = Utils::GetCurrentTimestamp();
+
 		if (OnDisconnect != NULL)
 		{
 			this->OnDisconnect = OnDisconnect;
@@ -90,9 +93,12 @@ namespace GalileoSDK
 			this->OnConnect = OnConnect;
 			new std::thread([&]() -> void {
 				auto sdk = GetInstance();
-				if (sdk->connectingTaskFlag)
+				if (sdk->IsConnecting())
 					return;
-				sdk->connectingTaskFlag = true;
+				{
+					std::unique_lock<std::mutex> lock(connectFlagLock);
+					sdk->connectingTaskFlag = true;
+				}
 				if (sdk->targetID.empty() && sdk->auto_connect)
 				{
 					int timecount = 0;
@@ -113,13 +119,19 @@ namespace GalileoSDK
 					if (servers.size() == 0 && sdk->OnConnect != NULL)
 					{
 						sdk->OnConnect(GALILEO_RETURN_CODE::NO_SERVER_FOUND, "");
-						sdk->connectingTaskFlag = false;
+						{
+							std::unique_lock<std::mutex> lock(connectFlagLock);
+							sdk->connectingTaskFlag = false;
+						}
 						return;
 					}
 					if (servers.size() > 1)
 					{
 						sdk->OnConnect(GALILEO_RETURN_CODE::MULTI_SERVER_FOUND, "");
-						sdk->connectingTaskFlag = false;
+						{
+							std::unique_lock<std::mutex> lock(connectFlagLock);
+							sdk->connectingTaskFlag = false;
+						}
 						return;
 					}
 				}
@@ -147,7 +159,10 @@ namespace GalileoSDK
 					if (sdk->currentServer == NULL && sdk->OnConnect != NULL)
 					{
 						sdk->OnConnect(GALILEO_RETURN_CODE::NO_SERVER_FOUND, sdk->targetID);
-						sdk->connectingTaskFlag = false;
+						{
+							std::unique_lock<std::mutex> lock(connectFlagLock);
+							sdk->connectingTaskFlag = false;
+						}
 						return;
 					}
 				}
@@ -158,8 +173,14 @@ namespace GalileoSDK
 					{
 						sdk->OnConnect(res, targetid);
 					}
+					if (res != GALILEO_RETURN_CODE::OK) {
+						sdk->Dispose();
+					}	
 				}
-				sdk->connectingTaskFlag = false;
+				{
+					std::unique_lock<std::mutex> lock(connectFlagLock);
+					sdk->connectingTaskFlag = false;
+				}
 				return;
 			});
 			return GALILEO_RETURN_CODE::OK;
@@ -267,7 +288,6 @@ namespace GalileoSDK
 			timecount += 100;
 		}
 		if (timecount >= timeout) {
-			Dispose();
 			return GALILEO_RETURN_CODE::TIMEOUT;
 		}
 		broadcastReceiver->AddSDK(this);
@@ -287,6 +307,11 @@ namespace GalileoSDK
 			new std::thread([&]() {
 				auto res = ConnectIOT(this->targetID, this->timeout, this->password);
 				this->OnConnect(res, this->targetID);
+				if (res != GALILEO_RETURN_CODE::OK) {
+					Dispose();
+					return;
+				}
+
 				iotclient->SetOnDisonnectCB([&](GALILEO_RETURN_CODE status, std::string id) {
 					if (this->OnDisconnect != NULL) {
 						this->OnDisconnect(status, this->targetID);
@@ -393,7 +418,6 @@ namespace GalileoSDK
 			timecount += 100;
 		}
 		if (timecount >= timeout) {
-			Dispose();
 			return GALILEO_RETURN_CODE::TIMEOUT;
 		}
 
@@ -402,7 +426,8 @@ namespace GalileoSDK
 
 	void GalileoSDK::Dispose() {
 		// 释放资源
-		if (currentServer != NULL && CheckServerOnline(currentServer->getID()) && nh->ok()) {
+		if (currentServer != NULL && nh != NULL && CheckServerOnline(currentServer->getID()) && nh->ok()) {
+			galileoStatusSub.shutdown();
 			nh->shutdown();
 			ros::shutdown();
 		}
@@ -980,6 +1005,11 @@ namespace GalileoSDK
 		return statusUpdateStamp;
 	}
 
+	bool GalileoSDK::IsConnecting() {
+		std::unique_lock<std::mutex> lock(connectFlagLock);
+		return connectingTaskFlag;
+	}
+
 	// Implementation of class ServerInfo
 	// ////////////////////////////////
 
@@ -1280,7 +1310,11 @@ namespace GalileoSDK
 				if(currentServer == NULL){
 					continue;
 				}
-				if(Utils::GetCurrentTimestamp() -  (*sdk)->GetStatusUpdateStamp() > 5 * 1000){
+				if ((*sdk)->IsConnecting()) {
+					continue;
+				}
+					
+				if(Utils::GetCurrentTimestamp() -  (*sdk)->GetStatusUpdateStamp() > 10 * 1000){
 					offlineServers.insert(currentServer);
 				}
 			}

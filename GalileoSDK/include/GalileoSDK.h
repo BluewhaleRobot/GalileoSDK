@@ -96,6 +96,7 @@ class DLL_PUBLIC GalileoSDK
 	GALILEO_RETURN_CODE EnableGreeting(bool flag);
     bool CheckServerOnline(std::string targetid);
     int64_t GetStatusUpdateStamp();
+	bool IsConnecting();
     void Dispose();
     ~GalileoSDK();
     static std::shared_ptr<spdlog::logger> logger;
@@ -115,6 +116,7 @@ class DLL_PUBLIC GalileoSDK
     galileo_serial_server::GalileoStatusConstPtr currentStatus;
     std::mutex statusLock;
     std::mutex serverLock;
+	std::mutex connectFlagLock;
     void SpinThread();
     std::function<void(GALILEO_RETURN_CODE, std::string)> OnDisconnect;
     std::function<void(GALILEO_RETURN_CODE, std::string)> OnConnect;
