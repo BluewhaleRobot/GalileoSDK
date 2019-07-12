@@ -273,7 +273,7 @@ namespace GalileoSDK
 		speedPub = nh->advertise<geometry_msgs::Twist>("/cmd_vel", 10);
 		audioRawPub = nh->advertise<audio_common_msgs::AudioData>("/xiaoqiang_audio/audio", 10);
 		galileoStatusSub = nh->subscribe("/galileo/status", 0,
-			&GalileoSDK::UpdateGalileoStatus, this);
+			&GalileoSDK::UpdateGalileoStatus, this, ros::TransportHints().unreliable().maxDatagramSize(1000).reliable().tcpNoDelay());
 		new std::thread(&GalileoSDK::SpinThread, this);
 		// 等待回调更新状态，保证连接可靠
 		int timecount = 0;
