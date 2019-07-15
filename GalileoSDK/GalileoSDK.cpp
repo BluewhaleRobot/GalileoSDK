@@ -19,7 +19,7 @@ namespace GalileoSDK
 	std::shared_ptr<spdlog::logger> GalileoSDK::logger = NULL;
 
 	GalileoSDK::GalileoSDK()
-		:nh(NULL), currentServer(NULL), currentStatus(NULL), OnDisconnect(NULL), OnConnect(NULL), CurrentStatusCallback(NULL), GoalReachedCallback(NULL), connectingTaskFlag(false), iotclient(NULL), statusUpdateStamp(0)
+		:nh(NULL), currentServer(NULL), currentStatus(NULL), OnDisconnect(NULL), OnConnect(NULL), CurrentStatusCallback(NULL), GoalReachedCallback(NULL), connectingTaskFlag(false), iotclient(NULL), statusUpdateStamp(0), retryCount(0), keepConnectionFlag(0), keepConnectionRunningFlag(false)
 	{
 		auto_connect = false;
 		timeout = 10000;
@@ -31,9 +31,16 @@ namespace GalileoSDK
 			spdlog::sinks_init_list sinks = { file_logger , android_logger };
 			logger = std::make_shared<spdlog::logger>("galileo_logger", sinks);
 			#else
+				#ifdef _DEBUG
+			auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+				#endif
 			Utils::mkdirs("logs");
 			auto file_logger = std::make_shared<spdlog::sinks::rotating_file_sink_mt>("logs/galileo-sdk.log", 1048576 * 5, 3, false);
+				#ifdef _DEBUG
+			spdlog::sinks_init_list sinks = { file_logger, console_sink };
+				#else
 			spdlog::sinks_init_list sinks = { file_logger };
+				#endif
 			logger = std::make_shared<spdlog::logger>("galileo_logger", sinks);
 			#endif
 			logger->set_level(spdlog::level::trace);
@@ -92,18 +99,17 @@ namespace GalileoSDK
 		{
 			this->OnConnect = OnConnect;
 			new std::thread([&]() -> void {
-				auto sdk = GetInstance();
-				if (sdk->IsConnecting())
+				if (IsConnecting())
 					return;
 				{
 					std::unique_lock<std::mutex> lock(connectFlagLock);
-					sdk->connectingTaskFlag = true;
+					connectingTaskFlag = true;
 				}
-				if (sdk->targetID.empty() && sdk->auto_connect)
+				if (this->targetID.empty() && this->auto_connect)
 				{
 					int timecount = 0;
 					std::vector<ServerInfo> servers;
-					while (timecount < sdk->timeout)
+					while (timecount < this->timeout)
 					{
 						servers = BroadcastReceiver::GetServers();
 						if (servers.size() > 0)
@@ -113,42 +119,42 @@ namespace GalileoSDK
 					}
 					if (servers.size() == 1)
 					{
-						sdk->currentServer = new ServerInfo();
-						*(sdk->currentServer) = servers.at(0);
+						currentServer = new ServerInfo();
+						*(currentServer) = servers.at(0);
 					}
-					if (servers.size() == 0 && sdk->OnConnect != NULL)
+					if (servers.size() == 0 && this->OnConnect != NULL)
 					{
-						sdk->OnConnect(GALILEO_RETURN_CODE::NO_SERVER_FOUND, "");
+						this->OnConnect(GALILEO_RETURN_CODE::NO_SERVER_FOUND, "");
 						{
 							std::unique_lock<std::mutex> lock(connectFlagLock);
-							sdk->connectingTaskFlag = false;
+							connectingTaskFlag = false;
 						}
 						return;
 					}
 					if (servers.size() > 1)
 					{
-						sdk->OnConnect(GALILEO_RETURN_CODE::MULTI_SERVER_FOUND, "");
+						this->OnConnect(GALILEO_RETURN_CODE::MULTI_SERVER_FOUND, "");
 						{
 							std::unique_lock<std::mutex> lock(connectFlagLock);
-							sdk->connectingTaskFlag = false;
+							connectingTaskFlag = false;
 						}
 						return;
 					}
 				}
-				if (!sdk->targetID.empty())
+				if (!this->targetID.empty())
 				{
 					int timecount = 0;
 					std::vector<ServerInfo> servers;
 					bool foundServerFlag = false;
-					while (timecount < sdk->timeout && !foundServerFlag)
+					while (timecount < this->timeout && !foundServerFlag)
 					{
 						servers = BroadcastReceiver::GetServers();
 						for (auto it = servers.begin(); it < servers.end(); it++)
 						{
-							if (it->getID() == sdk->targetID)
+							if (it->getID() == this->targetID)
 							{
-								sdk->currentServer = new ServerInfo();
-								*(sdk->currentServer) = *it;
+								currentServer = new ServerInfo();
+								*(currentServer) = *it;
 								foundServerFlag = true;
 								break;
 							}
@@ -156,30 +162,29 @@ namespace GalileoSDK
 						Sleep(100);
 						timecount += 100;
 					}
-					if (sdk->currentServer == NULL && sdk->OnConnect != NULL)
+					if (currentServer == NULL && this->OnConnect != NULL)
 					{
-						sdk->OnConnect(GALILEO_RETURN_CODE::NO_SERVER_FOUND, sdk->targetID);
+						this->OnConnect(GALILEO_RETURN_CODE::NO_SERVER_FOUND, this->targetID);
 						{
 							std::unique_lock<std::mutex> lock(connectFlagLock);
-							sdk->connectingTaskFlag = false;
+							connectingTaskFlag = false;
 						}
 						return;
 					}
 				}
-				if (sdk->currentServer != NULL) {
-					std::string targetid = sdk->currentServer->getID();
-					GALILEO_RETURN_CODE res = sdk->Connect(*(sdk->currentServer));
-					if (sdk->OnConnect != NULL)
+				if (currentServer != NULL) {
+					GALILEO_RETURN_CODE res = Connect(*(currentServer));
+					if (this->OnConnect != NULL)
 					{
-						sdk->OnConnect(res, targetid);
+						this->OnConnect(res, this->targetID);
 					}
 					if (res != GALILEO_RETURN_CODE::OK) {
-						sdk->Dispose();
+						Dispose();
 					}	
 				}
 				{
 					std::unique_lock<std::mutex> lock(connectFlagLock);
-					sdk->connectingTaskFlag = false;
+					connectingTaskFlag = false;
 				}
 				return;
 			});
@@ -424,6 +429,100 @@ namespace GalileoSDK
 		return GALILEO_RETURN_CODE::OK;
 	}
 
+	void GalileoSDK::Disconnect() {
+		keepConnectionFlag = false;
+		Dispose();
+		OnDisconnect = NULL;
+		OnConnect = NULL;
+		CurrentStatusCallback = NULL;
+		GoalReachedCallback = NULL;
+		targetID = "";
+	}
+
+	GALILEO_RETURN_CODE GalileoSDK::KeepConnection(bool flag, int maxRery) {
+		if (flag && !keepConnectionRunningFlag) {
+			keepConnectionFlag = true;
+			keepConnectionRunningFlag = true;
+			logger->info("Keep Connection thread start");
+			maxRetryCount = maxRery;
+			new std::thread([&]()->void {
+				logger->info("Keep Connection thread started");
+				logger->info("retryCount: {0}", retryCount);
+				logger->info("maxRery: {0}", maxRetryCount);
+				while (keepConnectionFlag && retryCount < maxRetryCount)
+				{
+					if (currentServer == NULL && !targetID.empty() && !IsConnecting()) {
+						Dispose();
+						{
+							std::unique_lock<std::mutex> lock(connectFlagLock);
+							connectingTaskFlag = true; // 避免下线影响
+						}
+						logger->info("Get target server info {0}", targetID);
+						retryCount += 1;
+						int timecount = 0;
+						std::vector<ServerInfo> servers;
+						bool foundServerFlag = false;
+						while (timecount < timeout && !foundServerFlag)
+						{
+							servers = BroadcastReceiver::GetServers();
+							for (auto it = servers.begin(); it < servers.end(); it++)
+							{
+								if (it->getID() == targetID)
+								{
+									currentServer = new ServerInfo();
+									*(currentServer) = *it;
+									foundServerFlag = true;
+									logger->info("find target server");
+									break;
+								}
+							}
+							Sleep(100);
+							timecount += 100;
+						}
+						if (currentServer == NULL) {
+							logger->warn("Cannot find target server {0}", targetID);
+							{
+								std::unique_lock<std::mutex> lock(connectFlagLock);
+								connectingTaskFlag = false; // 避免下线影响
+							}
+							continue;
+						}
+						logger->info("Start reconnect server: {0}", currentServer->getID());
+						auto res = Connect(*currentServer);
+						logger->info("Connect result {0}", res);
+						if(OnConnect != NULL)
+							OnConnect(res, targetID);
+						if (res == OK || res == ALREADY_CONNECTED)
+							retryCount = 0;
+						else{
+							Dispose();
+						}
+						{
+							std::unique_lock<std::mutex> lock(connectFlagLock);
+							connectingTaskFlag = false; // 避免下线影响
+						}
+					}
+					Sleep(1000);
+				}
+				if (keepConnectionFlag && OnDisconnect != NULL)
+					OnDisconnect(GALILEO_RETURN_CODE::TIMEOUT, targetID);
+				keepConnectionRunningFlag = false;
+				logger->info("Keep Connection thread stopped");
+			});
+			return GALILEO_RETURN_CODE::OK;
+		}
+		if (flag && keepConnectionRunningFlag) {
+			return GALILEO_RETURN_CODE::INVALIDE_STATE;
+		}
+		if (!flag)
+			keepConnectionFlag = false;
+		return GALILEO_RETURN_CODE::OK;
+	}
+
+	int GalileoSDK::GetRetryCount() {
+		return retryCount;
+	}
+
 	void GalileoSDK::Dispose() {
 		// 释放资源
 		if (currentServer != NULL && nh != NULL && CheckServerOnline(currentServer->getID()) && nh->ok()) {
@@ -439,11 +538,6 @@ namespace GalileoSDK
 			delete currentServer;
 			currentServer = NULL;
 		}
-		OnDisconnect = NULL;
-		OnConnect = NULL;
-		CurrentStatusCallback = NULL;
-		GoalReachedCallback = NULL;
-		targetID = "";
 		currentStatus = NULL;
 	}
 

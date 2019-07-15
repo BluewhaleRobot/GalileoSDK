@@ -29,6 +29,7 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/rotating_file_sink.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 #ifdef __ANDROID__
 #include "spdlog/sinks/android_sink.h"
 #endif
@@ -55,6 +56,9 @@ class DLL_PUBLIC GalileoSDK
         std::function<void(GALILEO_RETURN_CODE, std::string)>OnDisconnectCB);
     GALILEO_RETURN_CODE
     ConnectIOT(std::string targetID, int timeout, std::string password);
+	void Disconnect();
+	GALILEO_RETURN_CODE KeepConnection(bool flag, int maxRetry=20);
+	int GetRetryCount();
     std::vector<ServerInfo> GetServersOnline();
     GALILEO_RETURN_CODE PublishTest();
     ServerInfo *GetCurrentServer();
@@ -131,6 +135,10 @@ class DLL_PUBLIC GalileoSDK
     IOTClient* iotclient;
     std::string password;
     int64_t statusUpdateStamp;
+	int retryCount;
+	int keepConnectionFlag;
+	int maxRetryCount;
+	bool keepConnectionRunningFlag;
 };
 
 // export c functions

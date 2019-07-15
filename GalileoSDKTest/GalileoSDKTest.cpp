@@ -777,7 +777,47 @@ void testGreeting() {
 	Sleep(10 * 1000);
 }
 
+void testKeepConnection() {
+	GalileoSDK::GalileoSDK sdk;
+	if (sdk.Connect("8FB56D27D6C961E9036F62182ADE9544D71E23C31E5DF4C7DD692B9E4296A131434B1066D365", true, 3000, NULL, NULL) != GalileoSDK::GALILEO_RETURN_CODE::OK)
+	{
+		std::cout << "Connect to server failed" << std::endl;
+	}
+	sdk.KeepConnection(true, 20);
+	galileo_serial_server::GalileoStatus status;
+	while (true) {
+		auto res = sdk.GetCurrentStatus(&status);
+		if(res == GalileoSDK::OK)
+			std::cout << status.power << std::endl;
+		else
+			std::cout << "Get power faild" << std::endl;
+		Sleep(1000);
+	}
+}
+
+void testKeepConnectionCB() {
+	GalileoSDK::GalileoSDK sdk;
+	if (sdk.Connect("8FB56D27D6C961E9036F62182ADE9544D71E23C31E5DF4C7DD692B9E4296A131434B1066D365", true, 3000, 
+		[](GalileoSDK::GALILEO_RETURN_CODE res, std::string id)->void{
+			std::cout << "OnConnect" << std::endl;
+			std::cout << "res: " << res << std::endl;
+		}, [](GalileoSDK::GALILEO_RETURN_CODE res, std::string id)->void{
+			std::cout << "OnDisconnect" << std::endl;
+			std::cout << "res: " << res << std::endl;
+		}) != GalileoSDK::GALILEO_RETURN_CODE::OK)
+	{
+		std::cout << "Connect to server failed" << std::endl;
+	}
+	sdk.KeepConnection(true, 20);
+	sdk.SetCurrentStatusCallback([](GalileoSDK::GALILEO_RETURN_CODE res, galileo_serial_server::GalileoStatus status)->void {
+		std::cout << status.power << std::endl;
+	});
+	while (true) {
+		Sleep(1000);
+	}
+}
+
 int main()
 {
-	testReconnect();
+	testKeepConnectionCB();
 }
