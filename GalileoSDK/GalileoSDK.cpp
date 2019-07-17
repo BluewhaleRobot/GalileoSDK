@@ -526,9 +526,7 @@ namespace GalileoSDK
 	void GalileoSDK::Dispose() {
 		// 释放资源
 		if (currentServer != NULL && nh != NULL && CheckServerOnline(currentServer->getID()) && nh->ok()) {
-			galileoStatusSub.shutdown();
 			nh->shutdown();
-			ros::shutdown();
 		}
 		if (nh != NULL) {
 			delete nh;

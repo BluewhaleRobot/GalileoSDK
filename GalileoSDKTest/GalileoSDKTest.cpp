@@ -819,5 +819,5 @@ void testKeepConnectionCB() {
 
 int main()
 {
-	testKeepConnectionCB();
+	testKeepConnection();
 }
