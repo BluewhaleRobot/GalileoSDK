@@ -41,6 +41,7 @@
 #include <boost/thread/mutex.hpp>
 #include "ros/io.h"
 #include <ros/common.h>
+#include <ros/network.h>
 
 namespace ros
 {

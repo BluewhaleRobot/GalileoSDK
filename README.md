@@ -22,30 +22,62 @@ dll生成在x64文件夹
 ### 在Linux编译
 
 ```bash
-# 安装ROS，请参考ROS wiki自行安装
-# 安装依赖
-sudo apt-get install -y --allow-unauthenticated libjsoncpp-dev ros-kinetic-roscpp
-source /opt/ros/kinetic/setup.bash
-export LIBRARY_PATH=/opt/ros/kinetic/lib/
-# 安装SDK
 git clone https://github.com/bluewhalerobot/GalileoSDK
-cd GalileoSDK
+# 安装 cmake,cmake 版本需要3.14以上，如果版本不够需要更新
+wget -q https://github.com/Kitware/CMake/releases/download/v3.14.0-rc4/cmake-3.14.0-rc4.tar.gz
+tar -xzf cmake-3.14.0-rc4.tar.gz > /dev/null
+cd cmake-3.14.0-rc4/
+env CC=$(which clang) CXX=$(which clang++) ./bootstrap --prefix=/usr --parallel=4
+make
+sudo make install
+which cmake
+cmake --version
+cd ..
+# 安装ROS依赖包
+mkdir -p amd64/src
+cd amd64/src
+git clone https://github.com/ros/catkin --depth=1
+git clone https://github.com/ros/common_msgs --depth=1
+git clone https://github.com/ros/gencpp --depth=1
+git clone https://github.com/jsk-ros-pkg/geneus --depth=1
+git clone https://github.com/ros/genlisp --depth=1
+git clone https://github.com/ros/genmsg --depth=1
+git clone https://github.com/RethinkRobotics-opensource/gennodejs --depth=1
+git clone https://github.com/ros/genpy --depth=1
+git clone https://github.com/ros/message_generation --depth=1
+git clone https://github.com/ros/message_runtime --depth=1
+git clone https://github.com/BluewhaleRobot/ros_comm --depth=1
+git clone https://github.com/ros/ros_comm_msgs --depth=1
+git clone https://github.com/BluewhaleRobot/rosconsole --depth=1
+git clone https://github.com/BluewhaleRobot/roscpp_core --depth=1
+git clone https://github.com/ros/std_msgs --depth=1
+sudo apt-get install -yqq --allow-unauthenticated python-catkin-pkg python-catkin-tools > /dev/null
+cd ..
+./src/catkin/bin/catkin_make -DCATKIN_WHITELIST_PACKAGES="" -DBUILD_SHARED_LIBS=OFF -DBoost_USE_STATIC_LIBS=ON -DBoost_LIB_PREFIX=lib -DCATKIN_ENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
+source ./devel/setup.bash
+cd ../GalileoSDK
+# 安装SDK
 cd IotWrapper
 mkdir build
 cd build
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 make
 cd ../../iot
 mkdir build
 cd build
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 make
 cd ../../GalileoSDK
 mkdir build
 cd build
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 make -j
 sudo make install
+cd ../../GalileoSDKTest
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make -j
 ```
 
 ## 使用

@@ -16,17 +16,19 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <netdb.h> 
+#include <netdb.h>
 #endif
-namespace GalileoSDK {
-    class HttpConnection
-    {
-    public:
-        HttpConnection();
-        std::string postData(std::string host, std::string path, std::string post_content, int port);
-        std::string getData(std::string host, std::string path, std::string get_content, int port);
-    private:
-        std::string socketHttp(std::string host, std::string request, int port);
-    };
-}
+namespace GalileoSDK
+{
+class HttpConnection
+{
+public:
+    HttpConnection();
+    std::string postData(std::string host, std::string path, std::string post_content, int port);
+    std::string getData(std::string host, std::string path, std::string get_content, int port);
+
+private:
+    std::string socketHttp(std::string host, std::string request, int port);
+};
+} // namespace GalileoSDK
 #endif // !__HTTP_CONNECTION_H__

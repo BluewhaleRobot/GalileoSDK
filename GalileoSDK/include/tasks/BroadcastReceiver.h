@@ -20,9 +20,11 @@
 #include <mutex>
 #include <regex>
 
-namespace GalileoSDK {
+namespace GalileoSDK
+{
 class GalileoSDK;
-class BroadcastReceiver {
+class BroadcastReceiver
+{
 public:
   BroadcastReceiver();
   static void StopAll();

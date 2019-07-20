@@ -10,7 +10,6 @@ matrix:
       script:
         - export PATH=$MSBUILD_PATH:$PATH
         - travis_wait MSBuild.exe GalileoSDK.sln //p:configuration=release //p:platform=x64
-        - travis_wait MSBuild.exe GalileoSDK.sln //p:configuration=debug //p:platform=x64
       before_deploy:
         # copy include dirs
         - mkdir -p deploy/GalileoSDK/include/GalileoSDK
@@ -18,9 +17,7 @@ matrix:
         - cp -r include/* deploy/GalileoSDK/include/
         # copy dll
         - mkdir -p deploy/GalileoSDK/lib/Release
-        - cp x64/Release/GalileoSDK.* deploy/GalileoSDK/lib/Release/ 
-        - mkdir -p deploy/GalileoSDK/lib/Debug
-        - cp x64/Debug/GalileoSDK.* deploy/GalileoSDK/lib/Debug/
+        - cp x64/Release/GalileoSDK.* deploy/GalileoSDK/lib/Release/
         - cd deploy
         - tar -czf GalileoSDK-win-${TRAVIS_TAG}.tar.gz GalileoSDK
         - cd ..
@@ -79,28 +76,28 @@ matrix:
         - git clone https://github.com/ros/std_msgs --depth=1
         - travis_wait 20 sudo apt-get install -yqq --allow-unauthenticated python-catkin-pkg python-catkin-tools > /dev/null
         - cd ..
-        - ./src/catkin/bin/catkin_make -DCATKIN_WHITELIST_PACKAGES="" -DBUILD_SHARED_LIBS=OFF -DBoost_USE_STATIC_LIBS=ON -DBoost_LIB_PREFIX=lib -DCATKIN_ENABLE_TESTING=OFF | awk "(NR%50)==0{print;}"
+        - ./src/catkin/bin/catkin_make -DCATKIN_WHITELIST_PACKAGES="" -DBUILD_SHARED_LIBS=OFF -DBoost_USE_STATIC_LIBS=ON -DBoost_LIB_PREFIX=lib -DCATKIN_ENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=Release | awk "(NR%50)==0{print;}"
         - source ./devel/setup.bash
         - cd ../GalileoSDK
         # build galileo sdk
         - cd IotWrapper
         - mkdir build
         - cd build
-        - cmake ..
+        - cmake -DCMAKE_BUILD_TYPE=Release ..
         - make
         - cd ../../iot
         - mkdir build
         - cd build
-        - cmake ..
+        - cmake -DCMAKE_BUILD_TYPE=Release ..
         - make
         - cd ../../GalileoSDK
         - mkdir build
         - cd build
-        - cmake ..
+        - cmake -DCMAKE_BUILD_TYPE=Release ..
         - make -j
         - sudo make install
         - cd ../../GalileoSDKTest
         - mkdir build
         - cd build
-        - cmake ..
+        - cmake -DCMAKE_BUILD_TYPE=Release ..
         - make -j

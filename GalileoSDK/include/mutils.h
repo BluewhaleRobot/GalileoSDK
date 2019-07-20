@@ -34,7 +34,7 @@ namespace GalileoSDK
 {
 class Utils
 {
-  public:
+public:
 #ifdef _WIN32
     static __int64 GetCurrentTimestamp()
     {
@@ -72,12 +72,13 @@ class Utils
                     pAdapter = pAdapter->Next;
                     continue;
                 }
-				std::string ip = std::string(pAdapter->IpAddressList.IpAddress.String);
-				if (ip.find("0.") == 0) {
-					pAdapter = pAdapter->Next;
-					continue;
-				}
-				
+                std::string ip = std::string(pAdapter->IpAddressList.IpAddress.String);
+                if (ip.find("0.") == 0)
+                {
+                    pAdapter = pAdapter->Next;
+                    continue;
+                }
+
                 myIPs.push_back(pAdapter->IpAddressList.IpAddress.String);
                 pAdapter = pAdapter->Next;
             }
@@ -168,10 +169,11 @@ class Utils
                 std::string ifname(ifa->ifa_name);
                 if (ifname.find("lo") == 0 || ifname.find("docker") == 0 || ifname.find("virtual") == 0)
                     continue;
-				std::string ip = std::string(addressBuffer);
-				if (ip.find("0.") == 0) {
-					continue;
-				}
+                std::string ip = std::string(addressBuffer);
+                if (ip.find("0.") == 0)
+                {
+                    continue;
+                }
                 ips.push_back(addressBuffer);
             }
         }
@@ -200,7 +202,7 @@ class Utils
                 std::string ifname(ifa->ifa_name);
                 if (ifname.find("lo") == 0 || ifname.find("docker") == 0 || ifname.find("virtual") == 0)
                     continue;
-                struct sockaddr_ll *s = (struct sockaddr_ll*)ifa->ifa_addr;
+                struct sockaddr_ll *s = (struct sockaddr_ll *)ifa->ifa_addr;
 
                 std::stringstream mac_ss;
                 for (int i = 0; i < 6; i++)
@@ -255,9 +257,10 @@ class Utils
     static std::string GetCurrentWorkingDir(void)
     {
         char buff[FILENAME_MAX];
-		if (GetCurrentDir(buff, FILENAME_MAX) != 0) {
-			return "";
-		}
+        if (GetCurrentDir(buff, FILENAME_MAX) != 0)
+        {
+            return "";
+        }
         std::string current_working_dir(buff);
         return current_working_dir;
     }
@@ -323,7 +326,8 @@ class Utils
         return status;
     }
 
-    static void mkdirs(std::string path){
+    static void mkdirs(std::string path)
+    {
         boost::filesystem::path dir(path.c_str());
         boost::filesystem::create_directories(dir);
     }
