@@ -503,16 +503,6 @@ GALILEO_RETURN_CODE GalileoSDK::KeepConnection(bool flag, int maxRery)
 								OnConnect(GALILEO_RETURN_CODE::NO_SERVER_FOUND, targetID);
 							continue;
 						}
-						logger->info("Start reconnect server: {0}", currentServer->getID());
-						auto res = Connect(*currentServer);
-						logger->info("Connect result {0}", res);
-						if(OnConnect != NULL)
-							OnConnect(res, targetID);
-						if (res == OK || res == ALREADY_CONNECTED)
-							retryCount = 0;
-						else{
-							Dispose();
-						}
 						Sleep(100);
 						timecount += 100;
 					}
