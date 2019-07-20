@@ -513,6 +513,8 @@ GALILEO_RETURN_CODE GalileoSDK::KeepConnection(bool flag, int maxRery)
 							std::unique_lock<std::mutex> lock(connectFlagLock);
 							connectingTaskFlag = false; // 避免下线影响
 						}
+						if(OnConnect != NULL)
+							OnConnect(GALILEO_RETURN_CODE::NO_SERVER_FOUND, targetID);
 						continue;
 					}
 					logger->info("Start reconnect server: {0}", currentServer->getID());
