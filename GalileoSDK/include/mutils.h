@@ -9,7 +9,6 @@
 #pragma comment(lib, "IPHLPAPI.lib")
 #else
 #include <sys/types.h>
-#include <ifaddrs.h>
 #include <netinet/in.h>
 #include <string.h>
 #include <arpa/inet.h>
@@ -28,7 +27,11 @@
 
 #if defined(__ANDROID__) && __ANDROID_API__ < 24
 #include "ifaddrs1.h"
-#endif /* __ANDROID_API__ < 24 */
+/* __ANDROID_API__ < 24 */
+#elif !defined(_WIN32)
+#include <ifaddrs.h>
+/* __ANDROID_API__ > 24 or Linux*/
+#endif 
 
 namespace GalileoSDK
 {
@@ -160,7 +163,7 @@ public:
             {
                 continue;
             }
-            if (ifa->ifa_addr->sa_family == AF_INET)
+            if (ifa->ifa_addr && ifa->ifa_addr->sa_family == AF_INET)
             { // check it is IP4
                 // is a valid IP4 Address
                 tmpAddrPtr = &((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;

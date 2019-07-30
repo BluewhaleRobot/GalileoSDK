@@ -837,5 +837,5 @@ void testKeepConnectionCB()
 
 int main()
 {
-	testIOTSetSpeed();
+	testKeepConnectionCB();
 }

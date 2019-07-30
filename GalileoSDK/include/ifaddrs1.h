@@ -22,10 +22,20 @@
  *
  *	BSDI ifaddrs.h,v 2.5 2000/02/23 14:51:59 dab Exp
  */
+
 #ifndef _IFADDRS_1_H_
 #define _IFADDRS_1_H_
 
-#include <ifaddrs.h>
+struct ifaddrs
+{
+    struct ifaddrs *ifa_next;
+    char *ifa_name;
+    unsigned int ifa_flags;
+    struct sockaddr *ifa_addr;
+    struct sockaddr *ifa_netmask;
+    struct sockaddr *ifa_dstaddr;
+    void *ifa_data;
+};
 
 /*
  * This may have been defined in <net/if.h>.  Note that if <net/if.h> is

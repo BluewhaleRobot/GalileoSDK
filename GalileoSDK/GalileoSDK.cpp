@@ -499,9 +499,6 @@ GALILEO_RETURN_CODE GalileoSDK::KeepConnection(bool flag, int maxRery)
 								logger->info("find target server");
 								break;
 							}
-							if(OnConnect != NULL)
-								OnConnect(GALILEO_RETURN_CODE::NO_SERVER_FOUND, targetID);
-							continue;
 						}
 						Sleep(100);
 						timecount += 100;
