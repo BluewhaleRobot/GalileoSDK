@@ -813,7 +813,7 @@ void testKeepConnection()
 void testKeepConnectionCB()
 {
     GalileoSDK::GalileoSDK sdk;
-    if (sdk.Connect("8FB56D27D6C961E9036F62182ADE9544D71E23C31E5DF4C7DD692B9E4296A131434B1066D365", true, 3000,
+    if (sdk.Connect("F9DF41E6CA1C41CD8ECB510C3EF84A4472191922695EBA5A7514D459FC919608A2EF4FB50622", true, 3000,
                     [](GalileoSDK::GALILEO_RETURN_CODE res, std::string id) -> void {
                         std::cout << "OnConnect" << std::endl;
                         std::cout << "res: " << res << std::endl;
@@ -837,5 +837,6 @@ void testKeepConnectionCB()
 
 int main()
 {
-	testKeepConnectionCB();
+	GalileoSDK::GalileoSDK sdk;
+	sdk.GetCurrentServer();
 }

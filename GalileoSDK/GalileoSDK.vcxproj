@@ -172,6 +172,7 @@
     <ClCompile Include="GalileoSDK.cpp" />
     <ClCompile Include="HttpConnection.cpp" />
     <ClCompile Include="iot.cpp" />
+    <ClCompile Include="mutils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\iot\iot.vcxproj">

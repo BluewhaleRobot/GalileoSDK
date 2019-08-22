@@ -42,6 +42,7 @@ add_library(GalileoSDK
    ${PROJECT_SOURCE_DIR}/GalileoSDK.cpp
    ${PROJECT_SOURCE_DIR}/HttpConnection.cpp
    ${PROJECT_SOURCE_DIR}/iot.cpp
+   ${PROJECT_SOURCE_DIR}/mutils.cpp
    ${PROJECT_SOURCE_DIR}/ifaddrs1.c
 )
 else()
@@ -49,6 +50,7 @@ add_library(GalileoSDK
    ${PROJECT_SOURCE_DIR}/GalileoSDK.cpp
    ${PROJECT_SOURCE_DIR}/HttpConnection.cpp
    ${PROJECT_SOURCE_DIR}/iot.cpp
+   ${PROJECT_SOURCE_DIR}/mutils.cpp
 )
 endif()
 

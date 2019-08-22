@@ -15,9 +15,12 @@ matrix:
         - mkdir -p deploy/GalileoSDK/include/GalileoSDK
         - cp -r GalileoSDK/include/* deploy/GalileoSDK/include/GalileoSDK/
         - cp -r include/* deploy/GalileoSDK/include/
+        - cp -r iot/*.h deploy/GalileoSDK/include/
+        - cp -r IotWrapper/*.h deploy/GalileoSDK/include/
         # copy dll
         - mkdir -p deploy/GalileoSDK/lib/Release
-        - cp x64/Release/GalileoSDK.* deploy/GalileoSDK/lib/Release/
+        - cp x64/Release/GalileoSDK.dll deploy/GalileoSDK/lib/Release/
+        - cp x64/Release/GalileoSDK.lib deploy/GalileoSDK/lib/Release/
         - cd deploy
         - tar -czf GalileoSDK-win-${TRAVIS_TAG}.tar.gz GalileoSDK
         - cd ..
