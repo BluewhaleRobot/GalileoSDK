@@ -3,22 +3,24 @@
 #define __BROADCAST_RECEIVER_H__
 
 #include <vector>
+#include <mutex>
+#include <iostream>
+#include <regex>
 #ifdef _WIN32
 #include <winsock2.h>
+#include <Ws2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
+#else
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #endif
 #define BUFLEN 512 * 1024
 #define BROADCAST_PORT 22002
 #include "../mutils.h"
-#ifdef _WIN32
-#include <Ws2tcpip.h>
-#endif
 #include "../models/ServerInfo.h"
 #include "ros/ros.h"
-#include <iostream>
 #include "../json.hpp"
-#include <mutex>
-#include <regex>
+
 
 namespace GalileoSDK
 {
