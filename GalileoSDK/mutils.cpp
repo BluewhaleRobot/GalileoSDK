@@ -1,4 +1,5 @@
 #include "mutils.h"
+#include <boost/filesystem.hpp>
 #ifdef _WIN32
 #include <direct.h>
 #define GetCurrentDir _getcwd

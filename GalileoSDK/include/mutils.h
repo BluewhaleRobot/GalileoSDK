@@ -7,7 +7,6 @@
 #include <random>
 #include <sstream>
 #include <iostream>
-#include <boost/filesystem.hpp>
 #include "json.hpp"
 #include "galileo_serial_server/GalileoStatus.h"
 
