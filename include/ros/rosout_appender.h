@@ -35,8 +35,9 @@
 #ifndef ROSCPP_ROSOUT_APPENDER_H
 #define ROSCPP_ROSOUT_APPENDER_H
 
+#include <ros/common.h>
+#include <ros/internal_condition_variable.h>
 #include <ros/message_forward.h>
-#include "common.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
@@ -73,7 +74,7 @@ protected:
   typedef std::vector<rosgraph_msgs::LogPtr> V_Log;
   V_Log log_queue_;
   boost::mutex queue_mutex_;
-  boost::condition_variable queue_condition_;
+  roscpp::internal::condition_variable queue_condition_;
   bool shutting_down_;
   bool disable_topics_;
 

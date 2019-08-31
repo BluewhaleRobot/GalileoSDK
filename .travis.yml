@@ -10,6 +10,7 @@ matrix:
       script:
         - export PATH=$MSBUILD_PATH:$PATH
         - travis_wait MSBuild.exe GalileoSDK.sln //p:configuration=release //p:platform=x64
+        - travis_wait MSBuild.exe GalileoSDK.sln //p:configuration=debug //p:platform=x64
       before_deploy:
         # copy include dirs
         - mkdir -p deploy/GalileoSDK/include/GalileoSDK
@@ -21,6 +22,9 @@ matrix:
         - mkdir -p deploy/GalileoSDK/lib/Release
         - cp x64/Release/GalileoSDK.dll deploy/GalileoSDK/lib/Release/
         - cp x64/Release/GalileoSDK.lib deploy/GalileoSDK/lib/Release/
+        - mkdir -p deploy/GalileoSDK/lib/Debug
+        - cp x64/Debug/GalileoSDK.dll deploy/GalileoSDK/lib/Debug/
+        - cp x64/Debug/GalileoSDK.lib deploy/GalileoSDK/lib/Debug/
         - cd deploy
         - tar -czf GalileoSDK-win-${TRAVIS_TAG}.tar.gz GalileoSDK
         - cd ..

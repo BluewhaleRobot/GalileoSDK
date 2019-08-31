@@ -26,7 +26,7 @@ namespace detail {
 struct field_table
 {
     using array_type =
-        std::array<string_view, 352>;
+        std::array<string_view, 353>;
 
     struct hash
     {
@@ -51,7 +51,7 @@ struct field_table
         {
             auto p1 = lhs.data();
             auto p2 = rhs.data();
-            auto pend = lhs.end();
+            auto pend = p1 + lhs.size();
             char a, b;
             while(p1 < pend)
             {
@@ -104,6 +104,7 @@ struct field_table
             "Access-Control-Allow-Headers",
             "Access-Control-Allow-Methods",
             "Access-Control-Allow-Origin",
+            "Access-Control-Expose-Headers",
             "Access-Control-Max-Age",
             "Access-Control-Request-Headers",
             "Access-Control-Request-Method",

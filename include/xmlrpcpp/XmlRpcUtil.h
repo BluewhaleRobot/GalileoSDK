@@ -14,7 +14,9 @@
 #include "xmlrpcpp/XmlRpcDecl.h"
 
 #if defined(_MSC_VER)
+#if defined(_MSC_VER) && _MSC_VER < 1500
 # define snprintf	    _snprintf_s
+#endif
 # define vsnprintf    _vsnprintf_s
 # define strcasecmp	  _stricmp
 # define strncasecmp	_strnicmp
