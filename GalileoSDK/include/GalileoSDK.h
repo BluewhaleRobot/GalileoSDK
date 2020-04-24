@@ -43,7 +43,7 @@ namespace GalileoSDK
 	class DLL_PUBLIC GalileoSDK
 	{
 	public:
-		GalileoSDK();
+		GalileoSDK(std::string logPath="");
 		GALILEO_RETURN_CODE
 			Connect(std::string targetID, bool auto_connect, int timeout,
 				std::function<void(GALILEO_RETURN_CODE, std::string)> OnConnect,

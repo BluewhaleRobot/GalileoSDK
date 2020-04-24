@@ -18,36 +18,60 @@ std::vector<GalileoSDK *> GalileoSDK::instances;
 BroadcastReceiver *GalileoSDK::broadcastReceiver = NULL;
 std::shared_ptr<spdlog::logger> GalileoSDK::logger = NULL;
 
-GalileoSDK::GalileoSDK()
+GalileoSDK::GalileoSDK(std::string logPath)
 	: nh(NULL), currentServer(NULL), currentStatus(NULL), OnDisconnect(NULL), OnConnect(NULL), CurrentStatusCallback(NULL), GoalReachedCallback(NULL), connectingTaskFlag(false), iotclient(NULL), statusUpdateStamp(0), retryCount(0), keepConnectionFlag(0), keepConnectionRunningFlag(false)
 {
 	auto_connect = false;
 	timeout = 10000;
+
 	if (logger == NULL)
 	{
-#if defined(__ANDROID__)
-		Utils::mkdirs("/sdcard/galileosdk");
-		auto file_logger = std::make_shared<spdlog::sinks::rotating_file_sink_mt>("/sdcard/galileosdk/sdk.log", 1048576 * 5, 3, false);
-		auto android_logger = std::make_shared<spdlog::sinks::android_sink_mt>("galileo_sdk_logcat", "galileo_sdk");
-		spdlog::sinks_init_list sinks = {file_logger, android_logger};
-		logger = std::make_shared<spdlog::logger>("galileo_logger", sinks);
-#else
-#ifdef _DEBUG
-		auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-#endif
-		Utils::mkdirs("logs");
-		auto file_logger = std::make_shared<spdlog::sinks::rotating_file_sink_mt>("logs/galileo-sdk.log", 1048576 * 5, 3, false);
-#ifdef _DEBUG
-		spdlog::sinks_init_list sinks = {file_logger, console_sink};
-#else
-		spdlog::sinks_init_list sinks = {file_logger};
-#endif
-		logger = std::make_shared<spdlog::logger>("galileo_logger", sinks);
-#endif
-		logger->set_level(spdlog::level::trace);
-		logger->set_pattern("[%H:%M:%S %z] [%n] [%^---%L---%$] [thread %t] %v");
-		logger->flush_on(spdlog::level::trace);
-		spdlog::set_default_logger(logger);
+		if( logPath != "")
+		{
+	#if defined(__ANDROID__)
+			auto file_logger = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(logPath, 1048576 * 5, 3, false);
+			auto android_logger = std::make_shared<spdlog::sinks::android_sink_mt>("galileo_sdk_logcat", "galileo_sdk");
+			spdlog::sinks_init_list sinks = {file_logger, android_logger};
+			logger = std::make_shared<spdlog::logger>("galileo_logger", sinks);
+	#else
+	#ifdef _DEBUG
+			auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+	#endif
+			auto file_logger = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(logPath, 1048576 * 5, 3, false);
+	#ifdef _DEBUG
+			spdlog::sinks_init_list sinks = {file_logger, console_sink};
+	#else
+			spdlog::sinks_init_list sinks = {file_logger};
+	#endif
+			logger = std::make_shared<spdlog::logger>("galileo_logger", sinks);
+	#endif
+			logger->set_level(spdlog::level::trace);
+			logger->set_pattern("[%H:%M:%S %z] [%n] [%^---%L---%$] [thread %t] %v");
+			logger->flush_on(spdlog::level::trace);
+			spdlog::set_default_logger(logger);
+		}else{
+	#if defined(__ANDROID__)
+			auto android_logger = std::make_shared<spdlog::sinks::android_sink_mt>("galileo_sdk_logcat", "galileo_sdk");
+			spdlog::sinks_init_list sinks = {android_logger};
+			logger = std::make_shared<spdlog::logger>("galileo_logger", sinks);
+	#else
+	#ifdef _DEBUG
+			auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+	#endif
+			Utils::mkdirs("logs");
+			auto file_logger = std::make_shared<spdlog::sinks::rotating_file_sink_mt>("logs/galileo_sdk.log", 1048576 * 5, 3, false);
+	#ifdef _DEBUG
+			spdlog::sinks_init_list sinks = {file_logger, console_sink};
+	#else
+			spdlog::sinks_init_list sinks = {file_logger};
+	#endif
+			logger = std::make_shared<spdlog::logger>("galileo_logger", sinks);
+	#endif
+			logger->set_level(spdlog::level::trace);
+			logger->set_pattern("[%H:%M:%S %z] [%n] [%^---%L---%$] [thread %t] %v");
+			logger->flush_on(spdlog::level::trace);
+			spdlog::set_default_logger(logger);
+		}
 	}
 	if (broadcastReceiver == NULL)
 	{
@@ -56,6 +80,7 @@ GalileoSDK::GalileoSDK()
 	}
 	instances.push_back(this);
 	logger->info("Galileo SDK started");
+	logger->info("logPath: " + logPath);
 }
 
 ServerInfo *GalileoSDK::GetCurrentServer()
