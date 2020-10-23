@@ -19,7 +19,7 @@ namespace GalileoSDK
 {
 
 IOTClient::IOTClient(std::string productID, std::string deviceName, std::string deviceSecret)
-    : OnConnectCB(NULL), OnDisconnecCB(NULL), callbackIndex(0), productID(productID), deviceName(deviceName), deviceSecret(deviceSecret), runningFlag(false), exitFlag(true), connectedFlag(false)
+    : OnConnectCB(NULL), OnDisconnecCB(NULL), callbackIndex(0), productID(productID), deviceName(deviceName), deviceSecret(deviceSecret), runningFlag(false), connectedFlag(false)
 {
     pclient = NULL;
     int res = 0;
@@ -82,7 +82,6 @@ IOTClient::IOTClient(std::string productID, std::string deviceName, std::string 
 
 void IOTClient::LoopThread()
 {
-    exitFlag = false;
     while (runningFlag)
     {
         IOT_MQTT_Yield(pclient, 200);
@@ -97,7 +96,6 @@ void IOTClient::LoopThread()
         }
         connectedFlag = currentStatus;
     }
-    exitFlag = true;
 }
 
 void IOTClient::SetOnConnectCB(std::function<void(GALILEO_RETURN_CODE, std::string)> cb)
@@ -171,10 +169,6 @@ bool IOTClient::IsConnected()
 IOTClient::~IOTClient()
 {
     runningFlag = false;
-    while (!exitFlag)
-    {
-        Sleep(100);
-    }
     IOT_MQTT_Destroy(&pclient);
 }
 

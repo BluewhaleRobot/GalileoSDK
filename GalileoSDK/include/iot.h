@@ -41,7 +41,6 @@ private:
     void LoopThread();
     void *pclient;
     bool runningFlag;
-    bool exitFlag;
     std::string galileoStatusTopic;
     std::string galileoCmdTopic;
     std::string testTopic;

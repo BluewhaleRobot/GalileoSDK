@@ -435,8 +435,9 @@ GalileoSDK::ConnectIOT(std::string targetID, int timeout, std::string password)
 			{"password", password}};
 		std::string res = client.postData("iot.bwbot.org", "/api/connection", connect_req_json.dump(4), 80);
 		nlohmann::json connection_res = nlohmann::json::parse(res);
-		if (connection_res.is_null())
+		if (connection_res.is_null()) {
 			return GALILEO_RETURN_CODE::NETWORK_ERROR;
+		}
 		if (connection_res["robotID"] == targetID && connection_res["controllerID"] == sdk_id)
 		{
 			// create connection succeed
@@ -451,6 +452,7 @@ GalileoSDK::ConnectIOT(std::string targetID, int timeout, std::string password)
 	catch (std::exception e)
 	{
 		std::cout << e.what() << std::endl;
+		logger->info("iotclient {0}", e.what());
 		return GALILEO_RETURN_CODE::NETWORK_ERROR;
 	}
 
@@ -483,6 +485,10 @@ void GalileoSDK::Disconnect()
 	CurrentStatusCallback = NULL;
 	GoalReachedCallback = NULL;
 	targetID = "";
+	if (iotclient != NULL) {
+		delete iotclient;
+		iotclient = NULL;
+	}
 }
 
 GALILEO_RETURN_CODE GalileoSDK::KeepConnection(bool flag, int maxRery)
@@ -1850,6 +1856,9 @@ GALILEO_RETURN_CODE __stdcall GetCurrentStatus(void *instance, uint8_t *status_j
 	if (res == GALILEO_RETURN_CODE::OK)
 	{
 		rootValue = Utils::statusToJson(status);
+	}
+	else {
+		return res;
 	}
 	auto serversStr = rootValue.dump(4);
 	memcpy(status_json, serversStr.data(), serversStr.size());
