@@ -835,8 +835,168 @@ void testKeepConnectionCB()
     }
 }
 
+void testGalileoBridge() {
+    GalileoSDK::GalileoSDK sdk;
+    auto status = sdk.Connect("D79ACE1AB869896A4D70FA051FF7B30916191FD61304B7D6B7AC93A1252A3E4066580344C46E", true, 10000, NULL, NULL);
+    if (status != GalileoSDK::GALILEO_RETURN_CODE::OK)
+    {
+        std::cout << "connect to server failed" << std::endl;
+        std::cout << "status: " << status<< std::endl;
+        return;
+    }
+    GalileoSDK::HttpBridgeResponse res;
+    status = sdk.SendGalileoBridgeRequest("get", "/api/v1/system/status", "", res, 10);
+    if (status != GalileoSDK::GALILEO_RETURN_CODE::OK)
+    {
+        std::cout << "send http get req to server failed" << std::endl;
+        std::cout << "status: " << status << std::endl;
+        return;
+    }
+    if (res.status_code != 200)
+    {
+        std::cout << "get system status failed" << std::endl;
+    }
+    std::cout << "system status: " << res.body << std::endl;
+    std::cout << "status code: " << res.status_code << std::endl;
+
+    status = sdk.SendGalileoBridgeRequest("post", "/api/v1/system/io",
+        nlohmann::json{
+            {"port", "1"},
+            {"level", "1"}
+        }.dump(4), res, 10);
+
+    if (status != GalileoSDK::GALILEO_RETURN_CODE::OK)
+    {
+        std::cout << "send http post req to server failed" << std::endl;
+        std::cout << "status: " << status << std::endl;
+        return;
+    }
+    if (res.status_code != 200)
+    {
+        std::cout << "set io status failed" << std::endl;
+    }
+    std::cout << "io status: " << res.body << std::endl;
+    std::cout << "status code: " << res.status_code << std::endl;
+
+    status = sdk.SendGalileoBridgeRequest("put", "/api/v1/system/speed",
+        nlohmann::json{
+            {"speed_x", 0.1},
+            {"speed_y", 0.1},
+            {"speed_angle", 0.1}
+        }.dump(4), res, 10);
+    
+    if (status != GalileoSDK::GALILEO_RETURN_CODE::OK)
+    {
+        std::cout << "send http put req to server failed" << std::endl;
+        std::cout << "status: " << status << std::endl;
+        return;
+    }
+    if (res.status_code != 200)
+    {
+        std::cout << "set speed status failed" << std::endl;
+    }
+    std::cout << "speed status: " << res.body << std::endl;
+    std::cout << "status code: " << res.status_code << std::endl;
+
+    status = sdk.SendGalileoBridgeRequest("delete", "/api/v1/system/config?key=path_change", "", res, 10);
+
+    if (status != GalileoSDK::GALILEO_RETURN_CODE::OK)
+    {
+        std::cout << "send http delete req to server failed" << std::endl;
+        std::cout << "status: " << status << std::endl;
+        return;
+    }
+    if (res.status_code != 200)
+    {
+        std::cout << "deletel config failed" << std::endl;
+    }
+    std::cout << "delete status: " << res.body << std::endl;
+    std::cout << "status code: " << res.status_code << std::endl;
+}
+
+void testIotGalileoBridge() 
+{
+    GalileoSDK::GalileoSDK sdk;
+    auto status = sdk.ConnectIOT("D79ACE1AB869896A4D70FA051FF7B30916191FD61304B7D6B7AC93A1252A3E4066580344C46E", 30000, "xiaoqiang");
+    if (status != GalileoSDK::GALILEO_RETURN_CODE::OK)
+    {
+        std::cout << "connect to robot failed" << std::endl;
+        std::cout << "status: " << status << std::endl;
+        return;
+    }
+
+    GalileoSDK::HttpBridgeResponse res;
+    status = sdk.SendGalileoBridgeRequest("get", "/api/v1/system/status", "", res, 10 * 1000);
+    if (status != GalileoSDK::GALILEO_RETURN_CODE::OK)
+    {
+        std::cout << "send http get req to server failed" << std::endl;
+        std::cout << "status: " << status << std::endl;
+        return;
+    }
+    if (res.status_code != 200)
+    {
+        std::cout << "get system status failed" << std::endl;
+    }
+    std::cout << "system status: " << res.body << std::endl;
+    std::cout << "status code: " << res.status_code << std::endl;
+
+    status = sdk.SendGalileoBridgeRequest("post", "/api/v1/system/io",
+        nlohmann::json{
+            {"port", "1"},
+            {"level", "1"}
+        }.dump(4), res, 10 * 1000);
+
+    if (status != GalileoSDK::GALILEO_RETURN_CODE::OK)
+    {
+        std::cout << "send http post req to server failed" << std::endl;
+        std::cout << "status: " << status << std::endl;
+        return;
+    }
+    if (res.status_code != 200)
+    {
+        std::cout << "set io status failed" << std::endl;
+    }
+    std::cout << "io status: " << res.body << std::endl;
+    std::cout << "status code: " << res.status_code << std::endl;
+
+    status = sdk.SendGalileoBridgeRequest("put", "/api/v1/system/speed",
+        nlohmann::json{
+            {"speed_x", 0.1},
+            {"speed_y", 0.1},
+            {"speed_angle", 0.1}
+        }.dump(4), res, 10 * 1000);
+
+    if (status != GalileoSDK::GALILEO_RETURN_CODE::OK)
+    {
+        std::cout << "send http put req to server failed" << std::endl;
+        std::cout << "status: " << status << std::endl;
+        return;
+    }
+    if (res.status_code != 200)
+    {
+        std::cout << "set speed status failed" << std::endl;
+    }
+    std::cout << "speed status: " << res.body << std::endl;
+    std::cout << "status code: " << res.status_code << std::endl;
+
+    status = sdk.SendGalileoBridgeRequest("delete", "/api/v1/system/config?key=path_change", "", res, 10 * 1000);
+
+    if (status != GalileoSDK::GALILEO_RETURN_CODE::OK)
+    {
+        std::cout << "send http delete req to server failed" << std::endl;
+        std::cout << "status: " << status << std::endl;
+        return;
+    }
+    if (res.status_code != 200)
+    {
+        std::cout << "delete config failed" << std::endl;
+    }
+    std::cout << "delete status: " << res.body << std::endl;
+    std::cout << "status code: " << res.status_code << std::endl;
+}
+
 int main()
 {
-	GalileoSDK::GalileoSDK sdk;
-	sdk.GetCurrentServer();
+    testIotGalileoBridge();
+    std::cout << "complete" << std::endl;
 }

@@ -53,8 +53,14 @@ std::string HttpConnection::socketHttp(std::string host, std::string request, in
 #endif
         buf[offset] = 0;
         std::string res = std::string(buf);
-        auto find_res = res.find("\r\n\r\n");
-        auto body = res.substr(res.find("\r\n\r\n") + 4, res.size());
+        std::string header_text = res.substr(0, res.find("\r\n\r\n"));
+        std::vector<std::string> headers = Utils::Split(header_text, '\n');
+        for (const auto& header : headers) {
+            std::vector<std::string> header_params = Utils::Split(header, ' ');
+            if (header_params[0].find("HTTP") == 0)
+                status_code = std::stoi(header_params[1]);
+        }
+        std::string body = res.substr(res.find("\r\n\r\n") + 4, res.size());
         free(buf);
         return body;
 }
@@ -84,4 +90,32 @@ std::string HttpConnection::getData(std::string host, std::string path, std::str
         stream << "Connection:close\r\n\r\n";
         return socketHttp(host, stream.str(), port);
 }
+
+std::string HttpConnection::putData(std::string host, std::string path, std::string content, int port = 80)
+{
+        //PUT请求方式
+        std::stringstream stream;
+        stream << "PUT " << path;
+        stream << " HTTP/1.0\r\n";
+        stream << "Host: " << host << "\r\n";
+        stream << "User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN; rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3\r\n";
+        stream << "Content-Type:application/json\r\n";
+        stream << "Content-Length:" << content.length() << "\r\n";
+        stream << "Connection:close\r\n\r\n";
+        stream << content.c_str();
+        return socketHttp(host, stream.str(), port);
+}
+
+std::string HttpConnection::deleteData(std::string host, std::string path, std::string content, int port)
+{
+        //DELETE请求方式
+        std::stringstream stream;
+        stream << "DELETE " << path << "?" << content;
+        stream << " HTTP/1.0\r\n";
+        stream << "Host: " << host << "\r\n";
+        stream << "User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN; rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3\r\n";
+        stream << "Connection:close\r\n\r\n";
+        return socketHttp(host, stream.str(), port);
+}
+
 } // namespace GalileoSDK

@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <mutex>
 #include "galileo_serial_server/GalileoStatus.h"
 #include "dev_sign_api.h"
 #include "mqtt_api.h"
@@ -10,6 +11,7 @@
 #include "json.hpp"
 #include "mutils.h"
 #include "GalileoReturnCode.h"
+#include "HttpBridge.h"
 
 namespace GalileoSDK
 {
@@ -28,6 +30,7 @@ public:
     bool IsConnected();
     void SetOnConnectCB(std::function<void(GALILEO_RETURN_CODE, std::string)> cb);
     void SetOnDisonnectCB(std::function<void(GALILEO_RETURN_CODE, std::string)> cb);
+    bool SendGalileoBridgeRequest(HttpBridgeRequest req, HttpBridgeResponse& response, int timeout);
     ~IOTClient();
 
 private:
@@ -46,6 +49,10 @@ private:
     std::string testTopic;
     std::string audioTopic;
     std::string speedTopic;
+    std::string galileoBridgeRequestTopic;
+    std::string galileoBridgeResponseTopic;
+    std::vector<HttpBridgeResponse> responses;
+    std::mutex response_lock;
     bool connectedFlag;
 };
 } // namespace GalileoSDK

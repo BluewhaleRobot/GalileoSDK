@@ -157,6 +157,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\HttpBridge.h" />
     <ClInclude Include="include\dll.h" />
     <ClInclude Include="include\ifaddrs1.h" />
     <ClInclude Include="include\json.hpp" />

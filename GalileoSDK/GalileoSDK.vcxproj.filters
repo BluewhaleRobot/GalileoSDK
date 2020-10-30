@@ -45,6 +45,9 @@
     <ClInclude Include="include\GalileoReturnCode.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="include\HttpBridge.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GalileoSDK.cpp">

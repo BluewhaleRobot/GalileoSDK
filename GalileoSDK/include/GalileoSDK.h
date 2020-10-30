@@ -24,6 +24,7 @@
 #include "json.hpp"
 #include "iot.h"
 #include "HttpConnection.h"
+#include "HttpBridge.h"
 #include "GalileoReturnCode.h"
 #include "mutils.h"
 #include "spdlog/spdlog.h"
@@ -98,6 +99,8 @@ namespace GalileoSDK
 		GALILEO_RETURN_CODE SendAudio(const char audio[]);
 		GALILEO_RETURN_CODE SendRawAudio(const uint8_t audio[], int length);
 		GALILEO_RETURN_CODE EnableGreeting(bool flag);
+		GALILEO_RETURN_CODE SendGalileoBridgeRequest(std::string method, std::string url, std::string body, HttpBridgeResponse& response, int timeout);
+
 		bool CheckServerOnline(std::string targetid);
 		int64_t GetStatusUpdateStamp();
 		bool IsConnecting();
@@ -200,6 +203,10 @@ namespace GalileoSDK
 		DLL_PUBLIC GALILEO_RETURN_CODE __stdcall EnableGreeting(void* instance, bool flag);
 		DLL_PUBLIC bool __stdcall CheckServerOnline(void* instance, uint8_t* targetID, int64_t length);
 		DLL_PUBLIC bool __stdcall IsConnecting(void* instance);
+		DLL_PUBLIC GALILEO_RETURN_CODE __stdcall SendGalileoBridgeRequest(void* instance, uint8_t* method, int64_t length1,
+			uint8_t* url, int64_t length2,
+			uint8_t* body, int64_t length3,
+			uint8_t* response, int64_t length4, int timeout = 10);
 	}
 
 }; // namespace GalileoSDK

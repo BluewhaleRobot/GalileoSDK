@@ -36,6 +36,7 @@ IOTClient::IOTClient(std::string productID, std::string deviceName, std::string 
     mqtt_params.handle_event.h_fp = [](void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg) {
         // EXAMPLE_TRACE("msg->event_type : %d", msg->event_type);
     };
+    mqtt_params.read_buf_size = 1024 * 1024;
 
     pclient = IOT_MQTT_Construct(&mqtt_params);
     if (NULL == pclient)
@@ -48,7 +49,10 @@ IOTClient::IOTClient(std::string productID, std::string deviceName, std::string 
     testTopic = "/" + productID + "/" + deviceName + "/" + "user/test";
     audioTopic = "/" + productID + "/" + deviceName + "/" + "user/audio";
     speedTopic = "/" + productID + "/" + deviceName + "/" + "user/speed";
+    galileoBridgeRequestTopic = "/" + productID + "/" + deviceName + "/" + "user/galileo_api_bridge/request";
+    galileoBridgeResponseTopic = "/" + productID + "/" + deviceName + "/" + "user/galileo_api_bridge/response";
 
+    // 处理 galileo status
     res = IOT_MQTT_Subscribe(pclient, galileoStatusTopic.c_str(), IOTX_MQTT_QOS0,
                              [](void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg) {
                                  IOTClient *iotclient = (IOTClient *)pcontext;
@@ -76,6 +80,34 @@ IOTClient::IOTClient(std::string productID, std::string deviceName, std::string 
         IOT_MQTT_Destroy(&pclient);
         return;
     }
+
+    // 处理Bridge请求
+    res = IOT_MQTT_Subscribe(pclient, galileoBridgeResponseTopic.c_str(), IOTX_MQTT_QOS0,
+        [](void* pcontext, void* pclient, iotx_mqtt_event_msg_pt msg) {
+            IOTClient* iotclient = (IOTClient*)pcontext;
+            iotx_mqtt_topic_info_t* topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
+            if (msg->event_type == IOTX_MQTT_EVENT_PUBLISH_RECEIVED)
+            {
+                std::string topic(topic_info->ptopic, topic_info->topic_len);
+
+                if (topic == iotclient->galileoBridgeResponseTopic)
+                {
+                    nlohmann::json j = nlohmann::json::parse(std::string(topic_info->payload, topic_info->payload_len));
+                    auto response = HttpBridgeResponse(j);
+                    {
+                        std::unique_lock<std::mutex> lock(iotclient->response_lock);
+                        iotclient->responses.push_back(response);
+                    }
+                }
+            }
+        },
+        (void*)this);
+    if (res < 0)
+    {
+        IOT_MQTT_Destroy(&pclient);
+        return;
+    }
+
     runningFlag = true;
     new std::thread(&IOTClient::LoopThread, this);
 }
@@ -92,7 +124,7 @@ void IOTClient::LoopThread()
         }
         if (connectedFlag == true && currentStatus == false && OnDisconnecCB != NULL)
         {
-            OnConnectCB(GALILEO_RETURN_CODE::NETWORK_ERROR, deviceName);
+            OnDisconnecCB(GALILEO_RETURN_CODE::NETWORK_ERROR, deviceName);
         }
         connectedFlag = currentStatus;
     }
@@ -154,6 +186,34 @@ bool IOTClient::SendSpeedCmd(float vLinear, float vAngle)
     int res = IOT_MQTT_Publish_Simple(0, speedTopic.c_str(), IOTX_MQTT_QOS0,
                                       (void *)(speed_str.c_str()), speed_str.size());
     return res == 0;
+}
+
+bool IOTClient::SendGalileoBridgeRequest(HttpBridgeRequest req, HttpBridgeResponse& response, int timeout=10* 1000)
+{
+    nlohmann::json req_json = req.to_json();
+    std::string req_str = req_json.dump(4);
+    int res = IOT_MQTT_Publish_Simple(0, galileoBridgeRequestTopic.c_str(), IOTX_MQTT_QOS0,
+                                        (void *)(req_str.c_str()), req_str.size());
+    if (res != 0)
+        return false;
+    int timecount = 0;
+    while (timecount < timeout)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        timecount += 10;
+        std::unique_lock<std::mutex> lock(response_lock);
+        for (const auto& res : responses)
+        {
+            if (res.uuid == req.uuid) {
+                response.body = res.body;
+                response.status_code = res.status_code;
+                response.uuid = res.uuid;
+                return true;
+            }
+        }
+    }
+    return false;
+
 }
 
 bool IOTClient::IsRunning()

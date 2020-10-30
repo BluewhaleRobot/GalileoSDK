@@ -7,6 +7,7 @@
 #include <random>
 #include <sstream>
 #include <iostream>
+#include <string>
 #include "json.hpp"
 #include "galileo_serial_server/GalileoStatus.h"
 
@@ -44,6 +45,35 @@ public:
 	static galileo_serial_server::GalileoStatus jsonToStatus(nlohmann::json j);
 
 	static void mkdirs(std::string path);
+
+    static unsigned int RandomChar() {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(0, 255);
+        return dis(gen);
+    }
+
+    static std::string GenHex(const unsigned int len) {
+        std::stringstream ss;
+        for (auto i = 0; i < len; i++) {
+            const auto rc = RandomChar();
+            std::stringstream hexstream;
+            hexstream << std::hex << rc;
+            auto hex = hexstream.str();
+            ss << (hex.length() < 2 ? '0' + hex : hex);
+        }
+        return ss.str();
+    }
+
+    static std::vector<std::string> Split(const std::string& text, char spliter) {
+        std::string tmp;
+        std::vector<std::string> stk;
+        std::stringstream ss(text);
+        while (getline(ss, tmp, spliter)) {
+            stk.push_back(tmp);
+        }
+        return stk;
+    }
 };
 
 } // namespace GalileoSDK

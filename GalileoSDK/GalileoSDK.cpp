@@ -456,8 +456,21 @@ GalileoSDK::ConnectIOT(std::string targetID, int timeout, std::string password)
 		return GALILEO_RETURN_CODE::NETWORK_ERROR;
 	}
 
-	// 等待回调更新状态，保证连接可靠
+	// 等待IoT客户端连接成功
 	int timecount = 0;
+	while (timecount < timeout)
+	{
+		if (iotclient->IsConnected())
+			break;
+		Sleep(100);
+		timecount += 100;
+	}
+	if (timecount >= timeout)
+	{
+		return GALILEO_RETURN_CODE::TIMEOUT;
+	}
+	// 发布消息刺激一下
+	PublishTest();
 	while (timecount < timeout)
 	{
 		{
@@ -472,7 +485,6 @@ GalileoSDK::ConnectIOT(std::string targetID, int timeout, std::string password)
 	{
 		return GALILEO_RETURN_CODE::TIMEOUT;
 	}
-
 	return GALILEO_RETURN_CODE::OK;
 }
 
@@ -666,8 +678,6 @@ GALILEO_RETURN_CODE GalileoSDK::GetCurrentStatus(galileo_serial_server::GalileoS
 
 GALILEO_RETURN_CODE GalileoSDK::PublishTest()
 {
-	if (currentServer == NULL || currentStatus == NULL)
-		return GALILEO_RETURN_CODE::NOT_CONNECTED;
 	if (iotclient != NULL && iotclient->IsConnected())
 	{
 		if (iotclient->SendTestCmd())
@@ -675,6 +685,8 @@ GALILEO_RETURN_CODE GalileoSDK::PublishTest()
 		else
 			return GALILEO_RETURN_CODE::NETWORK_ERROR;
 	}
+	if (currentServer == NULL || currentStatus == NULL)
+		return GALILEO_RETURN_CODE::NOT_CONNECTED;
 	std_msgs::String msg;
 	std::stringstream ss;
 	ss << "Galileo SDK pub test " << Utils::GetCurrentTimestamp();
@@ -1182,6 +1194,46 @@ bool GalileoSDK::IsConnecting()
 {
 	std::unique_lock<std::mutex> lock(connectFlagLock);
 	return connectingTaskFlag;
+}
+
+GALILEO_RETURN_CODE GalileoSDK::SendGalileoBridgeRequest(std::string method, std::string url, std::string body, HttpBridgeResponse& response, int timeout=10* 1000)
+{
+	if (currentServer == NULL || currentStatus == NULL)
+		return GALILEO_RETURN_CODE::NOT_CONNECTED;
+	if (iotclient != NULL && iotclient->IsConnected())
+	{
+		HttpBridgeRequest req(method, url, body);
+		// iot 调用
+		if (iotclient->SendGalileoBridgeRequest(req, response, timeout))
+			return GALILEO_RETURN_CODE::OK;
+		else
+			return GALILEO_RETURN_CODE::NETWORK_ERROR;
+	}
+	else {
+		// 局域网调用
+		std::transform(method.begin(), method.end(), method.begin(), std::tolower);
+		HttpConnection httpConnection;
+		std::string res = "";
+		if (method == "get") 
+		{
+			res = httpConnection.getData(currentServer->getIP(), url, body, 3546);
+		}
+		if (method == "post") {
+			res = httpConnection.postData(currentServer->getIP(), url, body, 3546);
+		}
+		if (method == "put") {
+			res = httpConnection.putData(currentServer->getIP(), url, body, 3546);
+		}
+		if (method == "delete") {
+			res = httpConnection.deleteData(currentServer->getIP(), url, body, 3546);
+		}
+		if (res == "")
+			return GALILEO_RETURN_CODE::NETWORK_ERROR;
+		response.uuid = "";
+		response.status_code = httpConnection.getStatusCode();
+		response.body = res;
+		return GALILEO_RETURN_CODE::OK;
+	}
 }
 
 // Implementation of class ServerInfo
@@ -1926,6 +1978,25 @@ bool __stdcall IsConnecting(void *instance)
 {
 	GalileoSDK *sdk = (GalileoSDK *)instance;
 	return sdk->IsConnecting();
+}
+
+GALILEO_RETURN_CODE __stdcall SendGalileoBridgeRequest(void* instance, uint8_t* method, int64_t length1,
+	uint8_t* url, int64_t length2,
+	uint8_t* body, int64_t length3,
+	uint8_t* response, int64_t length4, int timeout)
+{
+	GalileoSDK* sdk = (GalileoSDK*)instance;
+	std::string method_str(method, method + length1);
+	std::string url_str(url, url + length2);
+	std::string body_str(body, body + length3);
+	HttpBridgeResponse res;
+	auto status = sdk->SendGalileoBridgeRequest(method_str, url_str, body_str, res);
+	if (status != OK)
+		return status;
+	auto res_str = res.to_json().dump(4);
+	memcpy(response, res_str.data(), res_str.size());
+	length4 = res_str.size();
+	return status;
 }
 
 std::string GalileoReturnCodeToString(GALILEO_RETURN_CODE status)
