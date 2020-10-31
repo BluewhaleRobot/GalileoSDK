@@ -1,3 +1,6 @@
+# 项目移动至 [Gitlab](http://git.bwbot.org/publish/GalileoSDK)
+
+
 # GalileoSDK [![Build Status](https://travis-ci.org/BluewhaleRobot/GalileoSDK.svg)](https://travis-ci.org/BluewhaleRobot/GalileoSDK)
 
 Galileo C++ SDK
